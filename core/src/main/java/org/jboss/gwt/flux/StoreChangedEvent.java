@@ -25,10 +25,14 @@ import com.google.web.bindery.event.shared.Event;
 
 /**
  * Event to inform about changes in a {@link org.jboss.gwt.flux.Store}
- * @author Harald Pehl
  */
 public class StoreChangedEvent extends Event<StoreChangedEvent.StoreChangedHandler> {
 
+    @FunctionalInterface
+    public interface StoreChangedHandler {
+
+        void onChange(StoreChangedEvent event);
+    }
     public static final Type TYPE = new Type<StoreChangedHandler>();
 
     @Override
@@ -40,11 +44,5 @@ public class StoreChangedEvent extends Event<StoreChangedEvent.StoreChangedHandl
     @Override
     protected void dispatch(StoreChangedHandler handler) {
         handler.onChange(this);
-    }
-
-    @FunctionalInterface
-    public interface StoreChangedHandler {
-
-        void onChange(StoreChangedEvent event);
     }
 }

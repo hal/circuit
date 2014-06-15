@@ -23,10 +23,6 @@ package org.jboss.gwt.flux.sample.calculator.calculator;
 
 import org.jboss.gwt.flux.Action;
 
-/**
- * Action which isn't handled anywhere in this sample
- * @author Harald Pehl
- */
 public class NoopAction implements Action<Void> {
 
     @Override

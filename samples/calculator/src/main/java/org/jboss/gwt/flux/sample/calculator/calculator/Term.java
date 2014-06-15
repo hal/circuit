@@ -21,9 +21,6 @@
  */
 package org.jboss.gwt.flux.sample.calculator.calculator;
 
-/**
- * @author Harald Pehl
- */
 public class Term {
 
     public enum Op {

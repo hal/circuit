@@ -30,12 +30,14 @@ public interface Dispatcher {
 
     /**
      * Registers a store callback.
+     *
      * @param <P> the actions payload
      */
     <P> void register(Function<Action<P>, Boolean> callback);
 
     /**
      * Calls all registered callbacks.
+     *
      * @param <P> the actions payload
      */
     <P> void dispatch(Action<P> action);

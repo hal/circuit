@@ -23,9 +23,6 @@ package org.jboss.gwt.flux.sample.calculator.calculator;
 
 import org.jboss.gwt.flux.Action;
 
-/**
- * @author Harald Pehl
- */
 public class TermAction implements Action<Term> {
 
     private final Term term;

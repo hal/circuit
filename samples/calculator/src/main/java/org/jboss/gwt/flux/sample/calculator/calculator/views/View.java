@@ -23,8 +23,6 @@ package org.jboss.gwt.flux.sample.calculator.calculator.views;
 
 /**
  * Just a marker interface to label something as 'view'.
- *
- * @author Harald Pehl
  */
 public interface View {
 }

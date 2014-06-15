@@ -29,10 +29,7 @@ import org.jboss.gwt.flux.AbstractStore;
 import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Dispatcher;
 
-/**
- * @author Harald Pehl
- */
-public class CalculatorStore extends AbstractStore{
+public class CalculatorStore extends AbstractStore {
 
     private final Map<Term, Integer> results;
 

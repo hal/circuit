@@ -29,10 +29,14 @@ import org.jboss.gwt.flux.sample.calculator.calculator.views.StatsView;
 import org.jboss.gwt.flux.sample.calculator.calculator.views.TermsView;
 import org.jboss.gwt.flux.sample.calculator.calculator.views.TotalsView;
 
-/**
- * @author Harald Pehl
- */
 public class Calculator {
+
+    public static void main(String[] args) {
+        int numberOfActions = 5 + new Random().nextInt(5);
+        System.out.printf("~=~=~=~=~ Dispatching %d actions\n\n", numberOfActions);
+        new Calculator(numberOfActions).run();
+        System.out.printf("~=~=~=~=~ Finished with %d actions\n", numberOfActions);
+    }
 
     private final int numberOfActions;
     private final Dispatcher dispatcher;
@@ -49,12 +53,5 @@ public class Calculator {
         new TermsView(store);
         new TotalsView(store);
         new InputView(dispatcher, numberOfActions).dispatch();
-    }
-
-    public static void main(String[] args) {
-        int numberOfActions = 5 + new Random().nextInt(5);
-        System.out.printf("~=~=~=~=~ Dispatching %d actions\n\n", numberOfActions);
-        new Calculator(numberOfActions).run();
-        System.out.printf("~=~=~=~=~ Finished with %d actions\n", numberOfActions);
     }
 }

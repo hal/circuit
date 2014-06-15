@@ -28,9 +28,6 @@ import java.util.function.Function;
 import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Dispatcher;
 
-/**
- * @author Harald Pehl
- */
 public class SequentialDispatcher implements Dispatcher {
 
     private final List<Function> callbacks;

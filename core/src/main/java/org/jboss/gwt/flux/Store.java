@@ -40,6 +40,7 @@ public interface Store {
 
     /**
      * Registers a {@link org.jboss.gwt.flux.StoreChangedEvent.StoreChangedHandler}.
+     *
      * @return Use this instance to remove the handler.
      */
     HandlerRegistration addChangedHandler(StoreChangedHandler handler);

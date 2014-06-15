@@ -35,7 +35,9 @@ public abstract class AbstractStore implements Store {
 
     private final EventBus eventBus;
 
-    protected AbstractStore() {eventBus = new SimpleEventBus();}
+    protected AbstractStore() {
+        this.eventBus = new SimpleEventBus();
+    }
 
     @Override
     @SuppressWarnings("unchecked")
