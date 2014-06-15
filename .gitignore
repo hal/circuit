@@ -1,0 +1,20 @@
+*.class
+*.jar
+*.war
+out
+target
+
+# gwt
+.gwt/
+.gwt-tmp/
+gwt-unitCache/
+www-test/
+
+# os / ide
+nb-configuration.xml
+*.iml
+.DS_Store
+.idea
+.settings
+.project
+.classpath
