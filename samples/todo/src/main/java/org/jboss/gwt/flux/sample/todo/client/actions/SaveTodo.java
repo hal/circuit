@@ -19,19 +19,19 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.todo.client;
+package org.jboss.gwt.flux.sample.todo.client.actions;
 
-import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
-import org.jboss.gwt.flux.sample.todo.client.gin.TodoGinjector;
+import org.jboss.gwt.flux.Action;
+import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
-@SuppressWarnings("UnusedDeclaration")
-public class App implements EntryPoint {
+public class SaveTodo implements Action<Todo>, TodoAction {
 
-    private final TodoGinjector injector = GWT.create(TodoGinjector.class);
+    private final Todo todo;
+
+    public SaveTodo(final Todo todo) {this.todo = todo;}
 
     @Override
-    public void onModuleLoad() {
-
+    public Todo getPayload() {
+        return todo;
     }
 }

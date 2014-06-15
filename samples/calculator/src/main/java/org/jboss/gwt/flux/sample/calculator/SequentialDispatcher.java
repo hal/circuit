@@ -41,7 +41,7 @@ public class SequentialDispatcher implements Dispatcher {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> void dispatch(final Action<T> action) {
+    public <P> void dispatch(final Action<P> action) {
         System.out.printf("~-~-~-~-~ Processing %s with payload '%s'\n", action.getClass().getSimpleName(),
                 action.getPayload());
         callbacks.forEach(callback -> callback.execute(action));

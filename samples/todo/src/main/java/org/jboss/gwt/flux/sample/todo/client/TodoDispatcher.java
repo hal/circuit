@@ -21,17 +21,31 @@
  */
 package org.jboss.gwt.flux.sample.todo.client;
 
-import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
-import org.jboss.gwt.flux.sample.todo.client.gin.TodoGinjector;
+import java.util.LinkedList;
+import java.util.List;
 
-@SuppressWarnings("UnusedDeclaration")
-public class App implements EntryPoint {
+import org.jboss.gwt.flux.Action;
+import org.jboss.gwt.flux.Dispatcher;
+import org.jboss.gwt.flux.Store;
 
-    private final TodoGinjector injector = GWT.create(TodoGinjector.class);
+public class TodoDispatcher implements Dispatcher {
+
+    private final List<Store.Callback> callbacks;
+
+    public TodoDispatcher() {
+        this.callbacks = new LinkedList<>();
+    }
 
     @Override
-    public void onModuleLoad() {
+    public <P> void register(final Store.Callback<P> callback) {
+        callbacks.add(callback);
+    }
 
+    @Override
+    @SuppressWarnings("unchecked")
+    public <P> void dispatch(final Action<P> action) {
+        for (Store.Callback callback : callbacks) {
+            callback.execute(action);
+        }
     }
 }

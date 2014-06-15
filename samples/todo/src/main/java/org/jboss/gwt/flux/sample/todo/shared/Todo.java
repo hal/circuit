@@ -21,13 +21,16 @@
  */
 package org.jboss.gwt.flux.sample.todo.shared;
 
-/**
- * @author Harald Pehl
- */
-public class Todo {
+import java.io.Serializable;
+
+public class Todo implements Serializable {
     private final long id;
     private String name;
     private boolean done;
+
+    public Todo() {
+        this("n/a");
+    }
 
     public Todo(final String name) {
         this.id = System.currentTimeMillis();

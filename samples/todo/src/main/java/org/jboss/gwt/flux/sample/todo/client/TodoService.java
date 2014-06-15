@@ -23,11 +23,12 @@ package org.jboss.gwt.flux.sample.todo.client;
 
 import java.util.Collection;
 
+import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
-@RemoteServiceRelativePath("greet")
-public interface TodoService {
+@RemoteServiceRelativePath("todo")
+public interface TodoService extends RemoteService {
 
     Collection<Todo> list();
 
