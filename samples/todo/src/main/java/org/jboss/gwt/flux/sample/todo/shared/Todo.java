@@ -19,29 +19,61 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux;
-
-import com.google.web.bindery.event.shared.Event;
+package org.jboss.gwt.flux.sample.todo.shared;
 
 /**
- * Event to inform about changes in a {@link org.jboss.gwt.flux.Store}
+ * @author Harald Pehl
  */
-public class StoreChangedEvent extends Event<StoreChangedEvent.StoreChangedHandler> {
+public class Todo {
+    private final long id;
+    private String name;
+    private boolean done;
 
-    public interface StoreChangedHandler {
-
-        void onChange(StoreChangedEvent event);
-    }
-    public static final Type TYPE = new Type<StoreChangedHandler>();
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Type<StoreChangedHandler> getAssociatedType() {
-        return TYPE;
+    public Todo(final String name) {
+        this.id = System.currentTimeMillis();
+        this.name = name;
+        this.done = false;
     }
 
     @Override
-    protected void dispatch(StoreChangedHandler handler) {
-        handler.onChange(this);
+    public boolean equals(final Object o) {
+        if (this == o) { return true; }
+        if (!(o instanceof Todo)) { return false; }
+
+        Todo todo = (Todo) o;
+
+        if (id != todo.id) { return false; }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
+    }
+
+    @Override
+    public String toString() {
+        return "Todo[" + name + ", " + done + ']';
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    public boolean isDone() {
+        return done;
+    }
+
+    public void setDone(final boolean done) {
+        this.done = done;
     }
 }

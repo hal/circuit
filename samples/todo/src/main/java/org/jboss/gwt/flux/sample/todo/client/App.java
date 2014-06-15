@@ -19,13 +19,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.calculator.calculator.views;
+package org.jboss.gwt.flux.sample.todo.client;
 
-import org.jboss.gwt.flux.sample.calculator.calculator.CalculatorStore;
+import com.google.gwt.core.client.EntryPoint;
 
-public class TermsView implements View {
+@SuppressWarnings("UnusedDeclaration")
+public class App implements EntryPoint {
 
-    public TermsView(final CalculatorStore store) {
-        store.addChangedHandler(event -> System.out.printf("Number of terms:    %d\n", store.getResults().size()));
+    @Override
+    public void onModuleLoad() {
+
     }
 }

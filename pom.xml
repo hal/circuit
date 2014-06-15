@@ -76,14 +76,8 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
 
-        <!--
-            Build from GWT sources
-            > ant clean dist-dev
-            > maven/push-gwt.sh # using '2.7.0.flux' as version
-            See also http://www.gwtproject.org/makinggwtbetter.html#compiling
-        -->
-        <version.com.google.gwt>2.7.0.flux</version.com.google.gwt>
-        <version.junit>4.11</version.junit>
+        <gwt.version>2.6.1</gwt.version>
+        <junit.version>4.11</junit.version>
     </properties>
 
     <modules>
@@ -101,17 +95,17 @@
             <dependency>
                 <groupId>com.google.gwt</groupId>
                 <artifactId>gwt-dev</artifactId>
-                <version>${version.com.google.gwt}</version>
+                <version>${gwt.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.gwt</groupId>
                 <artifactId>gwt-user</artifactId>
-                <version>${version.com.google.gwt}</version>
+                <version>${gwt.version}</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>${version.junit}</version>
+                <version>${junit.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -122,4 +116,16 @@
             <artifactId>junit</artifactId>
         </dependency>
     </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>gwt-maven-plugin</artifactId>
+                    <version>${gwt.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 </project>

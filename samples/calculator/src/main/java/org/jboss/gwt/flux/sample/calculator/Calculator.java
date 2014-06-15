@@ -19,15 +19,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.calculator.calculator;
+package org.jboss.gwt.flux.sample.calculator;
 
 import java.util.Random;
 
 import org.jboss.gwt.flux.Dispatcher;
-import org.jboss.gwt.flux.sample.calculator.calculator.views.InputView;
-import org.jboss.gwt.flux.sample.calculator.calculator.views.StatsView;
-import org.jboss.gwt.flux.sample.calculator.calculator.views.TermsView;
-import org.jboss.gwt.flux.sample.calculator.calculator.views.TotalsView;
+import org.jboss.gwt.flux.sample.calculator.views.InputView;
+import org.jboss.gwt.flux.sample.calculator.views.StatsView;
+import org.jboss.gwt.flux.sample.calculator.views.TermsView;
+import org.jboss.gwt.flux.sample.calculator.views.TotalsView;
 
 public class Calculator {
 

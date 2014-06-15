@@ -19,24 +19,10 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux;
+package org.jboss.gwt.flux.sample.calculator.views;
 
 /**
- * The dispatcher registers store callbacks and dispatches actions.
+ * Just a marker interface to label something as 'view'.
  */
-public interface Dispatcher {
-
-    /**
-     * Registers a store callback.
-     *
-     * @param <P> the actions payload
-     */
-    <P> void register(Store.Callback<P> callback);
-
-    /**
-     * Calls all registered callbacks.
-     *
-     * @param <P> the actions payload
-     */
-    <P> void dispatch(Action<P> action);
+public interface View {
 }

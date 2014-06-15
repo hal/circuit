@@ -32,6 +32,17 @@ import com.google.web.bindery.event.shared.HandlerRegistration;
 public interface Store {
 
     /**
+     * A callback used by the {@link org.jboss.gwt.flux.Dispatcher} to pass an {@link org.jboss.gwt.flux.Action} to
+     * the store
+     *
+     * @param <P> the actions payload.
+     */
+    public interface Callback<P> {
+
+        boolean execute(Action<P> action);
+    }
+
+    /**
      * Returns {@code true} if the store can process the action, {@code false} otherwise.
      *
      * @param <P> the actions payload.

@@ -2,6 +2,7 @@ package org.jboss.gwt.flux.sample.calculator.calculator;
 
 import java.util.Random;
 
+import org.jboss.gwt.flux.sample.calculator.Calculator;
 import org.junit.Test;
 
 public class CalculatorTest {

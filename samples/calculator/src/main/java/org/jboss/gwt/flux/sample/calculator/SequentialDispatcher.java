@@ -19,23 +19,23 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.calculator.calculator;
+package org.jboss.gwt.flux.sample.calculator;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Function;
 
 import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Dispatcher;
+import org.jboss.gwt.flux.Store;
 
 public class SequentialDispatcher implements Dispatcher {
 
-    private final List<Function> callbacks;
+    private final List<Store.Callback> callbacks;
 
     public SequentialDispatcher() {callbacks = new LinkedList<>();}
 
     @Override
-    public <P> void register(final Function<Action<P>, Boolean> callback) {
+    public <P> void register(final Store.Callback<P> callback) {
         callbacks.add(callback);
     }
 
@@ -44,7 +44,7 @@ public class SequentialDispatcher implements Dispatcher {
     public <T> void dispatch(final Action<T> action) {
         System.out.printf("~-~-~-~-~ Processing %s with payload '%s'\n", action.getClass().getSimpleName(),
                 action.getPayload());
-        callbacks.forEach(callback -> callback.apply(action));
+        callbacks.forEach(callback -> callback.execute(action));
         System.out.printf("~-~-~-~-~ Finished\n\n");
     }
 }

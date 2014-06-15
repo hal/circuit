@@ -19,16 +19,13 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.calculator.calculator.views;
+package org.jboss.gwt.flux.sample.calculator.views;
 
-import org.jboss.gwt.flux.sample.calculator.calculator.CalculatorStore;
+import org.jboss.gwt.flux.sample.calculator.CalculatorStore;
 
-public class TotalsView implements View {
+public class TermsView implements View {
 
-    public TotalsView(final CalculatorStore store) {
-        store.addChangedHandler(event -> {
-            int sum = store.getResults().values().stream().mapToInt(result -> result).sum();
-            System.out.printf("Sum of all results: %d\n", sum);
-        });
+    public TermsView(final CalculatorStore store) {
+        store.addChangedHandler(event -> System.out.printf("Number of terms:    %d\n", store.getResults().size()));
     }
 }

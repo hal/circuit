@@ -59,10 +59,12 @@
                     <execution>
                         <goals>
                             <goal>compile</goal>
+                            <goal>generateAsync</goal>
                         </goals>
                     </execution>
                 </executions>
                 <configuration>
+                    <sourceLevel>1.7</sourceLevel>
                     <hostedWebapp>${webAppDirectory}</hostedWebapp>
                 </configuration>
             </plugin>

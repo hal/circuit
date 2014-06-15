@@ -19,20 +19,19 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.calculator.calculator;
+package org.jboss.gwt.flux.sample.todo.client;
 
-import org.jboss.gwt.flux.Action;
+import java.util.Collection;
 
-public class TermAction implements Action<Term> {
+import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
+import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
-    private final Term term;
+@RemoteServiceRelativePath("greet")
+public interface TodoService {
 
-    public TermAction(final Term term) {
-        this.term = term;
-    }
+    Collection<Todo> list();
 
-    @Override
-    public Term getPayload() {
-        return term;
-    }
+    void save(Todo todo);
+
+    void delete(Todo todo);
 }

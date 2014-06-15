@@ -19,24 +19,16 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux;
+package org.jboss.gwt.flux.sample.calculator.views;
 
-/**
- * The dispatcher registers store callbacks and dispatches actions.
- */
-public interface Dispatcher {
+import org.jboss.gwt.flux.sample.calculator.CalculatorStore;
 
-    /**
-     * Registers a store callback.
-     *
-     * @param <P> the actions payload
-     */
-    <P> void register(Store.Callback<P> callback);
+public class TotalsView implements View {
 
-    /**
-     * Calls all registered callbacks.
-     *
-     * @param <P> the actions payload
-     */
-    <P> void dispatch(Action<P> action);
+    public TotalsView(final CalculatorStore store) {
+        store.addChangedHandler(event -> {
+            int sum = store.getResults().values().stream().mapToInt(result -> result).sum();
+            System.out.printf("Sum of all results: %d\n", sum);
+        });
+    }
 }

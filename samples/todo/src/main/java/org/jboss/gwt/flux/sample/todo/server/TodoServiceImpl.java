@@ -19,24 +19,42 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux;
+package org.jboss.gwt.flux.sample.todo.server;
 
-/**
- * The dispatcher registers store callbacks and dispatches actions.
- */
-public interface Dispatcher {
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-    /**
-     * Registers a store callback.
-     *
-     * @param <P> the actions payload
-     */
-    <P> void register(Store.Callback<P> callback);
+import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import org.jboss.gwt.flux.sample.todo.client.TodoService;
+import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
-    /**
-     * Calls all registered callbacks.
-     *
-     * @param <P> the actions payload
-     */
-    <P> void dispatch(Action<P> action);
+public class TodoServiceImpl extends RemoteServiceServlet implements TodoService {
+
+    private final Map<Long, Todo> store;
+
+    public TodoServiceImpl() {
+        store = new LinkedHashMap<>();
+    }
+
+    @Override
+    public Collection<Todo> list() {
+        return store.values();
+    }
+
+    @Override
+    public void save(final Todo todo) {
+        Todo existingTodo = store.get(todo.getId());
+        if (existingTodo != null) {
+            existingTodo.setName(todo.getName());
+            existingTodo.setDone(todo.isDone());
+        } else {
+            store.put(todo.getId(), todo);
+        }
+    }
+
+    @Override
+    public void delete(final Todo todo) {
+        store.remove(todo.getId());
+    }
 }
