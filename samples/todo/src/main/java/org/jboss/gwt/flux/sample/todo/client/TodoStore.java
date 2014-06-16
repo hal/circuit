@@ -76,7 +76,7 @@ public class TodoStore extends AbstractStore {
                             }
                         };
 
-                        t.schedule(Random.nextInt( 5 ) + 1);
+                        t.schedule((Random.nextInt( 3 ) + 1)*1000);
                     }
                 });
     }
