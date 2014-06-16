@@ -31,12 +31,17 @@ public interface Dispatcher {
      *
      * @param <P> the actions payload
      */
-    <P> void register(Store.Callback<P> callback);
+    <P> void register(Store.Callback callback);
 
     /**
      * Calls all registered callbacks.
      *
      * @param <P> the actions payload
      */
-    <P> void dispatch(Action<P> action);
+    <P> void dispatch(Action action);
+
+    interface Context {
+        void yield();
+    }
+
 }

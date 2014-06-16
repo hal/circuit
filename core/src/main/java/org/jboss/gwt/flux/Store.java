@@ -37,17 +37,11 @@ public interface Store {
      *
      * @param <P> the actions payload.
      */
-    public interface Callback<P> {
+    public interface Callback<T extends Enum, P> {
 
-        boolean execute(Action<P> action);
+        T[] getTypes();
+        void execute(Action<T, P> action, Dispatcher.Context context);
     }
-
-    /**
-     * Returns {@code true} if the store can process the action, {@code false} otherwise.
-     *
-     * @param <P> the actions payload.
-     */
-    <P> boolean canProcess(Action<P> action);
 
     /**
      * Registers a {@link org.jboss.gwt.flux.StoreChangedEvent.StoreChangedHandler}.
@@ -56,8 +50,5 @@ public interface Store {
      */
     HandlerRegistration addChangedHandler(StoreChangedHandler handler);
 
-    /**
-     * Fires a {@link org.jboss.gwt.flux.StoreChangedEvent} to all registered handlers.
-     */
-    void fireChanged();
+
 }

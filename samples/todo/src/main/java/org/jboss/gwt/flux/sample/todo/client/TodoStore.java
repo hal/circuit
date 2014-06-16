@@ -21,20 +21,21 @@
  */
 package org.jboss.gwt.flux.sample.todo.client;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-
+import com.google.gwt.user.client.Random;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import org.jboss.gwt.flux.AbstractStore;
 import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Dispatcher;
-import org.jboss.gwt.flux.sample.todo.client.actions.DeleteTodo;
-import org.jboss.gwt.flux.sample.todo.client.actions.ListTodos;
-import org.jboss.gwt.flux.sample.todo.client.actions.SaveTodo;
-import org.jboss.gwt.flux.sample.todo.client.actions.TodoAction;
+import org.jboss.gwt.flux.sample.todo.client.actions.TodoActions;
 import org.jboss.gwt.flux.sample.todo.shared.Todo;
+
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.jboss.gwt.flux.sample.todo.client.actions.TodoActions.LIST;
 
 @SuppressWarnings("Convert2Lambda")
 public class TodoStore extends AbstractStore {
@@ -56,47 +57,63 @@ public class TodoStore extends AbstractStore {
         this.todos = new LinkedList<>();
         this.todoService = todoService;
 
-        dispatcher.register(new Callback() {
-            @Override
-            public boolean execute(final Action action) {
-                if (canProcess(action)) {
-                    process((TodoAction) action);
-                    return true;
-                }
-                return false;
-            }
-        });
+        dispatcher.register(
+                new Callback<TodoActions, Todo>() {
+
+                    @Override
+                    public TodoActions[] getTypes() {
+                        return TodoActions.values();
+                    }
+
+                    @Override
+                    public void execute(final Action<TodoActions, Todo> action, final Dispatcher.Context context) {
+
+                        // artifical delay
+                        Timer t = new Timer() {
+                            @Override
+                            public void run() {
+                                process(action.getType(), action.getPayload(), context);
+                            }
+                        };
+
+                        t.schedule((Random.nextInt( 3 ) + 1)*1000);
+                    }
+                });
     }
 
-    @Override
-    public <P> boolean canProcess(final Action<P> action) {
-        return action instanceof TodoAction;
-    }
+    private void process(final TodoActions type, final Todo payload, final Dispatcher.Context context) {
 
-    private void process(final TodoAction action) {
-        if (action instanceof ListTodos) {
-            todoService.list(new TodoCallback<Collection<Todo>>() {
-                @Override
-                public void onSuccess(final Collection<Todo> result) {
-                    todos.clear();
-                    todos.addAll(result);
-                    fireChanged();
-                }
-            });
-        } else if (action instanceof SaveTodo) {
-            todoService.save(((SaveTodo) action).getPayload(), new TodoCallback<Void>() {
-                @Override
-                public void onSuccess(final Void result) {
-                    process(new ListTodos());
-                }
-            });
-        } else if (action instanceof DeleteTodo) {
-            todoService.save(((DeleteTodo) action).getPayload(), new TodoCallback<Void>() {
-                @Override
-                public void onSuccess(final Void result) {
-                    process(new ListTodos());
-                }
-            });
+        switch (type) {
+
+            case LIST:
+                todoService.list(new TodoCallback<Collection<Todo>>() {
+                    @Override
+                    public void onSuccess(final Collection<Todo> result) {
+                        todos.clear();
+                        todos.addAll(result);
+                        context.yield();
+                        fireChanged();
+                    }
+                });
+                break;
+
+            case ADD:
+                todoService.save(payload, new TodoCallback<Void>() {
+                    @Override
+                    public void onSuccess(final Void result) {
+                        process(LIST, null, context);
+                    }
+                });
+                break;
+            case REMOVE:
+                todoService.delete(payload, new TodoCallback<Void>() {
+                    @Override
+                    public void onSuccess(final Void result) {
+                        process(LIST, null, context);
+                    }
+                });
+                break;
+
         }
     }
 

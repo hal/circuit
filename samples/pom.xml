@@ -38,7 +38,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>calculator</module>
+        <!--module>calculator</module-->
         <module>todo</module>
     </modules>
 

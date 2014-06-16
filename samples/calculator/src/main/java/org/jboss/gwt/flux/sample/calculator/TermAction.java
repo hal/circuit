@@ -35,4 +35,9 @@ public class TermAction implements Action<Term> {
     public Term getPayload() {
         return term;
     }
+
+    @Override
+    public Class<?> getType() {
+        return TermAction.class;
+    }
 }

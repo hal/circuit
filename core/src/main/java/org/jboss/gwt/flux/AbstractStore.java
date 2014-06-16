@@ -45,8 +45,8 @@ public abstract class AbstractStore implements Store {
         return eventBus.addHandler(StoreChangedEvent.TYPE, handler);
     }
 
-    @Override
-    public void fireChanged() {
+    protected void fireChanged() {
         eventBus.fireEvent(new StoreChangedEvent());
     }
+
 }

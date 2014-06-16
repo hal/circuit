@@ -21,31 +21,73 @@
  */
 package org.jboss.gwt.flux.sample.todo.client;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.Store;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Stack;
+
 public class TodoDispatcher implements Dispatcher {
 
-    private final List<Store.Callback> callbacks;
+    private final Map<Enum[],Store.Callback> callbacks;
+    private Stack<Action> queue;
+
+    private boolean locked;
 
     public TodoDispatcher() {
-        this.callbacks = new LinkedList<>();
+        this.callbacks = new HashMap<>();
+        this.queue = new Stack<>();
     }
 
     @Override
-    public <P> void register(final Store.Callback<P> callback) {
-        callbacks.add(callback);
+    public <P> void register(Store.Callback callback) {
+
+        callbacks.put(callback.getTypes(), callback);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <P> void dispatch(final Action<P> action) {
-        for (Store.Callback callback : callbacks) {
-            callback.execute(action);
+    public <P> void dispatch(final Action action) {
+
+        System.out.println(">> Queue size "+ queue.size());
+
+        if(locked)
+        {
+            queue.add(action);
+            return;
+        }
+
+        Iterator<Enum[]> it = callbacks.keySet().iterator();
+        boolean matched = false;
+
+        while(it.hasNext())
+        {
+            Enum[] actionTypes = it.next();
+            for(Enum e : actionTypes)
+            {
+                if(action.getType().equals(e))
+                {
+                    locked = true;
+
+                    callbacks.get(actionTypes).execute(action, new Context() {
+                        @Override
+                        public void yield() {
+                            locked = false;
+                            if(queue.size()>0)
+                            {
+                                dispatch(queue.pop());
+                            }
+                        }
+                    });
+                    matched = true;
+                    break;
+                }
+            }
+
+            if(matched) break;
         }
     }
 }
