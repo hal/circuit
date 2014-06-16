@@ -34,7 +34,7 @@
 
     <groupId>org.jboss.gwt.flux</groupId>
     <artifactId>flux-parent</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <name>Flux</name>
     <description>Parent POM of Flux</description>
     <packaging>pom</packaging>
