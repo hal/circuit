@@ -21,16 +21,24 @@
  */
 package org.jboss.gwt.flux.sample.todo.client.views;
 
-import java.util.List;
-
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.LayoutPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.inject.Inject;
 import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.StoreChangedEvent;
 import org.jboss.gwt.flux.sample.todo.client.TodoStore;
+import org.jboss.gwt.flux.sample.todo.client.actions.TodoAction;
 import org.jboss.gwt.flux.sample.todo.resources.TodoResources;
 import org.jboss.gwt.flux.sample.todo.shared.Todo;
+
+import java.util.List;
+
+import static org.jboss.gwt.flux.sample.todo.client.actions.TodoActions.ADD;
 
 @SuppressWarnings("Convert2Lambda")
 public class MainView extends Composite {
@@ -40,13 +48,24 @@ public class MainView extends Composite {
     private final TodoStore store;
     private final TodoResources resources;
 
+    private VerticalPanel todoPanel;
+
     @Inject
     public MainView(final Dispatcher dispatcher, final TodoStore store, final TodoResources resources) {
         this.dispatcher = dispatcher;
         this.store = store;
         this.resources = resources;
 
+        this.todoPanel = new VerticalPanel();
         this.root = new FlowPanel();
+        root.add(todoPanel);
+        root.add(new Button("Add TODO", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                dispatcher.dispatch(new TodoAction(ADD, new Todo("Time is "+ System.currentTimeMillis())));
+            }
+        }));
+
         initWidget(root);
         setStyleName(resources.css().mainView());
 
@@ -56,12 +75,13 @@ public class MainView extends Composite {
                 showTodos(store.getTodos());
             }
         });
+
     }
 
     private void showTodos(final List<Todo> todos) {
-        root.clear();
+        todoPanel.clear();
         for (Todo todo : todos) {
-            root.add(new TodoView(dispatcher, store, resources, todo));
+            todoPanel.add(new TodoView(dispatcher, store, resources, todo));
         }
     }
 }

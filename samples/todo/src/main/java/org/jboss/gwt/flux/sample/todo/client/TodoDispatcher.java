@@ -21,37 +21,51 @@
  */
 package org.jboss.gwt.flux.sample.todo.client;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.Store;
+import org.jboss.gwt.flux.impl.NoopContext;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class TodoDispatcher implements Dispatcher {
 
-    private final List<Store.Callback> callbacks;
+    private final Map<Enum[],Store.Callback> callbacks;
 
     public TodoDispatcher() {
-        this.callbacks = new LinkedList<>();
+        this.callbacks = new HashMap<>();
     }
 
     @Override
     public <P> void register(Store.Callback callback) {
-        callbacks.add(callback);
+
+        callbacks.put(callback.getTypes(), callback);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <P> void dispatch(final Action action) {
 
-        for (Store.Callback callback : callbacks) {
-            callback.execute(action, new Dispatcher.Context() {
-                @Override
-                public void yield() {
-                    // TODO
+
+        Iterator<Enum[]> it = callbacks.keySet().iterator();
+        boolean matched = false;
+
+        while(it.hasNext())
+        {
+            Enum[] actionTypes = it.next();
+            for(Enum e : actionTypes)
+            {
+                if(action.getType().equals(e))
+                {
+                    callbacks.get(actionTypes).execute(action, NoopContext.INSTANCE);
+                    matched = true;
+                    break;
                 }
-            });
+            }
+
+            if(matched) break;
         }
     }
 }

@@ -21,13 +21,19 @@
  */
 package org.jboss.gwt.flux.sample.todo.client.views;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.Label;
 import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.sample.todo.client.TodoStore;
+import org.jboss.gwt.flux.sample.todo.client.actions.TodoAction;
 import org.jboss.gwt.flux.sample.todo.resources.TodoResources;
 import org.jboss.gwt.flux.sample.todo.shared.Todo;
+
+import static org.jboss.gwt.flux.sample.todo.client.actions.TodoActions.ADD;
 
 public class TodoView extends Composite {
 
@@ -47,9 +53,12 @@ public class TodoView extends Composite {
         this.root = new DeckPanel();
         this.label = new Label(todo.getName());
         root.add(label);
+
         readonly();
         initWidget(root);
         setStyleName(resources.css().todoView());
+
+
     }
 
     public void readonly() {

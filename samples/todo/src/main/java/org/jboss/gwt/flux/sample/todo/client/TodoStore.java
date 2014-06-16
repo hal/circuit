@@ -35,7 +35,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static org.jboss.gwt.flux.sample.todo.client.actions.TodoActions.LIST;
-import static org.jboss.gwt.flux.sample.todo.client.actions.TodoActions.SAVE;
+import static org.jboss.gwt.flux.sample.todo.client.actions.TodoActions.ADD;
 
 @SuppressWarnings("Convert2Lambda")
 public class TodoStore extends AbstractStore {
@@ -89,7 +89,7 @@ public class TodoStore extends AbstractStore {
                 });
                 break;
 
-            case SAVE:
+            case ADD:
                 todoService.save(payload, new TodoCallback<Void>() {
                     @Override
                     public void onSuccess(final Void result) {
@@ -97,11 +97,11 @@ public class TodoStore extends AbstractStore {
                     }
                 });
                 break;
-            case DELETE:
+            case REMOVE:
                 todoService.save(payload, new TodoCallback<Void>() {
                     @Override
                     public void onSuccess(final Void result) {
-                        process(SAVE, null, NoopContext.INSTANCE);
+                        process(ADD, null, NoopContext.INSTANCE);
                     }
                 });
                 break;
