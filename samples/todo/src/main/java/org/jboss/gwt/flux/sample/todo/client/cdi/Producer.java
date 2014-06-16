@@ -19,20 +19,29 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.todo.client.gin;
+package org.jboss.gwt.flux.sample.todo.client.cdi;
 
-import com.google.gwt.inject.client.GinModules;
-import com.google.gwt.inject.client.Ginjector;
-import org.jboss.gwt.flux.Dispatcher;
-import org.jboss.gwt.flux.sample.todo.client.views.MainView;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
+
+import com.google.gwt.core.client.GWT;
+import org.jboss.gwt.flux.sample.todo.client.TodoService;
+import org.jboss.gwt.flux.sample.todo.client.TodoServiceAsync;
 import org.jboss.gwt.flux.sample.todo.resources.TodoResources;
 
-@GinModules(TodoModule.class)
-public interface TodoGinjector extends Ginjector {
+@ApplicationScoped
+@SuppressWarnings("UnusedDeclaration")
+public class Producer {
 
-    TodoResources getTodoResources();
+    @Produces
+    @ApplicationScoped
+    TodoServiceAsync produceTodoService() {
+        return GWT.create(TodoService.class);
+    }
 
-    Dispatcher getDispatcher();
-
-    MainView getMainView();
+    @Produces
+    @ApplicationScoped
+    public TodoResources produceTodoResources() {
+        return GWT.create(TodoResources.class);
+    }
 }

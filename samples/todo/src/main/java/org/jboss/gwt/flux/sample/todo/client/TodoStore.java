@@ -25,6 +25,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.enterprise.context.ApplicationScoped;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import org.jboss.gwt.flux.AbstractStore;
@@ -36,7 +38,7 @@ import org.jboss.gwt.flux.sample.todo.client.actions.SaveTodo;
 import org.jboss.gwt.flux.sample.todo.client.actions.TodoAction;
 import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
-@SuppressWarnings("Convert2Lambda")
+@ApplicationScoped
 public class TodoStore extends AbstractStore {
 
     abstract class TodoCallback<T> implements AsyncCallback<T> {

@@ -23,33 +23,32 @@ package org.jboss.gwt.flux.sample.todo.client.views;
 
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
+
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.inject.Inject;
+import org.jboss.errai.ui.nav.client.local.DefaultPage;
+import org.jboss.errai.ui.nav.client.local.Page;
+import org.jboss.errai.ui.shared.api.annotations.DataField;
+import org.jboss.errai.ui.shared.api.annotations.Templated;
 import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.StoreChangedEvent;
 import org.jboss.gwt.flux.sample.todo.client.TodoStore;
-import org.jboss.gwt.flux.sample.todo.resources.TodoResources;
 import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
-@SuppressWarnings("Convert2Lambda")
+@Templated
+@Page(role = DefaultPage.class)
 public class MainView extends Composite {
 
-    private final FlowPanel root;
-    private final Dispatcher dispatcher;
-    private final TodoStore store;
-    private final TodoResources resources;
+    @Inject Dispatcher dispatcher;
+    @Inject TodoStore store;
+    @Inject @DataField FlowPanel todoContainer;
+    @Inject Instance<TodoView> todoItem;
 
-    @Inject
-    public MainView(final Dispatcher dispatcher, final TodoStore store, final TodoResources resources) {
-        this.dispatcher = dispatcher;
-        this.store = store;
-        this.resources = resources;
-
-        this.root = new FlowPanel();
-        initWidget(root);
-        setStyleName(resources.css().mainView());
-
+    @PostConstruct
+    public void init() {
         store.addChangedHandler(new StoreChangedEvent.StoreChangedHandler() {
             @Override
             public void onChange(final StoreChangedEvent event) {
@@ -58,10 +57,12 @@ public class MainView extends Composite {
         });
     }
 
-    private void showTodos(final List<Todo> todos) {
-        root.clear();
+    void showTodos(final List<Todo> todos) {
+        todoContainer.clear();
         for (Todo todo : todos) {
-            root.add(new TodoView(dispatcher, store, resources, todo));
+            TodoView todoView = todoItem.get();
+            todoView.refresh(todo);
+            todoContainer.add(todoView);
         }
     }
 }

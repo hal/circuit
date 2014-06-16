@@ -27,12 +27,6 @@ import com.google.gwt.resources.client.CssResource;
 public interface TodoResources extends ClientBundle {
 
     @Source("todo.css")
-    TodoCss css();
-
-    interface TodoCss extends CssResource {
-
-        String mainView();
-
-        String todoView();
-    }
+    @CssResource.NotStrict
+    CssResource css();
 }

@@ -1,10 +1,24 @@
-.mainView {
-    background-color: #ccc;
-    margin: 2em;
+html {
+    font: 120%/1.66 "Open Sans", sans-serif;
+    color: #333;
+}
+
+h1 {
+    font-size: 120%;
+    font-weight: 500;
+    margin: 1rem;
+}
+
+.todos {
     display: flex;
     flex-direction: column;
 }
 
-.todoView {
-    background-color: #aaa;
+.todo {
+    padding: .75rem 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.todo:hover {
+    background-color: #eee;
 }

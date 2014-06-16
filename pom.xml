@@ -76,6 +76,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
 
+        <errai.version>3.0.0.Final</errai.version>
         <gwt.version>2.6.1</gwt.version>
         <junit.version>4.11</junit.version>
     </properties>
@@ -87,37 +88,37 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Flux -->
             <dependency>
                 <groupId>org.jboss.gwt.flux</groupId>
                 <artifactId>flux</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <!-- Errai -->
             <dependency>
-                <groupId>com.google.gwt.inject</groupId>
-                <artifactId>gin</artifactId>
-                <version>2.1.2</version>
+                <groupId>org.jboss.errai.bom</groupId>
+                <artifactId>errai-version-master</artifactId>
+                <version>${errai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>com.google.gwt</groupId>
-                <artifactId>gwt-servlet</artifactId>
-                <version>${gwt.version}</version>
+                <groupId>org.jboss.errai</groupId>
+                <artifactId>errai-parent</artifactId>
+                <version>${errai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
+
+            <!-- GWT -->
             <dependency>
                 <groupId>com.google.gwt</groupId>
                 <artifactId>gwt-user</artifactId>
                 <version>${gwt.version}</version>
             </dependency>
-            <dependency>
-                <groupId>javax.validation</groupId>
-                <artifactId>validation-api</artifactId>
-                <version>1.0.0.GA</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.validation</groupId>
-                <artifactId>validation-api</artifactId>
-                <version>1.0.0.GA</version>
-                <classifier>sources</classifier>
-            </dependency>
+
+            <!-- Test -->
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>

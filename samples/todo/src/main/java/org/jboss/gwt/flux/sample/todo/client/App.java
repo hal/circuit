@@ -21,21 +21,21 @@
  */
 package org.jboss.gwt.flux.sample.todo.client;
 
-import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.ui.RootPanel;
+import javax.inject.Inject;
+
+import org.jboss.errai.ioc.client.api.AfterInitialization;
+import org.jboss.errai.ioc.client.api.EntryPoint;
+import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.sample.todo.client.actions.ListTodos;
-import org.jboss.gwt.flux.sample.todo.client.gin.TodoGinjector;
 
+@EntryPoint
 @SuppressWarnings("UnusedDeclaration")
-public class App implements EntryPoint {
+public class App {
 
-    private final TodoGinjector injector = GWT.create(TodoGinjector.class);
+    @Inject Dispatcher dispatcher;
 
-    @Override
-    public void onModuleLoad() {
-        injector.getTodoResources().css().ensureInjected();
-        RootPanel.get().add(injector.getMainView());
-        injector.getDispatcher().dispatch(new ListTodos());
+    @AfterInitialization
+    public void init() {
+        dispatcher.dispatch(new ListTodos());
     }
 }

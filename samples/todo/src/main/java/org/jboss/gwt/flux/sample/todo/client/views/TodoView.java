@@ -21,38 +21,24 @@
  */
 package org.jboss.gwt.flux.sample.todo.client.views;
 
+import javax.inject.Inject;
+
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.Label;
+import org.jboss.errai.ui.shared.api.annotations.DataField;
+import org.jboss.errai.ui.shared.api.annotations.Templated;
 import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.sample.todo.client.TodoStore;
-import org.jboss.gwt.flux.sample.todo.resources.TodoResources;
 import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
+@Templated
 public class TodoView extends Composite {
 
-    private final Dispatcher dispatcher;
-    private final TodoStore store;
-    private final TodoResources resources;
-    private final Todo todo;
-    private final DeckPanel root;
-    private final Label label;
+    @Inject Dispatcher dispatcher;
+    @Inject TodoStore store;
+    @Inject @DataField Label todoItem;
 
-    public TodoView(final Dispatcher dispatcher, final TodoStore store, final TodoResources resources, final Todo todo) {
-        this.dispatcher = dispatcher;
-        this.store = store;
-        this.resources = resources;
-        this.todo = todo;
-
-        this.root = new DeckPanel();
-        this.label = new Label(todo.getName());
-        root.add(label);
-        readonly();
-        initWidget(root);
-        setStyleName(resources.css().todoView());
-    }
-
-    public void readonly() {
-        root.showWidget(0);
+    void refresh(Todo todo) {
+        todoItem.setText(todo.getName());
     }
 }

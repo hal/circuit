@@ -24,10 +24,14 @@ package org.jboss.gwt.flux.sample.todo.client;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.enterprise.context.ApplicationScoped;
+
 import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.Store;
 
+@ApplicationScoped
+@SuppressWarnings("UnusedDeclaration")
 public class TodoDispatcher implements Dispatcher {
 
     private final List<Store.Callback> callbacks;
