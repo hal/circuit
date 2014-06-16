@@ -58,13 +58,15 @@ public class MainView extends Composite {
 
         this.todoPanel = new VerticalPanel();
         this.root = new FlowPanel();
-        root.add(todoPanel);
+
         root.add(new Button("Add TODO", new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
                 dispatcher.dispatch(new TodoAction(ADD, new Todo("Time is "+ System.currentTimeMillis())));
             }
         }));
+
+        root.add(todoPanel);
 
         initWidget(root);
         setStyleName(resources.css().mainView());

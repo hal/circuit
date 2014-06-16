@@ -24,18 +24,22 @@ package org.jboss.gwt.flux.sample.todo.client;
 import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.Store;
-import org.jboss.gwt.flux.impl.NoopContext;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Stack;
 
 public class TodoDispatcher implements Dispatcher {
 
     private final Map<Enum[],Store.Callback> callbacks;
+    private Stack<Action> queue;
+
+    private boolean locked;
 
     public TodoDispatcher() {
         this.callbacks = new HashMap<>();
+        this.queue = new Stack<>();
     }
 
     @Override
@@ -48,6 +52,13 @@ public class TodoDispatcher implements Dispatcher {
     @SuppressWarnings("unchecked")
     public <P> void dispatch(final Action action) {
 
+        System.out.println(">> Queue size "+ queue.size());
+
+        if(locked)
+        {
+            queue.add(action);
+            return;
+        }
 
         Iterator<Enum[]> it = callbacks.keySet().iterator();
         boolean matched = false;
@@ -59,7 +70,18 @@ public class TodoDispatcher implements Dispatcher {
             {
                 if(action.getType().equals(e))
                 {
-                    callbacks.get(actionTypes).execute(action, NoopContext.INSTANCE);
+                    locked = true;
+
+                    callbacks.get(actionTypes).execute(action, new Context() {
+                        @Override
+                        public void yield() {
+                            locked = false;
+                            if(queue.size()>0)
+                            {
+                                dispatch(queue.pop());
+                            }
+                        }
+                    });
                     matched = true;
                     break;
                 }

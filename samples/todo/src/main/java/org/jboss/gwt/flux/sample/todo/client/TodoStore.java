@@ -21,6 +21,8 @@
  */
 package org.jboss.gwt.flux.sample.todo.client;
 
+import com.google.gwt.user.client.Random;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import org.jboss.gwt.flux.AbstractStore;
@@ -66,12 +68,20 @@ public class TodoStore extends AbstractStore {
                     }
 
                     @Override
-                    public void execute(final Action<TodoActions, Todo> action, Dispatcher.Context context) {
-                        process(action.getType(), action.getPayload(), context);
+                    public void execute(final Action<TodoActions, Todo> action, final Dispatcher.Context context) {
+
+                        // artifical delay
+                        Timer t = new Timer() {
+                            @Override
+                            public void run() {
+                                process(action.getType(), action.getPayload(), context);
+                            }
+                        };
+
+                        t.schedule(Random.nextInt( 5 ) + 1);
                     }
                 });
     }
-
 
     private void process(final TodoActions type, final Todo payload, final Dispatcher.Context context) {
 
@@ -93,15 +103,15 @@ public class TodoStore extends AbstractStore {
                 todoService.save(payload, new TodoCallback<Void>() {
                     @Override
                     public void onSuccess(final Void result) {
-                        process(LIST, null, NoopContext.INSTANCE);
+                        process(LIST, null, context);
                     }
                 });
                 break;
             case REMOVE:
-                todoService.save(payload, new TodoCallback<Void>() {
+                todoService.delete(payload, new TodoCallback<Void>() {
                     @Override
                     public void onSuccess(final Void result) {
-                        process(ADD, null, NoopContext.INSTANCE);
+                        process(LIST, null, context);
                     }
                 });
                 break;
