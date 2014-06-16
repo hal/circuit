@@ -28,7 +28,6 @@ import com.google.inject.Inject;
 import org.jboss.gwt.flux.AbstractStore;
 import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Dispatcher;
-import org.jboss.gwt.flux.impl.NoopContext;
 import org.jboss.gwt.flux.sample.todo.client.actions.TodoActions;
 import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
@@ -37,7 +36,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static org.jboss.gwt.flux.sample.todo.client.actions.TodoActions.LIST;
-import static org.jboss.gwt.flux.sample.todo.client.actions.TodoActions.ADD;
 
 @SuppressWarnings("Convert2Lambda")
 public class TodoStore extends AbstractStore {
