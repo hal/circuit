@@ -23,7 +23,7 @@ package org.jboss.gwt.flux.sample.todo.client.actions;
 
 import org.jboss.gwt.flux.Action;
 
-public class ListTodos implements Action<Void>, TodoAction {
+public class ListTodos extends TodoAction  implements Action<Void>{
 
     @Override
     public Void getPayload() {

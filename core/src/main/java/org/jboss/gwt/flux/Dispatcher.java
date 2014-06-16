@@ -31,7 +31,7 @@ public interface Dispatcher {
      *
      * @param <P> the actions payload
      */
-    <P> void register(Store.Callback<P> callback);
+    <P> void register(Store.Callback<P> callback, Class<?>... type);
 
     /**
      * Calls all registered callbacks.
@@ -39,4 +39,9 @@ public interface Dispatcher {
      * @param <P> the actions payload
      */
     <P> void dispatch(Action<P> action);
+
+    interface Context {
+        void yield();
+    }
+
 }

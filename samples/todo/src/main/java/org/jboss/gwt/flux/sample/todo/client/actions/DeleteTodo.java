@@ -24,7 +24,7 @@ package org.jboss.gwt.flux.sample.todo.client.actions;
 import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
-public class DeleteTodo implements Action<Todo>, TodoAction {
+public class DeleteTodo extends TodoAction implements Action<Todo> {
 
     private final Todo todo;
 

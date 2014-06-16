@@ -24,7 +24,7 @@ package org.jboss.gwt.flux.sample.todo.client.actions;
 import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
-public class SaveTodo implements Action<Todo>, TodoAction {
+public class SaveTodo extends TodoAction implements Action<Todo>{
 
     private final Todo todo;
 
@@ -39,4 +39,6 @@ public class SaveTodo implements Action<Todo>, TodoAction {
     public String toString() {
         return "SaveTodo<" + getPayload() + ">";
     }
+
+
 }

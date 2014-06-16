@@ -39,15 +39,8 @@ public interface Store {
      */
     public interface Callback<P> {
 
-        boolean execute(Action<P> action);
+        void execute(Action<P> action, Dispatcher.Context context);
     }
-
-    /**
-     * Returns {@code true} if the store can process the action, {@code false} otherwise.
-     *
-     * @param <P> the actions payload.
-     */
-    <P> boolean canProcess(Action<P> action);
 
     /**
      * Registers a {@link org.jboss.gwt.flux.StoreChangedEvent.StoreChangedHandler}.
@@ -56,8 +49,5 @@ public interface Store {
      */
     HandlerRegistration addChangedHandler(StoreChangedHandler handler);
 
-    /**
-     * Fires a {@link org.jboss.gwt.flux.StoreChangedEvent} to all registered handlers.
-     */
-    void fireChanged();
+
 }

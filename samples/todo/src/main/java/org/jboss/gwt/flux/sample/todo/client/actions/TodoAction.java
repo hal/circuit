@@ -24,5 +24,7 @@ package org.jboss.gwt.flux.sample.todo.client.actions;
 /**
  * Marker interface for all _todo_ related actions.
  */
-public interface TodoAction {
+public abstract class TodoAction {
+
+    public Class<?> getType() {return getClass();}
 }

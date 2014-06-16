@@ -36,20 +36,13 @@ public class CalculatorStore extends AbstractStore {
     public CalculatorStore(final Dispatcher dispatcher) {
         this.results = new LinkedHashMap<>();
 
-        dispatcher.register((Action<Term> action) -> {
-            if (canProcess(action)) {
-                // TODO How to handle (arithmetic) exceptions like 1 / 0
-                results.put(action.getPayload(), calculate(action.getPayload()));
-                fireChanged();
-                return true;
-            }
-            return false;
-        });
-    }
+        dispatcher.register((Action<Term> action, Dispatcher.Context context) -> {
+            // TODO How to handle (arithmetic) exceptions like 1 / 0
+            results.put(action.getPayload(), calculate(action.getPayload()));
+            context.yield();
+            fireChanged();
 
-    @Override
-    public <T> boolean canProcess(final Action<T> action) {
-        return action instanceof TermAction;
+        }, TermAction.class);
     }
 
     private int calculate(final Term term) {

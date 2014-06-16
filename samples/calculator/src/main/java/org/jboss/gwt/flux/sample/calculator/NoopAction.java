@@ -29,4 +29,9 @@ public class NoopAction implements Action<Void> {
     public Void getPayload() {
         return null;
     }
+
+    @Override
+    public Class<?> getType() {
+        return TermAction.class;
+    }
 }

@@ -28,5 +28,6 @@ package org.jboss.gwt.flux;
  */
 public interface Action<P> {
 
+    Class<?> getType();
     P getPayload();
 }

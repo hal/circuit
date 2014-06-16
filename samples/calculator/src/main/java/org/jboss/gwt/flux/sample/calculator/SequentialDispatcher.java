@@ -35,7 +35,7 @@ public class SequentialDispatcher implements Dispatcher {
     public SequentialDispatcher() {callbacks = new LinkedList<>();}
 
     @Override
-    public <P> void register(final Store.Callback<P> callback) {
+    public <P> void register(Store.Callback<P> callback, Class<?>... type) {
         callbacks.add(callback);
     }
 
@@ -44,7 +44,12 @@ public class SequentialDispatcher implements Dispatcher {
     public <P> void dispatch(final Action<P> action) {
         System.out.printf("~-~-~-~-~ Processing %s with payload '%s'\n", action.getClass().getSimpleName(),
                 action.getPayload());
-        callbacks.forEach(callback -> callback.execute(action));
+        callbacks.forEach(callback -> callback.execute(action, new Context() {
+            @Override
+            public void yield() {
+                // TODO
+            }
+        }));
         System.out.printf("~-~-~-~-~ Finished\n\n");
     }
 }
