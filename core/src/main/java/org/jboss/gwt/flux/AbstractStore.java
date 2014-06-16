@@ -35,7 +35,9 @@ public abstract class AbstractStore implements Store {
 
     private final EventBus eventBus;
 
-    protected AbstractStore() {eventBus = new SimpleEventBus();}
+    protected AbstractStore() {
+        this.eventBus = new SimpleEventBus();
+    }
 
     @Override
     @SuppressWarnings("unchecked")
@@ -43,8 +45,7 @@ public abstract class AbstractStore implements Store {
         return eventBus.addHandler(StoreChangedEvent.TYPE, handler);
     }
 
-    @Override
-    public void fireChanged() {
+    protected void fireChanged() {
         eventBus.fireEvent(new StoreChangedEvent());
     }
 }

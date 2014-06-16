@@ -19,18 +19,28 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.calculator.calculator;
+package org.jboss.gwt.flux.sample.calculator.views;
 
-import org.jboss.gwt.flux.Action;
+import static org.jboss.gwt.flux.sample.calculator.Term.Op;
 
-/**
- * Action which isn't handled anywhere in this sample
- * @author Harald Pehl
- */
-public class NoopAction implements Action<Void> {
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-    @Override
-    public Void getPayload() {
-        return null;
+import org.jboss.gwt.flux.sample.calculator.CalculatorStore;
+import org.jboss.gwt.flux.sample.calculator.Term;
+
+public class StatsView implements View {
+
+    public StatsView(final CalculatorStore store) {
+        store.addChangedHandler(event -> {
+            Set<Term> terms = store.getResults().keySet();
+            Map<Op, List<Term>> termsByOp = terms.stream().collect(Collectors.groupingBy(Term::getOp));
+            String message = termsByOp.entrySet().stream()
+                    .map(entry -> entry.getKey().name() + "(" + entry.getValue().size() + ")")
+                    .collect(Collectors.joining(", "));
+            System.out.printf("Operation stats:    %s\n", message);
+        });
     }
 }

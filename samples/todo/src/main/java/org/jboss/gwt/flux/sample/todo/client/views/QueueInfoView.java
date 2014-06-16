@@ -19,31 +19,32 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux;
+package org.jboss.gwt.flux.sample.todo.client.views;
 
-import static org.jboss.gwt.flux.StoreChangedEvent.StoreChangedHandler;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
-import com.google.web.bindery.event.shared.HandlerRegistration;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.InlineLabel;
+import org.jboss.errai.ui.shared.api.annotations.DataField;
+import org.jboss.errai.ui.shared.api.annotations.Templated;
 
-/**
- * The store holds state and uses the dispatcher to register callbacks. Views can register change handlers to be
- * informed upon changes of the internal state.
- */
-public interface Store {
+@ApplicationScoped
+@SuppressWarnings("UnusedDeclaration")
+@Templated("View.html#queueInfo")
+public class QueueInfoView extends Composite {
 
-    /**
-     * A callback used by the {@link org.jboss.gwt.flux.Dispatcher} to pass an {@link org.jboss.gwt.flux.Action} to
-     * the store. The passed {@code context} must be used by the store to signal processing of the callback.
-     */
-    public interface Callback<A extends Action> {
+    @Inject @DataField InlineLabel info;
 
-        void execute(A action, Dispatcher.Context context);
+    public void refresh(int queueSize) {
+        if (queueSize > 0) {
+            addStyleName("queue-full");
+            removeStyleName("queue-empty");
+            info.setText(queueSize + " action(s) in queue");
+        } else {
+            removeStyleName("queue-full");
+            addStyleName("queue-empty");
+            info.setText("No actions in queue");
+        }
     }
-
-    /**
-     * Registers a {@link org.jboss.gwt.flux.StoreChangedEvent.StoreChangedHandler}.
-     *
-     * @return Use this instance to remove the handler.
-     */
-    HandlerRegistration addChangedHandler(StoreChangedHandler handler);
 }

@@ -19,31 +19,8 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux;
+package org.jboss.gwt.flux.sample.todo.client.actions;
 
-import static org.jboss.gwt.flux.StoreChangedEvent.StoreChangedHandler;
-
-import com.google.web.bindery.event.shared.HandlerRegistration;
-
-/**
- * The store holds state and uses the dispatcher to register callbacks. Views can register change handlers to be
- * informed upon changes of the internal state.
- */
-public interface Store {
-
-    /**
-     * A callback used by the {@link org.jboss.gwt.flux.Dispatcher} to pass an {@link org.jboss.gwt.flux.Action} to
-     * the store. The passed {@code context} must be used by the store to signal processing of the callback.
-     */
-    public interface Callback<A extends Action> {
-
-        void execute(A action, Dispatcher.Context context);
-    }
-
-    /**
-     * Registers a {@link org.jboss.gwt.flux.StoreChangedEvent.StoreChangedHandler}.
-     *
-     * @return Use this instance to remove the handler.
-     */
-    HandlerRegistration addChangedHandler(StoreChangedHandler handler);
+public enum TodoActions {
+    LIST, SAVE, REMOVE
 }

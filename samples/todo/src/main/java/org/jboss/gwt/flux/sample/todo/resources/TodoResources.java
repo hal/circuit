@@ -19,35 +19,14 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.calculator.calculator;
+package org.jboss.gwt.flux.sample.todo.resources;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.function.Function;
+import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.CssResource;
 
-import org.jboss.gwt.flux.Action;
-import org.jboss.gwt.flux.Dispatcher;
+public interface TodoResources extends ClientBundle {
 
-/**
- * @author Harald Pehl
- */
-public class SequentialDispatcher implements Dispatcher {
-
-    private final List<Function> callbacks;
-
-    public SequentialDispatcher() {callbacks = new LinkedList<>();}
-
-    @Override
-    public <P> void register(final Function<Action<P>, Boolean> callback) {
-        callbacks.add(callback);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T> void dispatch(final Action<T> action) {
-        System.out.printf("~-~-~-~-~ Processing %s with payload '%s'\n", action.getClass().getSimpleName(),
-                action.getPayload());
-        callbacks.forEach(callback -> callback.apply(action));
-        System.out.printf("~-~-~-~-~ Finished\n\n");
-    }
+    @Source("todo.css")
+    @CssResource.NotStrict
+    CssResource css();
 }

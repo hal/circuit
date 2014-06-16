@@ -19,40 +19,27 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.calculator.calculator;
+package org.jboss.gwt.flux.sample.calculator;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.jboss.gwt.flux.AbstractStore;
-import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Dispatcher;
 
-/**
- * @author Harald Pehl
- */
-public class CalculatorStore extends AbstractStore{
+public class CalculatorStore extends AbstractStore {
 
     private final Map<Term, Integer> results;
 
     public CalculatorStore(final Dispatcher dispatcher) {
         this.results = new LinkedHashMap<>();
 
-        dispatcher.register((Action<Term> action) -> {
-            if (canProcess(action)) {
-                // TODO How to handle (arithmetic) exceptions like 1 / 0
-                results.put(action.getPayload(), calculate(action.getPayload()));
-                fireChanged();
-                return true;
-            }
-            return false;
-        });
-    }
-
-    @Override
-    public <T> boolean canProcess(final Action<T> action) {
-        return action instanceof TermAction;
+        dispatcher.register((TermAction action, Dispatcher.Context context) -> {
+            results.put(action.getPayload(), calculate(action.getPayload()));
+            context.yield();
+            fireChanged();
+        }, TermAction.Type.Term);
     }
 
     private int calculate(final Term term) {

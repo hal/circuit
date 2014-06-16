@@ -20,20 +20,13 @@
   ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
+<module rename-to="todo">
+    <inherits name="com.google.gwt.user.User"/>
+    <inherits name="org.jboss.errai.enterprise.CDI"/>
+    <inherits name="org.jboss.errai.ui.UI"/>
+    <inherits name="org.jboss.gwt.Flux"/>
 
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
-    <parent>
-        <groupId>org.jboss.gwt.flux</groupId>
-        <artifactId>flux-samples-parent</artifactId>
-        <version>0.0.2</version>
-    </parent>
-
-    <artifactId>flux-calculator-sample</artifactId>
-    <name>Flux :: Samples :: Calculator</name>
-    <description>Command line application using Flux</description>
-    <packaging>jar</packaging>
-</project>
+    <source path="client"/>
+    <source path="resources"/>
+    <source path="shared"/>
+</module>

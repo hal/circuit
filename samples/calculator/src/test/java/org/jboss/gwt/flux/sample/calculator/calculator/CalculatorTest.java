@@ -2,9 +2,11 @@ package org.jboss.gwt.flux.sample.calculator.calculator;
 
 import java.util.Random;
 
+import org.jboss.gwt.flux.sample.calculator.Calculator;
 import org.junit.Test;
 
 public class CalculatorTest {
+
     @Test
     public void run() {
         int numberOfActions = 5 + new Random().nextInt(5);

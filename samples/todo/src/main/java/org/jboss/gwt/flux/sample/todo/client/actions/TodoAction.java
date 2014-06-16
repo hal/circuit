@@ -19,28 +19,37 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.calculator.calculator.views;
+package org.jboss.gwt.flux.sample.todo.client.actions;
 
-import static org.jboss.gwt.flux.sample.calculator.calculator.Term.Op;
+import org.jboss.gwt.flux.Action;
+import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+public final class TodoAction implements Action<Todo, TodoActions> {
 
-import org.jboss.gwt.flux.sample.calculator.calculator.CalculatorStore;
-import org.jboss.gwt.flux.sample.calculator.calculator.Term;
+    private final TodoActions type;
+    private final Todo payload;
 
-public class StatsView implements View {
+    public TodoAction(TodoActions type) {
+        this(type, null);
+    }
 
-    public StatsView(final CalculatorStore store) {
-        store.addChangedHandler(event -> {
-            Set<Term> terms = store.getResults().keySet();
-            Map<Op, List<Term>> termsByOp = terms.stream().collect(Collectors.groupingBy(Term::getOp));
-            String message = termsByOp.entrySet().stream()
-                    .map(entry -> entry.getKey().name() + "(" + entry.getValue().size() + ")")
-                    .collect(Collectors.joining(", "));
-            System.out.printf("Operation stats:    %s\n", message);
-        });
+    public TodoAction(TodoActions type, Todo payload) {
+        this.type = type;
+        this.payload = payload;
+    }
+
+    @Override
+    public TodoActions getType() {
+        return type;
+    }
+
+    @Override
+    public Todo getPayload() {
+        return payload;
+    }
+
+    @Override
+    public String toString() {
+        return "TodoAction<" + type + ">(" + (payload != null ? payload : "") + ")";
     }
 }

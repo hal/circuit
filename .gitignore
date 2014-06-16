@@ -5,6 +5,7 @@ out
 target
 
 # gwt
+.errai
 .gwt/
 .gwt-tmp/
 gwt-unitCache/

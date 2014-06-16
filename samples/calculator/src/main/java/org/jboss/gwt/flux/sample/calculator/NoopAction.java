@@ -19,16 +19,21 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.calculator.calculator.views;
+package org.jboss.gwt.flux.sample.calculator;
 
-import org.jboss.gwt.flux.sample.calculator.calculator.CalculatorStore;
+import org.jboss.gwt.flux.Action;
 
-public class TotalsView implements View {
+public class NoopAction implements Action<Void, NoopAction.Type> {
 
-    public TotalsView(final CalculatorStore store) {
-        store.addChangedHandler(event -> {
-            int sum = store.getResults().values().stream().mapToInt(result -> result).sum();
-            System.out.printf("Sum of all results: %d\n", sum);
-        });
+    public enum Type {Noop}
+
+    @Override
+    public Void getPayload() {
+        return null;
+    }
+
+    @Override
+    public Type getType() {
+        return Type.Noop;
     }
 }

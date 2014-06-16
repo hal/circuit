@@ -19,12 +19,27 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.calculator.calculator.views;
+package org.jboss.gwt.flux.sample.calculator;
 
-/**
- * Just a marker interface to label something as 'view'.
- *
- * @author Harald Pehl
- */
-public interface View {
+import org.jboss.gwt.flux.Action;
+
+public class TermAction implements Action<Term, TermAction.Type> {
+
+    enum Type {Term}
+
+    private final Term term;
+
+    public TermAction(final Term term) {
+        this.term = term;
+    }
+
+    @Override
+    public Term getPayload() {
+        return term;
+    }
+
+    @Override
+    public Type getType() {
+        return Type.Term;
+    }
 }

@@ -19,13 +19,29 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.calculator.calculator.views;
+package org.jboss.gwt.flux.sample.todo.client.cdi;
 
-import org.jboss.gwt.flux.sample.calculator.calculator.CalculatorStore;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
 
-public class TermsView implements View {
+import com.google.gwt.core.client.GWT;
+import org.jboss.gwt.flux.sample.todo.client.TodoService;
+import org.jboss.gwt.flux.sample.todo.client.TodoServiceAsync;
+import org.jboss.gwt.flux.sample.todo.resources.TodoResources;
 
-    public TermsView(final CalculatorStore store) {
-        store.addChangedHandler(event -> System.out.printf("Number of terms:    %d\n", store.getResults().size()));
+@ApplicationScoped
+@SuppressWarnings("UnusedDeclaration")
+public class Producer {
+
+    @Produces
+    @ApplicationScoped
+    TodoServiceAsync produceTodoService() {
+        return GWT.create(TodoService.class);
+    }
+
+    @Produces
+    @ApplicationScoped
+    public TodoResources produceTodoResources() {
+        return GWT.create(TodoResources.class);
     }
 }

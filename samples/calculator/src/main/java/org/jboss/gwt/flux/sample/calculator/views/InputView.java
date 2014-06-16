@@ -19,18 +19,18 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.calculator.calculator.views;
+package org.jboss.gwt.flux.sample.calculator.views;
 
-import static org.jboss.gwt.flux.sample.calculator.calculator.Term.Op;
+import static org.jboss.gwt.flux.sample.calculator.Term.Op;
 
 import java.util.Random;
 import java.util.stream.Stream;
 
 import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Dispatcher;
-import org.jboss.gwt.flux.sample.calculator.calculator.NoopAction;
-import org.jboss.gwt.flux.sample.calculator.calculator.Term;
-import org.jboss.gwt.flux.sample.calculator.calculator.TermAction;
+import org.jboss.gwt.flux.sample.calculator.NoopAction;
+import org.jboss.gwt.flux.sample.calculator.Term;
+import org.jboss.gwt.flux.sample.calculator.TermAction;
 
 public class InputView implements View {
 

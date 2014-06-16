@@ -19,23 +19,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.calculator.calculator;
+package org.jboss.gwt.flux.impl;
 
-import org.jboss.gwt.flux.Action;
+import org.jboss.gwt.flux.Dispatcher;
 
-/**
- * @author Harald Pehl
- */
-public class TermAction implements Action<Term> {
-
-    private final Term term;
-
-    public TermAction(final Term term) {
-        this.term = term;
-    }
-
-    @Override
-    public Term getPayload() {
-        return term;
-    }
+public class NoopContext {
+    public static Dispatcher.Context INSTANCE = new Dispatcher.Context() {
+        @Override
+        public void yield() {
+            // noop
+        }
+    };
 }

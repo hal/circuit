@@ -34,7 +34,7 @@
 
     <groupId>org.jboss.gwt.flux</groupId>
     <artifactId>flux-parent</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <name>Flux</name>
     <description>Parent POM of Flux</description>
     <packaging>pom</packaging>
@@ -76,14 +76,10 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
 
-        <!--
-            Build from GWT sources
-            > ant clean dist-dev
-            > maven/push-gwt.sh # using '2.7.0.flux' as version
-            See also http://www.gwtproject.org/makinggwtbetter.html#compiling
-        -->
-        <version.com.google.gwt>2.7.0.flux</version.com.google.gwt>
-        <version.junit>4.11</version.junit>
+        <errai.version>3.0.0.Final</errai.version>
+        <gwt.version>2.6.1</gwt.version>
+        <guava.version>17.0</guava.version>
+        <junit.version>4.11</junit.version>
     </properties>
 
     <modules>
@@ -93,25 +89,51 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Flux -->
             <dependency>
                 <groupId>org.jboss.gwt.flux</groupId>
                 <artifactId>flux</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <!-- Errai -->
             <dependency>
-                <groupId>com.google.gwt</groupId>
-                <artifactId>gwt-dev</artifactId>
-                <version>${version.com.google.gwt}</version>
+                <groupId>org.jboss.errai.bom</groupId>
+                <artifactId>errai-version-master</artifactId>
+                <version>${errai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.errai</groupId>
+                <artifactId>errai-parent</artifactId>
+                <version>${errai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- GWT & related -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava-gwt</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.gwt</groupId>
                 <artifactId>gwt-user</artifactId>
-                <version>${version.com.google.gwt}</version>
+                <version>${gwt.version}</version>
             </dependency>
+
+            <!-- Test -->
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>${version.junit}</version>
+                <version>${junit.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -120,6 +142,19 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>gwt-maven-plugin</artifactId>
+                    <version>${gwt.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 </project>
