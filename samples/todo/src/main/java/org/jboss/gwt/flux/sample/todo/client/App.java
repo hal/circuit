@@ -24,8 +24,10 @@ package org.jboss.gwt.flux.sample.todo.client;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.RootPanel;
-import org.jboss.gwt.flux.sample.todo.client.actions.ListTodos;
+import org.jboss.gwt.flux.sample.todo.client.actions.TodoAction;
 import org.jboss.gwt.flux.sample.todo.client.gin.TodoGinjector;
+
+import static org.jboss.gwt.flux.sample.todo.client.actions.TodoActions.*;
 
 @SuppressWarnings("UnusedDeclaration")
 public class App implements EntryPoint {
@@ -36,6 +38,6 @@ public class App implements EntryPoint {
     public void onModuleLoad() {
         injector.getTodoResources().css().ensureInjected();
         RootPanel.get().add(injector.getMainView());
-        injector.getDispatcher().dispatch(new ListTodos());
+        injector.getDispatcher().dispatch(new TodoAction(LIST));
     }
 }

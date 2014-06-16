@@ -37,9 +37,10 @@ public interface Store {
      *
      * @param <P> the actions payload.
      */
-    public interface Callback<P> {
+    public interface Callback<T extends Enum, P> {
 
-        void execute(Action<P> action, Dispatcher.Context context);
+        T[] getTypes();
+        void execute(Action<T, P> action, Dispatcher.Context context);
     }
 
     /**

@@ -21,17 +21,12 @@
  */
 package org.jboss.gwt.flux.sample.todo.client.actions;
 
-import org.jboss.gwt.flux.Action;
+/**
+ * Marker interface for all _todo_ related actions.
+ */
+public enum TodoActions {
 
-public class ListTodos extends TodoAction  implements Action<Void>{
-
-    @Override
-    public Void getPayload() {
-        return null;
-    }
-
-    @Override
-    public String toString() {
-        return "ListTodos<Void>";
-    }
+    LIST,
+    SAVE,
+    DELETE
 }

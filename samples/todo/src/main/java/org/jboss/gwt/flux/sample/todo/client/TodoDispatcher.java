@@ -37,15 +37,13 @@ public class TodoDispatcher implements Dispatcher {
     }
 
     @Override
-    public <P> void register(Store.Callback<P> callback, Class<?>... type) {
+    public <P> void register(Store.Callback callback) {
         callbacks.add(callback);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <P> void dispatch(final Action<P> action) {
-
-        Class<?> type = action.getType();
+    public <P> void dispatch(final Action action) {
 
         for (Store.Callback callback : callbacks) {
             callback.execute(action, new Dispatcher.Context() {

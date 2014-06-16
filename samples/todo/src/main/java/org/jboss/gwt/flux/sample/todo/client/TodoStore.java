@@ -21,21 +21,21 @@
  */
 package org.jboss.gwt.flux.sample.todo.client;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import org.jboss.gwt.flux.AbstractStore;
 import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.impl.NoopContext;
-import org.jboss.gwt.flux.sample.todo.client.actions.DeleteTodo;
-import org.jboss.gwt.flux.sample.todo.client.actions.ListTodos;
-import org.jboss.gwt.flux.sample.todo.client.actions.SaveTodo;
-import org.jboss.gwt.flux.sample.todo.client.actions.TodoAction;
+import org.jboss.gwt.flux.sample.todo.client.actions.TodoActions;
 import org.jboss.gwt.flux.sample.todo.shared.Todo;
+
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.jboss.gwt.flux.sample.todo.client.actions.TodoActions.LIST;
+import static org.jboss.gwt.flux.sample.todo.client.actions.TodoActions.SAVE;
 
 @SuppressWarnings("Convert2Lambda")
 public class TodoStore extends AbstractStore {
@@ -57,39 +57,55 @@ public class TodoStore extends AbstractStore {
         this.todos = new LinkedList<>();
         this.todoService = todoService;
 
-        dispatcher.register(new Callback() {
-            @Override
-            public void execute(final Action action, Dispatcher.Context context) {
-                process((TodoAction) action, context);
-            }
-        }, TodoAction.class);
+        dispatcher.register(
+                new Callback<TodoActions, Todo>() {
+
+                    @Override
+                    public TodoActions[] getTypes() {
+                        return TodoActions.values();
+                    }
+
+                    @Override
+                    public void execute(final Action<TodoActions, Todo> action, Dispatcher.Context context) {
+                        process(action.getType(), action.getPayload(), context);
+                    }
+                });
     }
 
-    private void process(final TodoAction action, final Dispatcher.Context context) {
-        if (action instanceof ListTodos) {
-            todoService.list(new TodoCallback<Collection<Todo>>() {
-                @Override
-                public void onSuccess(final Collection<Todo> result) {
-                    todos.clear();
-                    todos.addAll(result);
-                    context.yield();
-                    fireChanged();
-                }
-            });
-        } else if (action instanceof SaveTodo) {
-            todoService.save(((SaveTodo) action).getPayload(), new TodoCallback<Void>() {
-                @Override
-                public void onSuccess(final Void result) {
-                    process(new ListTodos(), NoopContext.INSTANCE);
-                }
-            });
-        } else if (action instanceof DeleteTodo) {
-            todoService.save(((DeleteTodo) action).getPayload(), new TodoCallback<Void>() {
-                @Override
-                public void onSuccess(final Void result) {
-                    process(new ListTodos(), NoopContext.INSTANCE);
-                }
-            });
+
+    private void process(final TodoActions type, final Todo payload, final Dispatcher.Context context) {
+
+        switch (type) {
+
+            case LIST:
+                todoService.list(new TodoCallback<Collection<Todo>>() {
+                    @Override
+                    public void onSuccess(final Collection<Todo> result) {
+                        todos.clear();
+                        todos.addAll(result);
+                        context.yield();
+                        fireChanged();
+                    }
+                });
+                break;
+
+            case SAVE:
+                todoService.save(payload, new TodoCallback<Void>() {
+                    @Override
+                    public void onSuccess(final Void result) {
+                        process(LIST, null, NoopContext.INSTANCE);
+                    }
+                });
+                break;
+            case DELETE:
+                todoService.save(payload, new TodoCallback<Void>() {
+                    @Override
+                    public void onSuccess(final Void result) {
+                        process(SAVE, null, NoopContext.INSTANCE);
+                    }
+                });
+                break;
+
         }
     }
 

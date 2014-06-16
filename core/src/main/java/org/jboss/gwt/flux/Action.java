@@ -26,8 +26,8 @@ package org.jboss.gwt.flux;
  *
  * @param <P> The payload
  */
-public interface Action<P> {
+public interface Action<T extends Enum, P> {
 
-    Class<?> getType();
+    T getType();
     P getPayload();
 }
