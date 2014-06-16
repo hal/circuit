@@ -21,30 +21,45 @@
  */
 package org.jboss.gwt.flux.sample.calculator;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.Store;
+import org.jboss.gwt.flux.impl.NoopContext;
 
 public class SequentialDispatcher implements Dispatcher {
 
-    private final List<Store.Callback> callbacks;
+    private final Map<Enum, Store.Callback> callbacks;
 
-    public SequentialDispatcher() {callbacks = new LinkedList<>();}
+    public SequentialDispatcher() {callbacks = new HashMap<>();}
 
     @Override
-    public <P> void register(final Store.Callback<P> callback) {
-        callbacks.add(callback);
+    @SafeVarargs
+    public final <A extends Action, T extends Enum<T>> void register(final Store.Callback<A> callback, final T type,
+            final T... types) {
+        callbacks.put(type, callback);
+        if (types != null && types.length != 0) {
+            for (T t : types) {
+                callbacks.put(t, callback);
+            }
+        }
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <P> void dispatch(final Action<P> action) {
+    public <A extends Action> void dispatch(final A action) {
         System.out.printf("~-~-~-~-~ Processing %s with payload '%s'\n", action.getClass().getSimpleName(),
                 action.getPayload());
-        callbacks.forEach(callback -> callback.execute(action));
+
+        Store.Callback callback = callbacks.get(action.getType());
+        if (callback != null) {
+            callback.execute(action, NoopContext.INSTANCE);
+        } else {
+            System.out.printf("No callback found for action type %s\n", action.getType());
+        }
+
         System.out.printf("~-~-~-~-~ Finished\n\n");
     }
 }

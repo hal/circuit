@@ -21,8 +21,35 @@
  */
 package org.jboss.gwt.flux.sample.todo.client.actions;
 
-/**
- * Marker interface for all _todo_ related actions.
- */
-public interface TodoAction {
+import org.jboss.gwt.flux.Action;
+import org.jboss.gwt.flux.sample.todo.shared.Todo;
+
+public final class TodoAction implements Action<Todo, TodoActions> {
+
+    private final TodoActions type;
+    private final Todo payload;
+
+    public TodoAction(TodoActions type) {
+        this(type, null);
+    }
+
+    public TodoAction(TodoActions type, Todo payload) {
+        this.type = type;
+        this.payload = payload;
+    }
+
+    @Override
+    public TodoActions getType() {
+        return type;
+    }
+
+    @Override
+    public Todo getPayload() {
+        return payload;
+    }
+
+    @Override
+    public String toString() {
+        return "TodoAction<" + type + ">(" + (payload != null ? payload : "") + ")";
+    }
 }

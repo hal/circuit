@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Random;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import org.jboss.gwt.flux.sample.todo.client.TodoService;
@@ -32,9 +33,12 @@ import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
 public class TodoServiceImpl extends RemoteServiceServlet implements TodoService {
 
+    private static final int TIMEOUT = 3000;
+    private final Random random;
     private final Map<String, Todo> store;
 
     public TodoServiceImpl() {
+        random = new Random();
         store = new LinkedHashMap<>();
         addInitialTodos();
     }
@@ -50,11 +54,13 @@ public class TodoServiceImpl extends RemoteServiceServlet implements TodoService
 
     @Override
     public Collection<Todo> list() {
+        oneMomentPlease();
         return new ArrayList<>(store.values());
     }
 
     @Override
     public void save(final Todo todo) {
+        oneMomentPlease();
         Todo existingTodo = store.get(todo.getId());
         if (existingTodo != null) {
             existingTodo.setName(todo.getName());
@@ -66,6 +72,16 @@ public class TodoServiceImpl extends RemoteServiceServlet implements TodoService
 
     @Override
     public void delete(final Todo todo) {
+        oneMomentPlease();
         store.remove(todo.getId());
+    }
+
+    private void oneMomentPlease() {
+        long timeout = 100l + random.nextInt(TIMEOUT);
+        try {
+            Thread.sleep(timeout);
+        } catch (Throwable t) {
+            // noop
+        }
     }
 }

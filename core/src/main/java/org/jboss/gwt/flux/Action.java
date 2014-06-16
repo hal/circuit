@@ -22,11 +22,14 @@
 package org.jboss.gwt.flux;
 
 /**
- * An action carrying a payload.
+ * An action carrying a payload and a type.
  *
  * @param <P> The payload
+ * @param <T> An action type to group related actions
  */
-public interface Action<P> {
+public interface Action<P, T extends Enum<T>> {
 
     P getPayload();
+
+    T getType();
 }

@@ -19,19 +19,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.todo.client.actions;
+package org.jboss.gwt.flux.impl;
 
-import org.jboss.gwt.flux.Action;
+import org.jboss.gwt.flux.Dispatcher;
 
-public class ListTodos implements Action<Void>, TodoAction {
-
-    @Override
-    public Void getPayload() {
-        return null;
-    }
-
-    @Override
-    public String toString() {
-        return "ListTodos<Void>";
-    }
+public class NoopContext {
+    public static Dispatcher.Context INSTANCE = new Dispatcher.Context() {
+        @Override
+        public void yield() {
+            // noop
+        }
+    };
 }

@@ -21,6 +21,8 @@
  */
 package org.jboss.gwt.flux.sample.todo.client;
 
+import static org.jboss.gwt.flux.sample.todo.client.actions.TodoActions.*;
+
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,11 +32,7 @@ import javax.enterprise.context.ApplicationScoped;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import org.jboss.gwt.flux.AbstractStore;
-import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Dispatcher;
-import org.jboss.gwt.flux.sample.todo.client.actions.DeleteTodo;
-import org.jboss.gwt.flux.sample.todo.client.actions.ListTodos;
-import org.jboss.gwt.flux.sample.todo.client.actions.SaveTodo;
 import org.jboss.gwt.flux.sample.todo.client.actions.TodoAction;
 import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
@@ -45,7 +43,7 @@ public class TodoStore extends AbstractStore {
 
         @Override
         public void onFailure(final Throwable caught) {
-            // noop
+            // TODO Error handling
         }
     }
 
@@ -58,47 +56,43 @@ public class TodoStore extends AbstractStore {
         this.todos = new LinkedList<>();
         this.todoService = todoService;
 
-        dispatcher.register(new Callback() {
+        dispatcher.register(new Callback<TodoAction>() {
             @Override
-            public boolean execute(final Action action) {
-                if (canProcess(action)) {
-                    process((TodoAction) action);
-                    return true;
-                }
-                return false;
+            public void execute(final TodoAction action, final Dispatcher.Context context) {
+                process(action, context);
             }
-        });
+        }, SAVE, LIST, REMOVE);
     }
 
-    @Override
-    public <P> boolean canProcess(final Action<P> action) {
-        return action instanceof TodoAction;
-    }
-
-    private void process(final TodoAction action) {
-        if (action instanceof ListTodos) {
-            todoService.list(new TodoCallback<Collection<Todo>>() {
-                @Override
-                public void onSuccess(final Collection<Todo> result) {
-                    todos.clear();
-                    todos.addAll(result);
-                    fireChanged();
-                }
-            });
-        } else if (action instanceof SaveTodo) {
-            todoService.save(((SaveTodo) action).getPayload(), new TodoCallback<Void>() {
-                @Override
-                public void onSuccess(final Void result) {
-                    process(new ListTodos());
-                }
-            });
-        } else if (action instanceof DeleteTodo) {
-            todoService.save(((DeleteTodo) action).getPayload(), new TodoCallback<Void>() {
-                @Override
-                public void onSuccess(final Void result) {
-                    process(new ListTodos());
-                }
-            });
+    private void process(final TodoAction action, final Dispatcher.Context context) {
+        switch (action.getType()) {
+            case LIST:
+                todoService.list(new TodoCallback<Collection<Todo>>() {
+                    @Override
+                    public void onSuccess(final Collection<Todo> result) {
+                        todos.clear();
+                        todos.addAll(result);
+                        context.yield();
+                        fireChanged();
+                    }
+                });
+                break;
+            case SAVE:
+                todoService.save(action.getPayload(), new TodoCallback<Void>() {
+                    @Override
+                    public void onSuccess(final Void result) {
+                        process(new TodoAction(LIST), context);
+                    }
+                });
+                break;
+            case REMOVE:
+                todoService.delete(action.getPayload(), new TodoCallback<Void>() {
+                    @Override
+                    public void onSuccess(final Void result) {
+                        process(new TodoAction(LIST), context);
+                    }
+                });
+                break;
         }
     }
 

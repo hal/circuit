@@ -27,25 +27,29 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
-import org.jboss.errai.ui.nav.client.local.DefaultPage;
-import org.jboss.errai.ui.nav.client.local.Page;
+import com.google.gwt.user.client.ui.InlineHyperlink;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
+import org.jboss.errai.ui.shared.api.annotations.EventHandler;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.StoreChangedEvent;
 import org.jboss.gwt.flux.sample.todo.client.TodoStore;
+import org.jboss.gwt.flux.sample.todo.client.actions.TodoAction;
+import org.jboss.gwt.flux.sample.todo.client.actions.TodoActions;
 import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
-@Templated
-@Page(role = DefaultPage.class)
+@SuppressWarnings("UnusedDeclaration")
+@Templated("View.html#main")
 public class MainView extends Composite {
 
-    @Inject Dispatcher dispatcher;
     @Inject TodoStore store;
-    @Inject @DataField FlowPanel todoContainer;
-    @Inject Instance<TodoView> todoItem;
+    @Inject Dispatcher dispatcher;
+    @Inject @DataField FlowPanel todosContainer;
+    @Inject Instance<TodoView> todoViewFactory;
+    @Inject @DataField InlineHyperlink add;
 
     @PostConstruct
     public void init() {
@@ -58,11 +62,16 @@ public class MainView extends Composite {
     }
 
     void showTodos(final List<Todo> todos) {
-        todoContainer.clear();
+        todosContainer.clear();
         for (Todo todo : todos) {
-            TodoView todoView = todoItem.get();
+            TodoView todoView = todoViewFactory.get();
             todoView.refresh(todo);
-            todoContainer.add(todoView);
+            todosContainer.add(todoView);
         }
+    }
+
+    @EventHandler("add")
+    public void onAdd(ClickEvent event) {
+        dispatcher.dispatch(new TodoAction(TodoActions.SAVE, new Todo("New todo @ " + System.currentTimeMillis())));
     }
 }

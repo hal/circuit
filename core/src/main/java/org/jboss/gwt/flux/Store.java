@@ -33,21 +33,12 @@ public interface Store {
 
     /**
      * A callback used by the {@link org.jboss.gwt.flux.Dispatcher} to pass an {@link org.jboss.gwt.flux.Action} to
-     * the store
-     *
-     * @param <P> the actions payload.
+     * the store. The passed {@code context} must be used by the store to signal processing of the callback.
      */
-    public interface Callback<P> {
+    public interface Callback<A extends Action> {
 
-        boolean execute(Action<P> action);
+        void execute(A action, Dispatcher.Context context);
     }
-
-    /**
-     * Returns {@code true} if the store can process the action, {@code false} otherwise.
-     *
-     * @param <P> the actions payload.
-     */
-    <P> boolean canProcess(Action<P> action);
 
     /**
      * Registers a {@link org.jboss.gwt.flux.StoreChangedEvent.StoreChangedHandler}.
@@ -55,9 +46,4 @@ public interface Store {
      * @return Use this instance to remove the handler.
      */
     HandlerRegistration addChangedHandler(StoreChangedHandler handler);
-
-    /**
-     * Fires a {@link org.jboss.gwt.flux.StoreChangedEvent} to all registered handlers.
-     */
-    void fireChanged();
 }

@@ -23,22 +23,54 @@ package org.jboss.gwt.flux.sample.todo.client.views;
 
 import javax.inject.Inject;
 
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.InlineLabel;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
+import org.jboss.errai.ui.shared.api.annotations.EventHandler;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.sample.todo.client.TodoStore;
+import org.jboss.gwt.flux.sample.todo.client.actions.TodoAction;
+import org.jboss.gwt.flux.sample.todo.client.actions.TodoActions;
 import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
-@Templated
+@SuppressWarnings("UnusedDeclaration")
+@Templated("View.html#todoContainer")
 public class TodoView extends Composite {
 
-    @Inject Dispatcher dispatcher;
+    private Todo todo;
+
     @Inject TodoStore store;
-    @Inject @DataField Label todoItem;
+    @Inject Dispatcher dispatcher;
+    @DataField Element check = DOM.createSpan();
+    @Inject @DataField InlineLabel name;
+    @DataField Element remove = DOM.createElement("i");
 
     void refresh(Todo todo) {
-        todoItem.setText(todo.getName());
+        this.todo = todo;
+        name.setText(todo.getName());
+        if (todo.isDone()) {
+            check.removeClassName("todo-check");
+            check.addClassName("todo-uncheck");
+            name.addStyleName("todo-done");
+        } else {
+            check.removeClassName("todo-uncheck");
+            check.addClassName("todo-check");
+            name.removeStyleName("todo-done");
+        }
+    }
+
+    @EventHandler("check")
+    public void onCheck(ClickEvent event) {
+        todo.setDone(true);
+        dispatcher.dispatch(new TodoAction(TodoActions.SAVE, todo));
+    }
+
+    @EventHandler("remove")
+    public void onRemove(ClickEvent event) {
+        dispatcher.dispatch(new TodoAction(TodoActions.REMOVE, todo));
     }
 }

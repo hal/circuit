@@ -23,10 +23,17 @@ package org.jboss.gwt.flux.sample.calculator;
 
 import org.jboss.gwt.flux.Action;
 
-public class NoopAction implements Action<Void> {
+public class NoopAction implements Action<Void, NoopAction.Type> {
+
+    public enum Type {Noop}
 
     @Override
     public Void getPayload() {
         return null;
+    }
+
+    @Override
+    public Type getType() {
+        return Type.Noop;
     }
 }

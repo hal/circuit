@@ -26,7 +26,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.jboss.gwt.flux.AbstractStore;
-import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Dispatcher;
 
 public class CalculatorStore extends AbstractStore {
@@ -36,20 +35,11 @@ public class CalculatorStore extends AbstractStore {
     public CalculatorStore(final Dispatcher dispatcher) {
         this.results = new LinkedHashMap<>();
 
-        dispatcher.register((Action<Term> action) -> {
-            if (canProcess(action)) {
-                // TODO How to handle (arithmetic) exceptions like 1 / 0
-                results.put(action.getPayload(), calculate(action.getPayload()));
-                fireChanged();
-                return true;
-            }
-            return false;
-        });
-    }
-
-    @Override
-    public <T> boolean canProcess(final Action<T> action) {
-        return action instanceof TermAction;
+        dispatcher.register((TermAction action, Dispatcher.Context context) -> {
+            results.put(action.getPayload(), calculate(action.getPayload()));
+            context.yield();
+            fireChanged();
+        }, TermAction.Type.Term);
     }
 
     private int calculate(final Term term) {

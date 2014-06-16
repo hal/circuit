@@ -78,6 +78,7 @@
 
         <errai.version>3.0.0.Final</errai.version>
         <gwt.version>2.6.1</gwt.version>
+        <guava.version>17.0</guava.version>
         <junit.version>4.11</junit.version>
     </properties>
 
@@ -111,7 +112,17 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- GWT -->
+            <!-- GWT & related -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava-gwt</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.google.gwt</groupId>
                 <artifactId>gwt-user</artifactId>

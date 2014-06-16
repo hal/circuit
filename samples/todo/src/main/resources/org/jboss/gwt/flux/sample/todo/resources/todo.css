@@ -15,10 +15,83 @@ h1 {
 }
 
 .todo {
+    display: flex;
     padding: .75rem 1rem;
     border-bottom: 1px solid #eee;
 }
 
 .todo:hover {
     background-color: #eee;
+}
+
+.todo-check, .todo-uncheck {
+    align-self: flex-start;
+    width: 20px;
+    margin-right: 1rem;
+    cursor: pointer;
+}
+
+.todo-check .fa-check-square-o {
+    display: none;
+}
+
+.todo-uncheck .fa-square-o {
+    display: none;
+}
+
+.todo-name {
+    flex-grow: 1;
+}
+
+.todo-done {
+    text-decoration: line-through;
+}
+
+.todo-control {
+    align-self: flex-end;
+    margin-right: 1rem;
+    cursor: pointer;
+}
+
+.todo-control .fa-trash-o {
+    display: none;
+}
+
+.todo:hover .fa-trash-o {
+    display: inline;
+}
+
+.todo-add {
+    margin: .75rem 1rem;
+}
+
+.todo-add a, .todo-add a:visited {
+    color: #933;
+    text-decoration: none;
+}
+
+.todo-add a:hover {
+    text-decoration: underline;
+}
+
+.todo-add .fa-plus {
+    width: 20px;
+    margin-right: 1rem;
+}
+
+.queue-full, .queue-empty {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    font-size: 80%;
+    color: #666;
+    margin: 1rem 1rem .2rem;
+}
+
+.queue-full .fa-cog {
+    display: inline-block;
+}
+
+.queue-empty .fa-cog {
+    display: none;
 }

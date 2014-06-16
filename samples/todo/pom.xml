@@ -44,20 +44,48 @@
     <dependencies>
         <dependency>
             <groupId>org.jboss.errai</groupId>
-            <artifactId>errai-data-binding</artifactId>
+            <artifactId>errai-cdi-client</artifactId>
+            <!-- The bundled dependency to Guava 13.0.1 does not compile with GWT 2.6.1 -->
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava-gwt</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jboss.errai</groupId>
-            <artifactId>errai-navigation</artifactId>
+            <artifactId>errai-data-binding</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava-gwt</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jboss.errai</groupId>
             <artifactId>errai-ui</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava-gwt</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-user</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -82,8 +110,9 @@
                         <configuration>
                             <sources>
                                 <!-- Enable refresh for GWT development mode -->
-                                <source>../../core/src/main/java</source>
-                                <source>../../core/src/main/resources</source>
+                                <source>${project.build.directory}/generated-sources/gwt</source>
+                                <source>${basedir}/../../core/src/main/java</source>
+                                <source>${basedir}/../../core/src/main/resources</source>
                             </sources>
                         </configuration>
                     </execution>
@@ -97,7 +126,6 @@
                     <execution>
                         <goals>
                             <goal>compile</goal>
-                            <goal>resources</goal>
                             <goal>generateAsync</goal>
                         </goals>
                     </execution>

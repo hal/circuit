@@ -23,7 +23,9 @@ package org.jboss.gwt.flux.sample.calculator;
 
 import org.jboss.gwt.flux.Action;
 
-public class TermAction implements Action<Term> {
+public class TermAction implements Action<Term, TermAction.Type> {
+
+    enum Type {Term}
 
     private final Term term;
 
@@ -34,5 +36,10 @@ public class TermAction implements Action<Term> {
     @Override
     public Term getPayload() {
         return term;
+    }
+
+    @Override
+    public Type getType() {
+        return Type.Term;
     }
 }

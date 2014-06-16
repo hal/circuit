@@ -21,22 +21,6 @@
  */
 package org.jboss.gwt.flux.sample.todo.client.actions;
 
-import org.jboss.gwt.flux.Action;
-import org.jboss.gwt.flux.sample.todo.shared.Todo;
-
-public class DeleteTodo implements Action<Todo>, TodoAction {
-
-    private final Todo todo;
-
-    public DeleteTodo(final Todo todo) {this.todo = todo;}
-
-    @Override
-    public Todo getPayload() {
-        return todo;
-    }
-
-    @Override
-    public String toString() {
-        return "DeleteTodo<" + getPayload() + ">";
-    }
+public enum TodoActions {
+    LIST, SAVE, REMOVE
 }
