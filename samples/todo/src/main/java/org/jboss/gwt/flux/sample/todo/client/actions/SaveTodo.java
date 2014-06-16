@@ -34,4 +34,9 @@ public class SaveTodo implements Action<Todo>, TodoAction {
     public Todo getPayload() {
         return todo;
     }
+
+    @Override
+    public String toString() {
+        return "SaveTodo<" + getPayload() + ">";
+    }
 }

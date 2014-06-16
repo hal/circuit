@@ -21,6 +21,7 @@
  */
 package org.jboss.gwt.flux.sample.todo.server;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -31,15 +32,25 @@ import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
 public class TodoServiceImpl extends RemoteServiceServlet implements TodoService {
 
-    private final Map<Long, Todo> store;
+    private final Map<String, Todo> store;
 
     public TodoServiceImpl() {
         store = new LinkedHashMap<>();
+        addInitialTodos();
+    }
+
+    private void addInitialTodos() {
+        Todo[] todos = new Todo[]{
+                new Todo("Buy milk"), new Todo("Invent the next big thing"), new Todo("Relax!")
+        };
+        for (Todo todo : todos) {
+            store.put(todo.getId(), todo);
+        }
     }
 
     @Override
     public Collection<Todo> list() {
-        return store.values();
+        return new ArrayList<>(store.values());
     }
 
     @Override

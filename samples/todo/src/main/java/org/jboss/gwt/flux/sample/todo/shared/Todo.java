@@ -24,7 +24,7 @@ package org.jboss.gwt.flux.sample.todo.shared;
 import java.io.Serializable;
 
 public class Todo implements Serializable {
-    private final long id;
+    private String id;
     private String name;
     private boolean done;
 
@@ -33,7 +33,7 @@ public class Todo implements Serializable {
     }
 
     public Todo(final String name) {
-        this.id = System.currentTimeMillis();
+        this.id = UUID.uuid();
         this.name = name;
         this.done = false;
     }
@@ -45,22 +45,22 @@ public class Todo implements Serializable {
 
         Todo todo = (Todo) o;
 
-        if (id != todo.id) { return false; }
+        if (!id.equals(todo.id)) { return false; }
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return (int) (id ^ (id >>> 32));
+        return id.hashCode();
     }
 
     @Override
     public String toString() {
-        return "Todo[" + name + ", " + done + ']';
+        return "Todo(" + name + ", " + done + ')';
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 

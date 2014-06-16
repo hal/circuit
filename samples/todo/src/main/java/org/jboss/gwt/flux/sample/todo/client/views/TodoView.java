@@ -19,24 +19,40 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.todo.client.actions;
+package org.jboss.gwt.flux.sample.todo.client.views;
 
-import org.jboss.gwt.flux.Action;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.DeckPanel;
+import com.google.gwt.user.client.ui.Label;
+import org.jboss.gwt.flux.Dispatcher;
+import org.jboss.gwt.flux.sample.todo.client.TodoStore;
+import org.jboss.gwt.flux.sample.todo.resources.TodoResources;
 import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
-public class DeleteTodo implements Action<Todo>, TodoAction {
+public class TodoView extends Composite {
 
+    private final Dispatcher dispatcher;
+    private final TodoStore store;
+    private final TodoResources resources;
     private final Todo todo;
+    private final DeckPanel root;
+    private final Label label;
 
-    public DeleteTodo(final Todo todo) {this.todo = todo;}
+    public TodoView(final Dispatcher dispatcher, final TodoStore store, final TodoResources resources, final Todo todo) {
+        this.dispatcher = dispatcher;
+        this.store = store;
+        this.resources = resources;
+        this.todo = todo;
 
-    @Override
-    public Todo getPayload() {
-        return todo;
+        this.root = new DeckPanel();
+        this.label = new Label(todo.getName());
+        root.add(label);
+        readonly();
+        initWidget(root);
+        setStyleName(resources.css().todoView());
     }
 
-    @Override
-    public String toString() {
-        return "DeleteTodo<" + getPayload() + ">";
+    public void readonly() {
+        root.showWidget(0);
     }
 }

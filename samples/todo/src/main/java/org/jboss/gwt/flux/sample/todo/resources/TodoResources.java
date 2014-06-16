@@ -19,17 +19,20 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.todo.client.gin;
+package org.jboss.gwt.flux.sample.todo.resources;
 
-import com.google.gwt.inject.client.GinModules;
-import com.google.gwt.inject.client.Ginjector;
-import org.jboss.gwt.flux.Dispatcher;
-import org.jboss.gwt.flux.sample.todo.client.views.MainView;
+import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.CssResource;
 
-@GinModules(TodoModule.class)
-public interface TodoGinjector extends Ginjector {
+public interface TodoResources extends ClientBundle {
 
-    Dispatcher getDispatcher();
+    @Source("todo.css")
+    TodoCss css();
 
-    MainView getMainView();
+    interface TodoCss extends CssResource {
+
+        String mainView();
+
+        String todoView();
+    }
 }

@@ -28,5 +28,6 @@
     <entry-point class="org.jboss.gwt.flux.sample.todo.client.App"/>
 
     <source path="client"/>
+    <source path="resources"/>
     <source path="shared"/>
 </module>

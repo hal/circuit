@@ -99,13 +99,24 @@
             </dependency>
             <dependency>
                 <groupId>com.google.gwt</groupId>
-                <artifactId>gwt-dev</artifactId>
+                <artifactId>gwt-servlet</artifactId>
                 <version>${gwt.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.gwt</groupId>
                 <artifactId>gwt-user</artifactId>
                 <version>${gwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>1.0.0.GA</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>1.0.0.GA</version>
+                <classifier>sources</classifier>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
@@ -119,6 +130,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

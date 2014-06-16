@@ -29,4 +29,9 @@ public class ListTodos implements Action<Void>, TodoAction {
     public Void getPayload() {
         return null;
     }
+
+    @Override
+    public String toString() {
+        return "ListTodos<Void>";
+    }
 }
