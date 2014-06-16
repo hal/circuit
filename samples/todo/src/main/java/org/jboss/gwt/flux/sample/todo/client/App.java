@@ -34,6 +34,7 @@ public class App implements EntryPoint {
 
     @Override
     public void onModuleLoad() {
+        injector.getTodoResources().css().ensureInjected();
         RootPanel.get().add(injector.getMainView());
         injector.getDispatcher().dispatch(new ListTodos());
     }

@@ -25,9 +25,12 @@ import com.google.gwt.inject.client.GinModules;
 import com.google.gwt.inject.client.Ginjector;
 import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.sample.todo.client.views.MainView;
+import org.jboss.gwt.flux.sample.todo.resources.TodoResources;
 
 @GinModules(TodoModule.class)
 public interface TodoGinjector extends Ginjector {
+
+    TodoResources getTodoResources();
 
     Dispatcher getDispatcher();
 
