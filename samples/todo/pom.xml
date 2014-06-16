@@ -108,7 +108,7 @@
                 <configuration>
                     <sourceLevel>1.7</sourceLevel>
                     <localWorkers>4</localWorkers>
-                    <failOnError>true</failOnError>
+                    <!--<failOnError>true</failOnError>-->
                     <runTarget>index.html</runTarget>
                     <hostedWebapp>${webAppDirectory}</hostedWebapp>
                     <compileSourcesArtifacts>
