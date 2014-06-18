@@ -19,36 +19,20 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux;
+package org.jboss.gwt.flux.domain;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * An action carrying a payload and a type.
+ * @author Harald Pehl
  */
-public final class Action {
+public class Deployment {
+    public String name;
+    public Set<String> deployedAt;
 
-    private final String type;
-    private final Object payload; // TODO Consider using Optional<T> once JDK 8 is available
-
-    public Action(final String type) {
-        this(type, null);
-    }
-
-    public Action(final String type, final Object payload) {
-        this.type = type;
-        this.payload = payload;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <P> P getPayload() {
-        return (P) payload;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    @Override
-    public String toString() {
-        return "Action(" + type + ", " + payload + ")";
+    public Deployment(final String name) {
+        this.name = name;
+        this.deployedAt = new HashSet<>();
     }
 }

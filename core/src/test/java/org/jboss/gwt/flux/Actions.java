@@ -22,33 +22,12 @@
 package org.jboss.gwt.flux;
 
 /**
- * An action carrying a payload and a type.
+ * @author Harald Pehl
  */
-public final class Action {
+public interface Actions {
 
-    private final String type;
-    private final Object payload; // TODO Consider using Optional<T> once JDK 8 is available
-
-    public Action(final String type) {
-        this(type, null);
-    }
-
-    public Action(final String type, final Object payload) {
-        this.type = type;
-        this.payload = payload;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <P> P getPayload() {
-        return (P) payload;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    @Override
-    public String toString() {
-        return "Action(" + type + ", " + payload + ")";
-    }
+    String START_SERVER = "test.start.server";
+    String STOP_SERVER = "test.stop.server";
+    String DEPLOY = "test.deploy";
+    String UNDEPLOY = "test.undeploy";
 }

@@ -28,6 +28,10 @@ import com.google.web.bindery.event.shared.HandlerRegistration;
 /**
  * The store holds state and uses the dispatcher to register callbacks. Views can register change handlers to be
  * informed upon changes of the internal state.
+ * <p>
+ * Dependencies between stores must result in a directed acyclic graph (DAG).
+ *
+ * @see http://en.wikipedia.org/wiki/Directed_acyclic_graph
  */
 public interface Store {
 
@@ -36,6 +40,8 @@ public interface Store {
      * the store. The passed {@code context} must be used by the store to signal processing of the callback.
      */
     public interface Callback {
+
+        Agreement voteFor(Action action);
 
         void execute(Action action, Dispatcher.Channel channel);
     }

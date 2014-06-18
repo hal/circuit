@@ -21,34 +21,34 @@
  */
 package org.jboss.gwt.flux;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
- * An action carrying a payload and a type.
+ * @author Harald Pehl
  */
-public final class Action {
+public class Agreement {
 
-    private final String type;
-    private final Object payload; // TODO Consider using Optional<T> once JDK 8 is available
+    public final static Agreement NONE = new Agreement(false);
 
-    public Action(final String type) {
-        this(type, null);
+    private final boolean approved;
+    private final Set<Class<?>> dependencies;
+
+    public Agreement(final boolean approved, final Class<?>... dependencies) {
+        this.approved = approved;
+        this.dependencies = new HashSet<>();
+        if (dependencies != null) {
+            for (Class<?> dependency : dependencies) {
+                this.dependencies.add(dependency);
+            }
+        }
     }
 
-    public Action(final String type, final Object payload) {
-        this.type = type;
-        this.payload = payload;
+    public boolean isApproved() {
+        return approved;
     }
 
-    @SuppressWarnings("unchecked")
-    public <P> P getPayload() {
-        return (P) payload;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    @Override
-    public String toString() {
-        return "Action(" + type + ", " + payload + ")";
+    public Set<Class<?>> getDependencies() {
+        return dependencies;
     }
 }
