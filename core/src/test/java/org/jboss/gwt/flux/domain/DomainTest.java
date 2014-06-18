@@ -19,10 +19,12 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux;
+package org.jboss.gwt.flux.domain;
 
 import static org.junit.Assert.assertTrue;
 
+import org.jboss.gwt.flux.Action;
+import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.impl.DefaulDispatcherImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +32,7 @@ import org.junit.Test;
 /**
  * @author Harald Pehl
  */
-public class DispatcherTest {
+public class DomainTest {
 
     private Dispatcher dispatcher;
     private DeploymentStore deploymentStore;

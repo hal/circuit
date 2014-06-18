@@ -19,32 +19,38 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux;
+package org.jboss.gwt.flux.domain;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import com.google.web.bindery.event.shared.HandlerRegistration;
-import org.jboss.gwt.flux.domain.Deployment;
+import org.jboss.gwt.flux.Action;
+import org.jboss.gwt.flux.Agreement;
+import org.jboss.gwt.flux.Dispatcher;
+import org.jboss.gwt.flux.Store;
+import org.jboss.gwt.flux.StoreChangedEvent;
 
 /**
  * @author Harald Pehl
  */
-public class DeploymentStore implements Store {
+public class HostStore implements Store {
 
-    public final Map<String, Deployment> deployments;
+    public final Map<String, ServerInstance> serverInstances = new HashMap<>();
 
-    public DeploymentStore(final Dispatcher dispatcher) {
-        deployments = new HashMap<>();
+    public HostStore(final Dispatcher dispatcher) {
 
-        dispatcher.register(DeploymentStore.class, new Callback() {
+        dispatcher.register(HostStore.class, new Callback() {
             @Override
             public Agreement voteFor(final Action action) {
                 Agreement agreement;
                 switch (action.getType()) {
-                    case Actions.DEPLOY:
-                    case Actions.UNDEPLOY:
+                    case Actions.START_SERVER:
                         agreement = new Agreement(true);
+                        break;
+
+                    case Actions.STOP_SERVER:
+                        agreement = new Agreement(true, DeploymentStore.class);
                         break;
 
                     default:
@@ -57,24 +63,15 @@ public class DeploymentStore implements Store {
             @Override
             public void execute(final Action action, final Dispatcher.Channel channel) {
                 switch (action.getType()) {
-                    case Actions.DEPLOY: {
-                        String[] payload = action.getPayload();
-                        String deploymentName = payload[0];
-                        String serverInstance = payload[1];
-                        if (!deployments.keySet().contains(deploymentName)) {
-                            Deployment dpl = new Deployment(deploymentName);
-                            deployments.put(deploymentName, dpl);
-                        }
-
-                        deployments.get(deploymentName).deployedAt.add(serverInstance);
+                    case Actions.START_SERVER: {
+                        String serverName = action.getPayload();
+                        serverInstances.put(serverName, new ServerInstance(serverName));
                         break;
                     }
 
-                    case Actions.UNDEPLOY: {
-                        String[] payload = action.getPayload();
-                        String deploymentName = payload[0];
-                        String serverInstance = payload[1];
-                        deployments.get(deploymentName).deployedAt.remove(serverInstance);
+                    case Actions.STOP_SERVER: {
+                        String serverName = action.getPayload();
+                        serverInstances.remove(serverName);
                         break;
                     }
                 }
