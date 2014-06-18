@@ -26,7 +26,6 @@ package org.jboss.gwt.flux.domain;
  */
 public class ServerInstance {
     public String name;
-    public boolean isRunning;
 
     public ServerInstance(final String name) {
         this.name = name;

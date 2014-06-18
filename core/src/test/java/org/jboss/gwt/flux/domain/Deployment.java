@@ -29,7 +29,7 @@ import java.util.Set;
  */
 public class Deployment {
     public String name;
-    public Set<String> deployedAt;
+    public Set<String> deployedAt; // contains server instances
 
     public Deployment(final String name) {
         this.name = name;

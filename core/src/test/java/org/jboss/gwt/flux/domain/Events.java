@@ -19,40 +19,11 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux;
-
-import java.util.HashSet;
-import java.util.Set;
+package org.jboss.gwt.flux.domain;
 
 /**
  * @author Harald Pehl
  */
-public class Agreement {
+public class Events {
 
-    public final static Agreement NONE = new Agreement(false);
-
-    private final boolean approved;
-    private final Set<Class<?>> dependencies;
-
-    public Agreement(final boolean approved, final Class<?>... dependencies) {
-        this.approved = approved;
-        this.dependencies = new HashSet<>();
-        if (dependencies != null) {
-            for (Class<?> dependency : dependencies) {
-                this.dependencies.add(dependency);
-            }
-        }
-    }
-
-    public boolean isApproved() {
-        return approved;
-    }
-
-    public boolean hasDependencies() {
-        return !dependencies.isEmpty();
-    }
-
-    public Set<Class<?>> getDependencies() {
-        return dependencies;
-    }
 }

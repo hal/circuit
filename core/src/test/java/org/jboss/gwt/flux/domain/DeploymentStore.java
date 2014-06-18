@@ -48,6 +48,7 @@ public class DeploymentStore implements Store {
                 switch (action.getType()) {
                     case Actions.DEPLOY:
                     case Actions.UNDEPLOY:
+                    case Actions.STOP_SERVER:
                         agreement = new Agreement(true);
                         break;
 

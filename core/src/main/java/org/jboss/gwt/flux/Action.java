@@ -48,6 +48,26 @@ public final class Action {
     }
 
     @Override
+    public boolean equals(final Object o) {
+        if (this == o) { return true; }
+        if (!(o instanceof Action)) { return false; }
+
+        Action action = (Action) o;
+
+        if (payload != null ? !payload.equals(action.payload) : action.payload != null) { return false; }
+        if (!type.equals(action.type)) { return false; }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = type.hashCode();
+        result = 31 * result + (payload != null ? payload.hashCode() : 0);
+        return result;
+    }
+
+    @Override
     public String toString() {
         return "Action(" + type + ", " + payload + ")";
     }

@@ -55,7 +55,6 @@ public class HostStore implements Store {
 
                     default:
                         agreement = Agreement.NONE;
-
                 }
                 return agreement;
             }

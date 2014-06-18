@@ -27,16 +27,6 @@ package org.jboss.gwt.flux;
 public interface Dispatcher {
 
     /**
-     * Registers a store callback.
-     */
-    <S extends Store> void register(Class<S> store, Store.Callback callback);
-
-    /**
-     * Calls all registered callbacks.
-     */
-    void dispatch(Action action);
-
-    /**
      * Contract between the dispatcher and the store to manage ordered processing of callbacks.
      */
     public interface Channel {
@@ -48,4 +38,19 @@ public interface Dispatcher {
 
         void nack(Throwable t);
     }
+
+    interface Diagnostics {
+    }
+
+    /**
+     * Registers a store callback.
+     */
+    <S extends Store> void register(Class<S> store, Store.Callback callback);
+
+    /**
+     * Calls all registered callbacks.
+     */
+    void dispatch(Action action);
+
+    void addDiagnostics(Diagnostics diagnostics);
 }
