@@ -19,37 +19,21 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.todo.client.actions;
+package org.jboss.gwt.flux.impl;
 
-import org.jboss.gwt.flux.Action;
-import org.jboss.gwt.flux.sample.todo.shared.Todo;
+import org.jboss.gwt.flux.Dispatcher;
 
-public final class TodoAction implements Action<Todo, TodoActions> {
+public class NoopChannel {
 
-    private final TodoActions type;
-    private final Todo payload;
+    public static Dispatcher.Channel INSTANCE = new Dispatcher.Channel() {
+        @Override
+        public void ack() {
+            // noop
+        }
 
-    public TodoAction(TodoActions type) {
-        this(type, null);
-    }
-
-    public TodoAction(TodoActions type, Todo payload) {
-        this.type = type;
-        this.payload = payload;
-    }
-
-    @Override
-    public TodoActions getType() {
-        return type;
-    }
-
-    @Override
-    public Todo getPayload() {
-        return payload;
-    }
-
-    @Override
-    public String toString() {
-        return "TodoAction<" + type + ">(" + (payload != null ? payload : "") + ")";
-    }
+        @Override
+        public void nack(final Throwable t) {
+            // noop
+        }
+    };
 }

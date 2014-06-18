@@ -73,8 +73,8 @@
     </licenses>
 
     <properties>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <maven.compiler.source>1.8</maven.compiler.source>
+        <!--<maven.compiler.target>1.8</maven.compiler.target>-->
+        <!--<maven.compiler.source>1.8</maven.compiler.source>-->
 
         <errai.version>3.0.0.Final</errai.version>
         <gwt.version>2.6.1</gwt.version>

@@ -35,9 +35,9 @@ public interface Store {
      * A callback used by the {@link org.jboss.gwt.flux.Dispatcher} to pass an {@link org.jboss.gwt.flux.Action} to
      * the store. The passed {@code context} must be used by the store to signal processing of the callback.
      */
-    public interface Callback<A extends Action> {
+    public interface Callback {
 
-        void execute(A action, Dispatcher.Context context);
+        void execute(Action action, Dispatcher.Channel channel);
     }
 
     /**

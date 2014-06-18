@@ -33,7 +33,7 @@ import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
 public class TodoServiceImpl extends RemoteServiceServlet implements TodoService {
 
-    private static final int TIMEOUT = 3000;
+    private static final int TIMEOUT = 1000;
     private final Random random;
     private final Map<String, Todo> store;
 

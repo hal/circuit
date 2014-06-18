@@ -21,6 +21,8 @@
  */
 package org.jboss.gwt.flux.sample.todo.client.actions;
 
-public enum TodoActions {
-    LIST, SAVE, REMOVE
+public interface TodoActions {
+    String LIST = "todo.list";
+    String SAVE = "todo.save";
+    String REMOVE = "todo.remove";
 }

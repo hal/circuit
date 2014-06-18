@@ -29,21 +29,23 @@ public interface Dispatcher {
     /**
      * Registers a store callback.
      */
-    <A extends Action, T extends Enum<T>> void register(Store.Callback<A> callback, T type, T... types);
+    <S extends Store> void register(Class<S> store, Store.Callback callback);
 
     /**
      * Calls all registered callbacks.
      */
-    <A extends Action> void dispatch(A action);
+    void dispatch(Action action);
 
     /**
      * Contract between the dispatcher and the store to manage ordered processing of callbacks.
      */
-    public interface Context {
+    public interface Channel {
 
         /**
          * Must be called by stores to signal the processing of a callback.
          */
-        void yield();
+        void ack();
+
+        void nack(Throwable t);
     }
 }

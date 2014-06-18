@@ -23,13 +23,32 @@ package org.jboss.gwt.flux;
 
 /**
  * An action carrying a payload and a type.
- *
- * @param <P> The payload
- * @param <T> An action type to group related actions
  */
-public interface Action<P, T extends Enum<T>> {
+public final class Action {
 
-    P getPayload();
+    private final String type;
+    private final Object payload; // TODO Consider using Optional<T> once JDK 8 is available
 
-    T getType();
+    public Action(final String type) {
+        this(type, null);
+    }
+
+    public Action(final String type, final Object payload) {
+        this.type = type;
+        this.payload = payload;
+    }
+
+    @SuppressWarnings("unchecked")
+    public Object getPayload() {
+        return payload;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    @Override
+    public String toString() {
+        return "Action(" + type + ", " + payload + ")";
+    }
 }

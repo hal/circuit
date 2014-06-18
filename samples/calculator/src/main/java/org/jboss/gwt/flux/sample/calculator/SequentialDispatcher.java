@@ -27,7 +27,7 @@ import java.util.Map;
 import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.Store;
-import org.jboss.gwt.flux.impl.NoopContext;
+import org.jboss.gwt.flux.impl.NoopChannel;
 
 public class SequentialDispatcher implements Dispatcher {
 
@@ -55,7 +55,7 @@ public class SequentialDispatcher implements Dispatcher {
 
         Store.Callback callback = callbacks.get(action.getType());
         if (callback != null) {
-            callback.execute(action, NoopContext.INSTANCE);
+            callback.execute(action, NoopChannel.INSTANCE);
         } else {
             System.out.printf("No callback found for action type %s\n", action.getType());
         }

@@ -34,10 +34,10 @@ import com.google.gwt.user.client.ui.InlineHyperlink;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.EventHandler;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
+import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.StoreChangedEvent;
 import org.jboss.gwt.flux.sample.todo.client.TodoStore;
-import org.jboss.gwt.flux.sample.todo.client.actions.TodoAction;
 import org.jboss.gwt.flux.sample.todo.client.actions.TodoActions;
 import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
@@ -72,6 +72,6 @@ public class MainView extends Composite {
 
     @EventHandler("add")
     public void onAdd(ClickEvent event) {
-        dispatcher.dispatch(new TodoAction(TodoActions.SAVE, new Todo("New todo @ " + System.currentTimeMillis())));
+        dispatcher.dispatch(new Action(TodoActions.SAVE, new Todo("New todo @ " + System.currentTimeMillis())));
     }
 }

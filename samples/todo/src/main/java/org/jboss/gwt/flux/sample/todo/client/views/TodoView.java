@@ -31,9 +31,9 @@ import com.google.gwt.user.client.ui.InlineLabel;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.EventHandler;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
+import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.sample.todo.client.TodoStore;
-import org.jboss.gwt.flux.sample.todo.client.actions.TodoAction;
 import org.jboss.gwt.flux.sample.todo.client.actions.TodoActions;
 import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
@@ -66,11 +66,11 @@ public class TodoView extends Composite {
     @EventHandler("check")
     public void onCheck(ClickEvent event) {
         todo.setDone(true);
-        dispatcher.dispatch(new TodoAction(TodoActions.SAVE, todo));
+        dispatcher.dispatch(new Action(TodoActions.SAVE, todo));
     }
 
     @EventHandler("remove")
     public void onRemove(ClickEvent event) {
-        dispatcher.dispatch(new TodoAction(TodoActions.REMOVE, todo));
+        dispatcher.dispatch(new Action(TodoActions.REMOVE, todo));
     }
 }

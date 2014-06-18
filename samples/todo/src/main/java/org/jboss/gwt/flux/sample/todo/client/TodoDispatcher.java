@@ -26,12 +26,10 @@ import java.util.Map;
 import java.util.Stack;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.Store;
-import org.jboss.gwt.flux.sample.todo.client.views.QueueInfoView;
 
 @ApplicationScoped
 @SuppressWarnings("UnusedDeclaration")
@@ -39,9 +37,7 @@ public class TodoDispatcher implements Dispatcher {
 
     private boolean locked;
     private final Stack<Action> queue;
-    private final Map<Enum, Store.Callback> callbacks;
-
-    @Inject private QueueInfoView queueInfoView;
+    private final Map<Class<? extends Store>, Store.Callback> callbacks;
 
     public TodoDispatcher() {
         locked = false;
@@ -50,46 +46,38 @@ public class TodoDispatcher implements Dispatcher {
     }
 
     @Override
-    public <A extends Action, T extends Enum<T>> void register(final Store.Callback<A> callback, final T type,
-            final T... types) {
-        callbacks.put(type, callback);
-        if (types != null && types.length != 0) {
-            for (T t : types) {
-                callbacks.put(t, callback);
-            }
-        }
+    public <S extends Store> void register(final Class<S> store, final Store.Callback callback) {
+        assert callbacks.get(store) == null : "Store " + store.getName() + " already registered!";
+        callbacks.put(store, callback);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <A extends Action> void dispatch(final A action) {
-        System.out.println("~-~-~-~-~ Processing " + action);
-        queueInfoView.refresh(queue.size());
-
-        System.out.println("Queue size: " + queue.size());
+    public void dispatch(final Action action) {
         if (locked) {
-            System.out.println("Dispatcher locked - push action to queue.");
             queue.add(action);
-            queueInfoView.refresh(queue.size());
+            System.out.println("Dispatcher locked - pushed action to queue(" + queue.size() + ").");
         } else {
-            Store.Callback callback = callbacks.get(action.getType());
-            if (callback != null) {
-                locked = true;
-                System.out.println("Dispatch action");
-                callback.execute(action, new Context() {
+            locked = true;
+            for (Store.Callback callback : callbacks.values()) {
+                callback.execute(action, new Channel() {
                     @Override
-                    public void yield() {
+                    public void ack() {
+                        proceed();
+                    }
+
+                    @Override
+                    public void nack(final Throwable t) {
+                        proceed();
+                    }
+
+                    private void proceed() {
                         locked = false;
                         if (queue.size() > 0) {
                             dispatch(queue.pop());
                         }
                     }
                 });
-            } else {
-                System.out.println("No callback found for action type " + action.getType());
             }
         }
-
-        System.out.println("~-~-~-~-~ Exit\n");
     }
 }

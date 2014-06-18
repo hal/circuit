@@ -35,9 +35,9 @@ public class CalculatorStore extends AbstractStore {
     public CalculatorStore(final Dispatcher dispatcher) {
         this.results = new LinkedHashMap<>();
 
-        dispatcher.register((TermAction action, Dispatcher.Context context) -> {
+        dispatcher.register((TermAction action, Dispatcher.Channel channel) -> {
             results.put(action.getPayload(), calculate(action.getPayload()));
-            context.yield();
+            channel.ack();
             fireChanged();
         }, TermAction.Type.Term);
     }

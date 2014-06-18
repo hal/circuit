@@ -28,8 +28,8 @@ import javax.inject.Inject;
 import com.google.gwt.user.client.ui.RootPanel;
 import org.jboss.errai.ioc.client.api.AfterInitialization;
 import org.jboss.errai.ioc.client.api.EntryPoint;
+import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Dispatcher;
-import org.jboss.gwt.flux.sample.todo.client.actions.TodoAction;
 import org.jboss.gwt.flux.sample.todo.client.views.MainView;
 import org.jboss.gwt.flux.sample.todo.client.views.QueueInfoView;
 import org.jboss.gwt.flux.sample.todo.resources.TodoResources;
@@ -48,6 +48,6 @@ public class App {
         resources.css().ensureInjected();
         RootPanel.get().add(mainView);
         RootPanel.get().add(queueInfoView);
-        dispatcher.dispatch(new TodoAction(LIST));
+        dispatcher.dispatch(new Action(LIST));
     }
 }
