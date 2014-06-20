@@ -24,6 +24,7 @@
     <inherits name="com.google.gwt.user.User"/>
     <inherits name="org.jboss.errai.enterprise.CDI"/>
     <inherits name="org.jboss.errai.ui.UI"/>
+    <inherits name="org.JGraphT"/>
     <inherits name="org.jboss.gwt.Flux"/>
 
     <source path="client"/>

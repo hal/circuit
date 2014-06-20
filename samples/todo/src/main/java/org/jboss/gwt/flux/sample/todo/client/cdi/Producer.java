@@ -25,6 +25,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 
 import com.google.gwt.core.client.GWT;
+import org.jboss.gwt.flux.Dispatcher;
+import org.jboss.gwt.flux.impl.DAGDispatcher;
 import org.jboss.gwt.flux.sample.todo.client.TodoService;
 import org.jboss.gwt.flux.sample.todo.client.TodoServiceAsync;
 import org.jboss.gwt.flux.sample.todo.resources.TodoResources;
@@ -43,5 +45,11 @@ public class Producer {
     @ApplicationScoped
     public TodoResources produceTodoResources() {
         return GWT.create(TodoResources.class);
+    }
+
+    @Produces
+    @ApplicationScoped
+    public Dispatcher createDispatcher() {
+        return new DAGDispatcher();
     }
 }

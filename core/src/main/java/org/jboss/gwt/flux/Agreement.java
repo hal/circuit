@@ -30,6 +30,7 @@ import java.util.Set;
 public class Agreement {
 
     public final static Agreement NONE = new Agreement(false);
+    public final static Agreement ANY = new Agreement(true);
 
     private final boolean approved;
     private final Set<Class<?>> dependencies;

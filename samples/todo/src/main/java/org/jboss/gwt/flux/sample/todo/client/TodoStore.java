@@ -21,20 +21,20 @@
  */
 package org.jboss.gwt.flux.sample.todo.client;
 
-import static org.jboss.gwt.flux.sample.todo.client.actions.TodoActions.*;
-
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.enterprise.context.ApplicationScoped;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import org.jboss.gwt.flux.AbstractStore;
 import org.jboss.gwt.flux.Action;
+import org.jboss.gwt.flux.Agreement;
 import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.sample.todo.shared.Todo;
+
+import javax.enterprise.context.ApplicationScoped;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.jboss.gwt.flux.sample.todo.client.actions.TodoActions.*;
 
 @ApplicationScoped
 public class TodoStore extends AbstractStore {
@@ -51,6 +51,7 @@ public class TodoStore extends AbstractStore {
     private final List<Todo> todos;
     private final TodoServiceAsync todoService;
 
+
     @Inject
     public TodoStore(final Dispatcher dispatcher, final TodoServiceAsync todoService) {
         this.todos = new LinkedList<>();
@@ -58,11 +59,17 @@ public class TodoStore extends AbstractStore {
 
         dispatcher.register(TodoStore.class, new Callback() {
             @Override
+            public Agreement voteFor(Action action) {
+                return Agreement.ANY;
+            }
+
+            @Override
             public void execute(final Action action, final Dispatcher.Channel channel) {
                 process(action, channel);
             }
         });
     }
+
 
     private void process(final Action action, final Dispatcher.Channel channel) {
         switch (action.getType()) {

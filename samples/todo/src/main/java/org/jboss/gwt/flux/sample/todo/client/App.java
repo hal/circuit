@@ -21,18 +21,21 @@
  */
 package org.jboss.gwt.flux.sample.todo.client;
 
-import static org.jboss.gwt.flux.sample.todo.client.actions.TodoActions.LIST;
-
-import javax.inject.Inject;
-
 import com.google.gwt.user.client.ui.RootPanel;
 import org.jboss.errai.ioc.client.api.AfterInitialization;
 import org.jboss.errai.ioc.client.api.EntryPoint;
 import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Dispatcher;
+import org.jboss.gwt.flux.impl.DAGDispatcher;
 import org.jboss.gwt.flux.sample.todo.client.views.MainView;
 import org.jboss.gwt.flux.sample.todo.client.views.QueueInfoView;
 import org.jboss.gwt.flux.sample.todo.resources.TodoResources;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+
+import static org.jboss.gwt.flux.sample.todo.client.actions.TodoActions.LIST;
 
 @EntryPoint
 @SuppressWarnings("UnusedDeclaration")

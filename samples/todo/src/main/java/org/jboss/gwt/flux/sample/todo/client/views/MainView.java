@@ -21,12 +21,6 @@
  */
 package org.jboss.gwt.flux.sample.todo.client.views;
 
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -41,12 +35,18 @@ import org.jboss.gwt.flux.sample.todo.client.TodoStore;
 import org.jboss.gwt.flux.sample.todo.client.actions.TodoActions;
 import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
+import javax.annotation.PostConstruct;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
+import java.util.List;
+
 @SuppressWarnings("UnusedDeclaration")
 @Templated("View.html#main")
 public class MainView extends Composite {
 
     @Inject TodoStore store;
-    @Inject Dispatcher dispatcher;
+    @Inject
+    Dispatcher dispatcher;
     @Inject @DataField FlowPanel todosContainer;
     @Inject Instance<TodoView> todoViewFactory;
     @Inject @DataField InlineHyperlink add;

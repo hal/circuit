@@ -21,12 +21,6 @@
  */
 package org.jboss.gwt.flux.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-
 import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Agreement;
 import org.jboss.gwt.flux.Dispatcher;
@@ -36,8 +30,15 @@ import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
+
 /**
  * @author Harald Pehl
+ * @author Heiko Braun
  */
 public class DAGDispatcher implements Dispatcher {
 
@@ -146,8 +147,7 @@ public class DAGDispatcher implements Dispatcher {
     }
 
     private DirectedGraph<Class<?>, DefaultEdge> createDag(final Map<Class<? extends Store>, Agreement> approvals) {
-        DirectedGraph<Class<?>, DefaultEdge> dag;
-        dag = new DefaultDirectedGraph<>(DefaultEdge.class);
+        DirectedGraph<Class<?>, DefaultEdge> dag = new DefaultDirectedGraph<>(new EdgeFactoryImpl());
 
         // Add vertexes
         for (Map.Entry<Class<? extends Store>, Agreement> entry : approvals.entrySet()) {
