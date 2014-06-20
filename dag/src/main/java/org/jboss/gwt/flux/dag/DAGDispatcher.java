@@ -46,11 +46,17 @@ import org.jgrapht.traverse.TopologicalOrderIterator;
 public class DAGDispatcher implements Dispatcher {
 
     public interface DAGDiagnostics extends Diagnostics {
+
         void onDispatch(Action a);
+
         void onLock();
+
         void onExecute(Class<?> s, Action a);
+
         void onAck(Class<?> s, Action a);
+
         void onNack(Class<?> s, Action a, final Throwable t);
+
         void onUnlock();
     }
 
@@ -69,38 +75,32 @@ public class DAGDispatcher implements Dispatcher {
         logDelegate = new DAGDiagnostics() {
             @Override
             public void onDispatch(final Action a) {
-                for(DAGDiagnostics d : diagnostics)
-                    d.onDispatch(a);
+                for (DAGDiagnostics d : diagnostics) { d.onDispatch(a); }
             }
 
             @Override
             public void onLock() {
-                for(DAGDiagnostics d : diagnostics)
-                    d.onLock();
+                for (DAGDiagnostics d : diagnostics) { d.onLock(); }
             }
 
             @Override
             public void onExecute(final Class<?> s, final Action a) {
-                for(DAGDiagnostics d : diagnostics)
-                    d.onExecute(s, a);
+                for (DAGDiagnostics d : diagnostics) { d.onExecute(s, a); }
             }
 
             @Override
             public void onAck(final Class<?> s, final Action a) {
-                for(DAGDiagnostics d : diagnostics)
-                    d.onAck(s, a);
+                for (DAGDiagnostics d : diagnostics) { d.onAck(s, a); }
             }
 
             @Override
             public void onNack(final Class<?> s, final Action a, final Throwable t) {
-                for(DAGDiagnostics d : diagnostics)
-                    d.onNack(s, a, t);
+                for (DAGDiagnostics d : diagnostics) { d.onNack(s, a, t); }
             }
 
             @Override
             public void onUnlock() {
-                for(DAGDiagnostics d : diagnostics)
-                    d.onUnlock();
+                for (DAGDiagnostics d : diagnostics) { d.onUnlock(); }
             }
         };
     }
@@ -120,11 +120,11 @@ public class DAGDispatcher implements Dispatcher {
             logDelegate.onLock();
             locked = true;
 
-            // collect agreements
-            Map<Class<? extends Store>, Agreement> agreements = prepare(action);
+            // collect approvals
+            Map<Class<? extends Store>, Agreement> approvals = prepare(action);
 
             // complete callbacks
-            complete(action, agreements);
+            complete(action, approvals);
         } else {
             queue.push(action);
         }
@@ -146,6 +146,7 @@ public class DAGDispatcher implements Dispatcher {
 
     private void complete(final Action action, final Map<Class<? extends Store>, Agreement> approvals) {
         DirectedGraph<Class<? extends Store>, DefaultEdge> dag = createDag(approvals);
+        // TODO Cache topological order
         TopologicalOrderIterator<Class<? extends Store>, DefaultEdge> iterator = new TopologicalOrderIterator<>(
                 dag);
         executeInOrder(action, iterator);
