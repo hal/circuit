@@ -27,7 +27,6 @@ import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.sample.calculator.views.InputView;
 import org.jboss.gwt.flux.sample.calculator.views.StatsView;
 import org.jboss.gwt.flux.sample.calculator.views.TermsView;
-import org.jboss.gwt.flux.sample.calculator.views.TotalsView;
 
 public class Calculator {
 
@@ -51,7 +50,6 @@ public class Calculator {
     public void run() {
         new StatsView(store);
         new TermsView(store);
-        new TotalsView(store);
         new InputView(dispatcher, numberOfActions).dispatch();
     }
 }

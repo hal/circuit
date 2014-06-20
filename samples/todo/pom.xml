@@ -34,7 +34,7 @@
 
     <artifactId>flux-todo-sample</artifactId>
     <name>Flux :: Samples :: Todo</name>
-    <description>GWT sample application using Flux</description>
+    <description>GWT based Flux sample of a todo manager</description>
     <packaging>war</packaging>
 
     <properties>
@@ -110,7 +110,6 @@
                         <configuration>
                             <sources>
                                 <!-- Enable refresh for GWT development mode -->
-                                <source>${project.build.directory}/generated-sources/gwt</source>
                                 <source>${basedir}/../../core/src/main/java</source>
                                 <source>${basedir}/../../core/src/main/resources</source>
                             </sources>
@@ -126,7 +125,6 @@
                     <execution>
                         <goals>
                             <goal>compile</goal>
-                            <goal>generateAsync</goal>
                         </goals>
                     </execution>
                 </executions>

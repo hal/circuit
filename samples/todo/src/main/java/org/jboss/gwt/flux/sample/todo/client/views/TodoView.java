@@ -31,10 +31,10 @@ import com.google.gwt.user.client.ui.InlineLabel;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.EventHandler;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
-import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.sample.todo.client.TodoStore;
-import org.jboss.gwt.flux.sample.todo.client.actions.TodoActions;
+import org.jboss.gwt.flux.sample.todo.client.actions.RemoveTodo;
+import org.jboss.gwt.flux.sample.todo.client.actions.SaveTodo;
 import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
 @SuppressWarnings("UnusedDeclaration")
@@ -66,11 +66,11 @@ public class TodoView extends Composite {
     @EventHandler("check")
     public void onCheck(ClickEvent event) {
         todo.setDone(true);
-        dispatcher.dispatch(new Action(TodoActions.SAVE, todo));
+        dispatcher.dispatch(new SaveTodo(todo));
     }
 
     @EventHandler("remove")
     public void onRemove(ClickEvent event) {
-        dispatcher.dispatch(new Action(TodoActions.REMOVE, todo));
+        dispatcher.dispatch(new RemoveTodo(todo));
     }
 }

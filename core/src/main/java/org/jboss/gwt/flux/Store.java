@@ -28,21 +28,24 @@ import com.google.web.bindery.event.shared.HandlerRegistration;
 /**
  * The store holds state and uses the dispatcher to register callbacks. Views can register change handlers to be
  * informed upon changes of the internal state.
- * <p>
- * Dependencies between stores must result in a directed acyclic graph (DAG).
- *
- * @see http://en.wikipedia.org/wiki/Directed_acyclic_graph
  */
 public interface Store {
 
     /**
      * A callback used by the {@link org.jboss.gwt.flux.Dispatcher} to pass an {@link org.jboss.gwt.flux.Action} to
-     * the store. The passed {@code context} must be used by the store to signal processing of the callback.
+     * the store.
      */
     public interface Callback {
 
+        /**
+         * Called by the dispatcher before the action is dispatched.
+         */
         Agreement voteFor(Action action);
 
+        /**
+         * Called by the dispatcher when the action is dispatched. The passed {@code channel} must be used by the store
+         * to ack/nack the processing of the callback.
+         */
         void execute(Action action, Dispatcher.Channel channel);
     }
 

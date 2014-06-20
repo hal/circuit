@@ -21,8 +21,6 @@
  */
 package org.jboss.gwt.flux.sample.todo.client;
 
-import static org.jboss.gwt.flux.sample.todo.client.actions.TodoActions.*;
-
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,7 +31,12 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import org.jboss.gwt.flux.AbstractStore;
 import org.jboss.gwt.flux.Action;
+import org.jboss.gwt.flux.Agreement;
 import org.jboss.gwt.flux.Dispatcher;
+import org.jboss.gwt.flux.sample.todo.client.actions.ListTodos;
+import org.jboss.gwt.flux.sample.todo.client.actions.RemoveTodo;
+import org.jboss.gwt.flux.sample.todo.client.actions.SaveTodo;
+import org.jboss.gwt.flux.sample.todo.client.actions.TodoActions;
 import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
 @ApplicationScoped
@@ -58,6 +61,14 @@ public class TodoStore extends AbstractStore {
 
         dispatcher.register(TodoStore.class, new Callback() {
             @Override
+            public Agreement voteFor(final Action action) {
+                if (action instanceof TodoActions) {
+                    return new Agreement(true);
+                }
+                return Agreement.NONE;
+            }
+
+            @Override
             public void execute(final Action action, final Dispatcher.Channel channel) {
                 process(action, channel);
             }
@@ -65,34 +76,30 @@ public class TodoStore extends AbstractStore {
     }
 
     private void process(final Action action, final Dispatcher.Channel channel) {
-        switch (action.getType()) {
-            case LIST:
-                todoService.list(new TodoCallback<Collection<Todo>>() {
-                    @Override
-                    public void onSuccess(final Collection<Todo> result) {
-                        todos.clear();
-                        todos.addAll(result);
-                        channel.ack();
-                        fireChanged();
-                    }
-                });
-                break;
-            case SAVE:
-                todoService.save((Todo) action.getPayload(), new TodoCallback<Void>() {
-                    @Override
-                    public void onSuccess(final Void result) {
-                        process(new Action(LIST), channel);
-                    }
-                });
-                break;
-            case REMOVE:
-                todoService.delete((Todo) action.getPayload(), new TodoCallback<Void>() {
-                    @Override
-                    public void onSuccess(final Void result) {
-                        process(new Action(LIST), channel);
-                    }
-                });
-                break;
+        if (action instanceof ListTodos) {
+            todoService.list(new TodoCallback<Collection<Todo>>() {
+                @Override
+                public void onSuccess(final Collection<Todo> result) {
+                    todos.clear();
+                    todos.addAll(result);
+                    channel.ack();
+                    fireChanged();
+                }
+            });
+        } else if (action instanceof SaveTodo) {
+            todoService.save((Todo) action.getPayload(), new TodoCallback<Void>() {
+                @Override
+                public void onSuccess(final Void result) {
+                    process(new ListTodos(), channel);
+                }
+            });
+        } else if (action instanceof RemoveTodo) {
+            todoService.delete((Todo) action.getPayload(), new TodoCallback<Void>() {
+                @Override
+                public void onSuccess(final Void result) {
+                    process(new ListTodos(), channel);
+                }
+            });
         }
     }
 

@@ -23,24 +23,45 @@ package org.jboss.gwt.flux.sample.calculator.views;
 
 import static org.jboss.gwt.flux.sample.calculator.Term.Op;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
+import org.jboss.gwt.flux.StoreChangedEvent;
 import org.jboss.gwt.flux.sample.calculator.CalculatorStore;
 import org.jboss.gwt.flux.sample.calculator.Term;
 
 public class StatsView implements View {
 
     public StatsView(final CalculatorStore store) {
-        store.addChangedHandler(event -> {
-            Set<Term> terms = store.getResults().keySet();
-            Map<Op, List<Term>> termsByOp = terms.stream().collect(Collectors.groupingBy(Term::getOp));
-            String message = termsByOp.entrySet().stream()
-                    .map(entry -> entry.getKey().name() + "(" + entry.getValue().size() + ")")
-                    .collect(Collectors.joining(", "));
-            System.out.printf("Operation stats:    %s\n", message);
+        store.addChangedHandler(new StoreChangedEvent.StoreChangedHandler() {
+            @Override
+            public void onChange(final StoreChangedEvent event) {
+                Map<Op, List<Term>> termsByOp = new HashMap<>();
+                Set<Term> terms = store.getResults().keySet();
+                for (Term term : terms) {
+                    List<Term> termsOfOp = termsByOp.get(term.getOp());
+                    if (termsOfOp == null) {
+                        termsOfOp = new ArrayList<>();
+                        termsByOp.put(term.getOp(), termsOfOp);
+                    }
+                    termsOfOp.add(term);
+                }
+
+                StringBuilder message = new StringBuilder();
+                for (Iterator<Map.Entry<Op, List<Term>>> iterator = termsByOp.entrySet().iterator();
+                        iterator.hasNext(); ) {
+                    Map.Entry<Op, List<Term>> entry = iterator.next();
+                    message.append(entry.getKey().name()).append("(").append(entry.getValue().size()).append(")");
+                    if (iterator.hasNext()) {
+                        message.append(", ");
+                    }
+                }
+                System.out.printf("Operation stats:    %s\n", message);
+            }
         });
     }
 }

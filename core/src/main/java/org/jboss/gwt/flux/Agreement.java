@@ -21,26 +21,27 @@
  */
 package org.jboss.gwt.flux;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * @author Harald Pehl
+ * An agreement is a way a store can express its support for an action and its dependencies to other stores for that
+ * action.
  */
 public class Agreement {
 
     public final static Agreement NONE = new Agreement(false);
 
     private final boolean approved;
-    private final Set<Class<?>> dependencies;
+    private final Set<Class<? extends Store>> dependencies;
 
-    public Agreement(final boolean approved, final Class<?>... dependencies) {
+    @SafeVarargs
+    public Agreement(final boolean approved, final Class<? extends Store>... dependencies) {
         this.approved = approved;
         this.dependencies = new HashSet<>();
         if (dependencies != null) {
-            for (Class<?> dependency : dependencies) {
-                this.dependencies.add(dependency);
-            }
+            Collections.addAll(this.dependencies, dependencies);
         }
     }
 
@@ -52,7 +53,7 @@ public class Agreement {
         return !dependencies.isEmpty();
     }
 
-    public Set<Class<?>> getDependencies() {
+    public Set<Class<? extends Store>> getDependencies() {
         return dependencies;
     }
 }

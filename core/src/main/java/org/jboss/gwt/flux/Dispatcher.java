@@ -32,15 +32,22 @@ public interface Dispatcher {
     public interface Channel {
 
         /**
-         * Must be called by stores to signal the processing of a callback.
+         * Must be called by stores to signal the successful processing of a callback.
          */
         void ack();
 
+        /**
+         * Must be called by stores to signal an error during the processing of a callback.
+         */
         void nack(Throwable t);
     }
 
-    interface Diagnostics {
-    }
+
+    /**
+     * Marker interface for classes which manage internal stats of a dispatcher implementation.
+     */
+    interface Diagnostics {}
+
 
     /**
      * Registers a store callback.

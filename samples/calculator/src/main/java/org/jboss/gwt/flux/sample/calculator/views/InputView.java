@@ -23,8 +23,9 @@ package org.jboss.gwt.flux.sample.calculator.views;
 
 import static org.jboss.gwt.flux.sample.calculator.Term.Op;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
-import java.util.stream.Stream;
 
 import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Dispatcher;
@@ -36,22 +37,31 @@ public class InputView implements View {
 
     private final int numberOfActions;
     private final Dispatcher dispatcher;
-    private final Stream<Action> actionStream;
+    private List<Action> actions;
 
     public InputView(final Dispatcher dispatcher, int numberOfActions) {
         this.dispatcher = dispatcher;
         this.numberOfActions = numberOfActions;
-        this.actionStream = Stream.generate(() -> {
-            Random random = new Random();
-            Op op = Op.values()[random.nextInt(Op.values().length)];
-            boolean noop = 1 + random.nextInt(11) % 4 == 4;
-            return noop ? new NoopAction() : new TermAction(
-                    new Term(1 + random.nextInt(10), op, 1 + random.nextInt(10)));
-        });
+        this.actions = actionStream(numberOfActions);
     }
 
     public void dispatch() {
-        // Simulate user input
-        actionStream.limit(numberOfActions).forEach(dispatcher::dispatch);
+        for (Action action : actions) {
+            dispatcher.dispatch(action);
+        }
+    }
+
+    private List<Action> actionStream(int size) {
+        Random random = new Random();
+        List<Action> actions = new ArrayList<>(size);
+
+        for (int i = 0; i < size; i++) {
+            Op op = Op.values()[random.nextInt(Op.values().length)];
+            boolean noop = 1 + random.nextInt(11) % 4 == 4;
+            Action action = noop ? new NoopAction() : new TermAction(
+                    new Term(1 + random.nextInt(10), op, 1 + random.nextInt(10)));
+            actions.add(action);
+        }
+        return actions;
     }
 }

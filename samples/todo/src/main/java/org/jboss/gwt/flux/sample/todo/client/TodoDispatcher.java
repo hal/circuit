@@ -46,6 +46,11 @@ public class TodoDispatcher implements Dispatcher {
     }
 
     @Override
+    public void addDiagnostics(final Diagnostics diagnostics) {
+        // noop
+    }
+
+    @Override
     public <S extends Store> void register(final Class<S> store, final Store.Callback callback) {
         assert callbacks.get(store) == null : "Store " + store.getName() + " already registered!";
         callbacks.put(store, callback);
@@ -59,24 +64,26 @@ public class TodoDispatcher implements Dispatcher {
         } else {
             locked = true;
             for (Store.Callback callback : callbacks.values()) {
-                callback.execute(action, new Channel() {
-                    @Override
-                    public void ack() {
-                        proceed();
-                    }
-
-                    @Override
-                    public void nack(final Throwable t) {
-                        proceed();
-                    }
-
-                    private void proceed() {
-                        locked = false;
-                        if (queue.size() > 0) {
-                            dispatch(queue.pop());
+                if (callback.voteFor(action).isApproved()) {
+                    callback.execute(action, new Channel() {
+                        @Override
+                        public void ack() {
+                            proceed();
                         }
-                    }
-                });
+
+                        @Override
+                        public void nack(final Throwable t) {
+                            proceed();
+                        }
+
+                        private void proceed() {
+                            locked = false;
+                            if (queue.size() > 0) {
+                                dispatch(queue.pop());
+                            }
+                        }
+                    });
+                }
             }
         }
     }

@@ -26,6 +26,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.jboss.gwt.flux.AbstractStore;
+import org.jboss.gwt.flux.Action;
+import org.jboss.gwt.flux.Agreement;
 import org.jboss.gwt.flux.Dispatcher;
 
 public class CalculatorStore extends AbstractStore {
@@ -35,11 +37,23 @@ public class CalculatorStore extends AbstractStore {
     public CalculatorStore(final Dispatcher dispatcher) {
         this.results = new LinkedHashMap<>();
 
-        dispatcher.register((TermAction action, Dispatcher.Channel channel) -> {
-            results.put(action.getPayload(), calculate(action.getPayload()));
-            channel.ack();
-            fireChanged();
-        }, TermAction.Type.Term);
+        dispatcher.register(CalculatorStore.class, new Callback() {
+            @Override
+            public Agreement voteFor(final Action action) {
+                if (action instanceof TermAction) {
+                    return new Agreement(true);
+                }
+                return Agreement.NONE;
+            }
+
+            @Override
+            public void execute(final Action action, final Dispatcher.Channel channel) {
+                Term term = (Term) action.getPayload();
+                results.put(term, calculate(term));
+                channel.ack();
+                fireChanged();
+            }
+        });
     }
 
     private int calculate(final Term term) {

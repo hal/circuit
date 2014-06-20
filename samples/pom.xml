@@ -38,14 +38,16 @@
     <packaging>pom</packaging>
 
     <modules>
-        <!--<module>calculator</module>-->
+        <module>calculator</module>
         <module>todo</module>
+        <module>wardrobe</module>
+        <module>wmm</module>
     </modules>
 
     <dependencies>
         <dependency>
             <groupId>org.jboss.gwt.flux</groupId>
-            <artifactId>flux</artifactId>
+            <artifactId>flux-core</artifactId>
         </dependency>
     </dependencies>
 </project>

@@ -21,8 +21,8 @@
  */
 package org.jboss.gwt.flux.sample.todo.client.actions;
 
+/**
+ * @author Harald Pehl
+ */
 public interface TodoActions {
-    String LIST = "todo.list";
-    String SAVE = "todo.save";
-    String REMOVE = "todo.remove";
 }

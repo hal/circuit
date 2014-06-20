@@ -23,15 +23,11 @@ package org.jboss.gwt.flux.sample.calculator;
 
 import org.jboss.gwt.flux.Action;
 
-public class TermAction implements Action<Term, TermAction.Type> {
-
-    enum Type {Term}
+public class TermAction implements Action {
 
     private final Term term;
 
-    public TermAction(final Term term) {
-        this.term = term;
-    }
+    public TermAction(final Term term) {this.term = term;}
 
     @Override
     public Term getPayload() {
@@ -39,7 +35,24 @@ public class TermAction implements Action<Term, TermAction.Type> {
     }
 
     @Override
-    public Type getType() {
-        return Type.Term;
+    public boolean equals(final Object o) {
+        if (this == o) { return true; }
+        if (!(o instanceof TermAction)) { return false; }
+
+        TermAction that = (TermAction) o;
+
+        if (!term.equals(that.term)) { return false; }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return term.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "TermAction(" + term + ")";
     }
 }
