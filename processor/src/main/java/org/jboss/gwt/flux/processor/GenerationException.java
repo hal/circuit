@@ -19,25 +19,29 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.wardrobe.stores;
+package org.jboss.gwt.flux.processor;
 
-import org.jboss.gwt.flux.Dispatcher;
-import org.jboss.gwt.flux.meta.Receive;
-import org.jboss.gwt.flux.meta.Store;
-import org.jboss.gwt.flux.sample.wardrobe.actions.Dress;
-import org.jboss.gwt.flux.sample.wardrobe.actions.Undress;
+public class GenerationException extends Exception {
 
-@Store
-@SuppressWarnings("UnusedParameters")
-public class Socks {
-
-    @Receive
-    public void dress(Dress action, Dispatcher.Channel channel) {
-        channel.ack();
+    public GenerationException() {
+        super();
     }
 
-    @Receive(dependencies = Shoes.class)
-    public void undress(Undress action, Dispatcher.Channel channel) {
-        channel.ack();
+    public GenerationException(final String msg) {
+        super(msg);
+    }
+
+    public GenerationException(final String msg,
+            final String origin) {
+        super(origin + ": " + msg);
+    }
+
+    public GenerationException(Throwable t) {
+        super(t);
+    }
+
+    public GenerationException(String message,
+            Throwable cause) {
+        super(message, cause);
     }
 }

@@ -19,25 +19,23 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.wardrobe.stores;
+package org.jboss.gwt.flux.processor;
 
-import org.jboss.gwt.flux.Dispatcher;
-import org.jboss.gwt.flux.meta.Receive;
-import org.jboss.gwt.flux.meta.Store;
-import org.jboss.gwt.flux.sample.wardrobe.actions.Dress;
-import org.jboss.gwt.flux.sample.wardrobe.actions.Undress;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
-@Store
-@SuppressWarnings("UnusedParameters")
-public class Socks {
+class StoreGenerator extends AbstractGenerator {
 
-    @Receive
-    public void dress(Dress action, Dispatcher.Channel channel) {
-        channel.ack();
-    }
+    StringBuffer generate(final String packageName, final String storeClassName, String storeDelegate,
+            Set<ReceiveInfo> receiveInfos)
+            throws GenerationException {
 
-    @Receive(dependencies = Shoes.class)
-    public void undress(Undress action, Dispatcher.Channel channel) {
-        channel.ack();
+        Map<String, Object> context = new HashMap<>();
+        context.put("packageName", packageName);
+        context.put("storeClassName", storeClassName);
+        context.put("storeDelegate", storeDelegate);
+        context.put("receiveInfos", receiveInfos);
+        return generate(context, "Store.ftl");
     }
 }

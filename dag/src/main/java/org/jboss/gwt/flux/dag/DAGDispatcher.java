@@ -162,7 +162,7 @@ public class DAGDispatcher implements Dispatcher {
 
     @Override
     public void registerLifecycle(final Lifecycle lifecycle) {
-        assert lifecycle != null : "Lifecylce must not be null!";
+        assert lifecycle != null : "Lifecycle must not be null!";
         this.lifecycle = lifecycle;
     }
 }
