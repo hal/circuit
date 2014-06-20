@@ -52,7 +52,7 @@ final class GenerationUtil {
     /**
      * Passing a reference to exactly this array causes
      * {@link #getAnnotatedMethods(javax.lang.model.element.TypeElement, javax.annotation.processing.ProcessingEnvironment,
-     * String, javax.lang.model.type.TypeMirror, String[])} not to care about parameter types.
+     * String, javax.lang.model.type.TypeMirror, String[], StringBuilder)} not to care about parameter types.
      */
     static final String[] ANY_PARAMS = new String[0];
 
@@ -201,7 +201,7 @@ final class GenerationUtil {
      * @return true if the target method's parameter list matches the given required parameter types, or if the special
      * {@link #ANY_PARAMS} value is passed as {@code requiredParameterTypes}. False otherwise.
      */
-    private static boolean doParametersMatch(final Types typeUtils,
+    static boolean doParametersMatch(final Types typeUtils,
             final Elements elementUtils,
             final ExecutableElement e,
             final String[] requiredParameterTypes) {

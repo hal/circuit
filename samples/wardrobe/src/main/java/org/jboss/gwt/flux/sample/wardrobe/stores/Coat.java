@@ -31,7 +31,7 @@ import org.jboss.gwt.flux.sample.wardrobe.actions.Undress;
 @SuppressWarnings("UnusedParameters")
 public class Coat {
 
-    @Receive(dependencies = Pullover.class)
+    @Receive(dependencies = {Pullover.class, Trousers.class})
     public void dress(Dress action, Dispatcher.Channel channel) {
         channel.ack();
     }

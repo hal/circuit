@@ -23,25 +23,11 @@ package org.jboss.gwt.flux.processor;
 
 public class GenerationException extends Exception {
 
-    public GenerationException() {
-        super();
-    }
-
     public GenerationException(final String msg) {
         super(msg);
     }
 
-    public GenerationException(final String msg,
-            final String origin) {
-        super(origin + ": " + msg);
-    }
-
     public GenerationException(Throwable t) {
         super(t);
-    }
-
-    public GenerationException(String message,
-            Throwable cause) {
-        super(message, cause);
     }
 }

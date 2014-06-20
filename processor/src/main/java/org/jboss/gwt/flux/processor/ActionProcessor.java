@@ -60,7 +60,7 @@ public class ActionProcessor extends AbstractErrorAbsorbingProcessor {
                     final String payloadClassName = classElement.getSimpleName().toString();
                     final String actionClassName = GenerationUtil.actionImplementation(payloadClassName);
                     messager.printMessage(Diagnostic.Kind.NOTE,
-                            "Discovered annotated action [" + payloadClassName + "]");
+                            "Discovered annotated action [" + classElement.getQualifiedName() + "]");
 
                     try {
                         messager.printMessage(Diagnostic.Kind.NOTE, "Generating code for [" + actionClassName + "]");
