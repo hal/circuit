@@ -84,7 +84,7 @@ public class TodoDispatcher implements Dispatcher {
     }
 
     @Override
-    public void registerLifecycle(final Lifecycle lifecycle) {
-
+    public void addDiagnostics(final Diagnostics diagnostics) {
+        throw new UnsupportedOperationException("Diagnostics are not supported for " + TodoDispatcher.class);
     }
 }

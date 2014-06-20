@@ -22,7 +22,7 @@
 package org.jboss.gwt.flux;
 
 /**
- * The dispatcher registers store callbacks and dispatches actions.
+ * The dispatcher manages store callbacks and dispatches actions.
  */
 public interface Dispatcher {
 
@@ -44,31 +44,10 @@ public interface Dispatcher {
 
 
     /**
-     * Interface for receiving lifecycle callbacks from a dispatcher.
+     * Interface for accessing workflow data from a dispatcher.
      */
-    interface Lifecycle {
-
-        /**
-         * Called when a action is dispatched.
-         */
-        void onDispatch(Action action);
-
-        /**
-         * Called <strong>before</strong> the action is executed by the store.
-         */
-        void onExecute(Class<? extends Store> store, Action action);
-
-        /**
-         * Called when the action was acked by the store.
-         */
-        void onAck(Class<? extends Store> store, Action action);
-
-        /**
-         * Called when the action was nacked by the store.
-         */
-        void onNack(Class<? extends Store> store, Action action, final Throwable t);
+    interface Diagnostics {
     }
-
 
     /**
      * Registers a store callback.
@@ -82,7 +61,7 @@ public interface Dispatcher {
     void dispatch(Action action);
 
     /**
-     * Registers a lifecycle instance to get insight into the internal workflow of a dispatcher.
+     * Registers a diagnostics instance.
      */
-    void registerLifecycle(Dispatcher.Lifecycle lifecycle);
+    void addDiagnostics(Diagnostics diagnostics);
 }
