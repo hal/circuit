@@ -21,6 +21,7 @@
  */
 package org.jboss.gwt.flux.sample.wardrobe.stores;
 
+import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.meta.Receive;
 import org.jboss.gwt.flux.meta.Store;
 import org.jboss.gwt.flux.sample.wardrobe.actions.Dress;
@@ -30,12 +31,14 @@ import org.jboss.gwt.flux.sample.wardrobe.actions.Undress;
 public class Pullover extends WardrobeStore {
 
     @Receive(dependencies = Undershirt.class)
-    public void dress(Dress action) {
+    public void dress(Dress action, Dispatcher.Channel channel) {
         log(action);
+        channel.ack();
     }
 
     @Receive(dependencies = Coat.class)
-    public void undress(Undress action) {
+    public void undress(Undress action, Dispatcher.Channel channel) {
         log(action);
+        channel.ack();
     }
 }

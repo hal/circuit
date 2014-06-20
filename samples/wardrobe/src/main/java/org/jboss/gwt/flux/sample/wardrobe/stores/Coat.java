@@ -21,7 +21,9 @@
  */
 package org.jboss.gwt.flux.sample.wardrobe.stores;
 
+import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.gwt.flux.Dispatcher;
+import org.jboss.gwt.flux.StoreChangedEvent;
 import org.jboss.gwt.flux.meta.Receive;
 import org.jboss.gwt.flux.meta.Store;
 import org.jboss.gwt.flux.sample.wardrobe.actions.Dress;
@@ -31,14 +33,16 @@ import org.jboss.gwt.flux.sample.wardrobe.actions.Undress;
 public class Coat extends WardrobeStore {
 
     @Receive(dependencies = Pullover.class)
-    public void dress(Dress action, Dispatcher.Channel channel) {
+    public void dress(Dress action, EventBus eventBus, Dispatcher.Channel channel) {
         log(action);
+        eventBus.fireEvent(new StoreChangedEvent());
         channel.ack();
     }
 
     @Receive
-    public void undress(Undress action, Dispatcher.Channel channel) {
+    public void undress(Undress action, EventBus eventBus, Dispatcher.Channel channel) {
         log(action);
+        eventBus.fireEvent(new StoreChangedEvent());
         channel.ack();
     }
 }
