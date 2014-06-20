@@ -43,7 +43,7 @@ public class ${storeClassName} extends AbstractStore {
                 <#list receiveInfos as receiveInfo>
                 if (action instanceof ${receiveInfo.action}) {
                     ${receiveInfo.action} concreteAction = (${receiveInfo.action}) action;
-                   delegate.${receiveInfo.method}(concreteAction.getPayload(), channel);
+                    delegate.${receiveInfo.method}(concreteAction.getPayload(), channel);
                 }
                 </#list>
             }
