@@ -44,9 +44,30 @@ public interface Dispatcher {
 
 
     /**
-     * Marker interface for classes which manage internal stats of a dispatcher implementation.
+     * Interface for receiving lifecycle callbacks from a dispatcher.
      */
-    interface Diagnostics {}
+    interface Lifecycle {
+
+        /**
+         * Called when a action is dispatched.
+         */
+        void onDispatch(Action action);
+
+        /**
+         * Called <strong>before</strong> the action is executed by the store.
+         */
+        void onExecute(Class<? extends Store> store, Action action);
+
+        /**
+         * Called when the action was acked by the store.
+         */
+        void onAck(Class<? extends Store> store, Action action);
+
+        /**
+         * Called when the action was nacked by the store.
+         */
+        void onNack(Class<? extends Store> store, Action action, final Throwable t);
+    }
 
 
     /**
@@ -55,9 +76,13 @@ public interface Dispatcher {
     <S extends Store> void register(Class<S> store, Store.Callback callback);
 
     /**
-     * Calls all registered callbacks.
+     * Dispatches the actions to all registered stores, which voted with an approved agreement. The stores are called
+     * according to the dependencies specified in the agreement for the given action.
      */
     void dispatch(Action action);
 
-    void addDiagnostics(Diagnostics diagnostics);
+    /**
+     * Registers a lifecycle instance to get insight into the internal workflow of a dispatcher.
+     */
+    void registerLifecycle(Dispatcher.Lifecycle lifecycle);
 }

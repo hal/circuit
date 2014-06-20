@@ -28,26 +28,23 @@
 
     <parent>
         <groupId>org.jboss.gwt.flux</groupId>
-        <artifactId>flux-samples-parent</artifactId>
+        <artifactId>flux-parent</artifactId>
         <version>0.0.2</version>
     </parent>
 
-    <artifactId>flux-wardrobe-sample</artifactId>
-    <name>Flux :: Samples :: Wardrobe</name>
-    <description>
-        Console based Flux sample simulating dress and undress of dependent items of clothing.
-        Uses the DAG dispatcher and the meta annotations.
-    </description>
+    <artifactId>flux-processor</artifactId>
+    <name>Flux :: Processor</name>
+    <description>APT processor which generates stores and actions based on annotation</description>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
             <groupId>org.jboss.gwt.flux</groupId>
-            <artifactId>flux-meta</artifactId>
+            <artifactId>flux-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.gwt</groupId>
-            <artifactId>gwt-user</artifactId>
+            <groupId>org.jboss.gwt.flux</groupId>
+            <artifactId>flux-meta</artifactId>
         </dependency>
     </dependencies>
 </project>

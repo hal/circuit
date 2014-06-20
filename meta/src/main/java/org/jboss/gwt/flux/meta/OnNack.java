@@ -19,20 +19,17 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.wardrobe.stores;
+package org.jboss.gwt.flux.meta;
 
-import org.jboss.gwt.flux.meta.Receive;
-import org.jboss.gwt.flux.meta.Store;
-import org.jboss.gwt.flux.sample.wardrobe.actions.Dress;
-import org.jboss.gwt.flux.sample.wardrobe.actions.Undress;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@Store
-@SuppressWarnings("UnusedParameters")
-public class Trousers {
-
-    @Receive(dependencies = Underwear.class)
-    public void dress(Dress action) {}
-
-    @Receive(dependencies = Coat.class)
-    public void undress(Undress action) {}
+/**
+ * Marks a method as part of a dispatcher lifecycle instance which is notified before an action was nacked by a store.
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD})
+public @interface OnNack {
 }

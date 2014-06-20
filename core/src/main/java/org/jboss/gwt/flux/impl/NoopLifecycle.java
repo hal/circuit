@@ -19,30 +19,31 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.wardrobe.stores;
+package org.jboss.gwt.flux.impl;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.jboss.gwt.flux.Action;
+import org.jboss.gwt.flux.Dispatcher;
+import org.jboss.gwt.flux.Store;
 
-import org.jboss.gwt.flux.sample.wardrobe.actions.Dress;
-import org.jboss.gwt.flux.sample.wardrobe.actions.Undress;
-import org.jboss.gwt.flux.sample.wardrobe.actions.WardrobeAction;
+public class NoopLifecycle implements Dispatcher.Lifecycle {
 
-public class WardrobeStore {
-
-    private final List<String> dressOrder;
-    private final List<String> undressOrder;
-
-    public WardrobeStore() {
-        dressOrder = new ArrayList<>();
-        undressOrder = new ArrayList<>();
+    @Override
+    public void onDispatch(final Action action) {
+        // noop
     }
 
-    protected void log(WardrobeAction action) {
-        if (action instanceof Dress) {
-            dressOrder.add(getClass().getSimpleName().toLowerCase());
-        } else if (action instanceof Undress) {
-            undressOrder.add(getClass().getSimpleName().toLowerCase());
-        }
+    @Override
+    public void onExecute(final Class<? extends Store> store, final Action action) {
+        // noop
+    }
+
+    @Override
+    public void onAck(final Class<? extends Store> store, final Action action) {
+        // noop
+    }
+
+    @Override
+    public void onNack(final Class<? extends Store> store, final Action action, final Throwable t) {
+        // noop
     }
 }

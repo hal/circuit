@@ -22,7 +22,7 @@
 package org.jboss.gwt.flux.sample.todo.client.actions;
 
 /**
- * @author Harald Pehl
+ * Marker interface for all _todo_ related actions.
  */
 public interface TodoActions {
 }

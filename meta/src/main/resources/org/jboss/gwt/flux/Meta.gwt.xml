@@ -21,33 +21,6 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
-    <parent>
-        <groupId>org.jboss.gwt.flux</groupId>
-        <artifactId>flux-samples-parent</artifactId>
-        <version>0.0.2</version>
-    </parent>
-
-    <artifactId>flux-wardrobe-sample</artifactId>
-    <name>Flux :: Samples :: Wardrobe</name>
-    <description>
-        Console based Flux sample simulating dress and undress of dependent items of clothing.
-        Uses the DAG dispatcher and the meta annotations.
-    </description>
-    <packaging>jar</packaging>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.jboss.gwt.flux</groupId>
-            <artifactId>flux-meta</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.gwt</groupId>
-            <artifactId>gwt-user</artifactId>
-        </dependency>
-    </dependencies>
-</project>
+<module>
+    <source path="meta"/>
+</module>

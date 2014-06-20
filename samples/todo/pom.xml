@@ -34,7 +34,9 @@
 
     <artifactId>flux-todo-sample</artifactId>
     <name>Flux :: Samples :: Todo</name>
-    <description>GWT based Flux sample of a todo manager</description>
+    <description>
+        GWT based Flux sample of a todo manager. Uses the DAG dispatcher and the meta annotations.
+    </description>
     <packaging>war</packaging>
 
     <properties>

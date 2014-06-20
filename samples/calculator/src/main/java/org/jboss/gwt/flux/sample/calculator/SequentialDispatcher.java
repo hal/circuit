@@ -56,7 +56,7 @@ public class SequentialDispatcher implements Dispatcher {
     }
 
     @Override
-    public void addDiagnostics(final Diagnostics diagnostics) {
-        // noop
+    public void registerLifecycle(final Lifecycle lifecycle) {
+        throw new UnsupportedOperationException("Lifecycle is not supported for " + SequentialDispatcher.class);
     }
 }

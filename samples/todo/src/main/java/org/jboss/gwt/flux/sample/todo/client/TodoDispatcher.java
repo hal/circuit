@@ -46,11 +46,6 @@ public class TodoDispatcher implements Dispatcher {
     }
 
     @Override
-    public void addDiagnostics(final Diagnostics diagnostics) {
-        // noop
-    }
-
-    @Override
     public <S extends Store> void register(final Class<S> store, final Store.Callback callback) {
         assert callbacks.get(store) == null : "Store " + store.getName() + " already registered!";
         callbacks.put(store, callback);
@@ -86,5 +81,10 @@ public class TodoDispatcher implements Dispatcher {
                 }
             }
         }
+    }
+
+    @Override
+    public void registerLifecycle(final Lifecycle lifecycle) {
+
     }
 }

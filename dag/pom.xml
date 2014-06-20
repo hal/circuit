@@ -34,17 +34,13 @@
 
     <artifactId>flux-dag</artifactId>
     <name>Flux :: DAG</name>
-    <description>Directed acyclic graph (DAG) implementation of Flux</description>
+    <description>Directed acyclic graph (DAG) implementation of the Flux dispatcher</description>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
             <groupId>org.jboss.gwt.flux</groupId>
             <artifactId>flux-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.gwt.flux</groupId>
-            <artifactId>flux-meta</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jgrapht</groupId>

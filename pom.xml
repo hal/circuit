@@ -84,6 +84,7 @@
         <module>core</module>
         <module>dag</module>
         <module>meta</module>
+        <module>processor</module>
         <module>samples</module>
     </modules>
 

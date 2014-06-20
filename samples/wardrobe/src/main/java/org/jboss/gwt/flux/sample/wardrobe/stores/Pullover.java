@@ -27,18 +27,17 @@ import org.jboss.gwt.flux.meta.Store;
 import org.jboss.gwt.flux.sample.wardrobe.actions.Dress;
 import org.jboss.gwt.flux.sample.wardrobe.actions.Undress;
 
-@Store(actions = {Dress.class, Undress.class})
-public class Pullover extends WardrobeStore {
+@Store
+@SuppressWarnings("UnusedParameters")
+public class Pullover {
 
     @Receive(dependencies = Undershirt.class)
     public void dress(Dress action, Dispatcher.Channel channel) {
-        log(action);
         channel.ack();
     }
 
     @Receive(dependencies = Coat.class)
     public void undress(Undress action, Dispatcher.Channel channel) {
-        log(action);
         channel.ack();
     }
 }

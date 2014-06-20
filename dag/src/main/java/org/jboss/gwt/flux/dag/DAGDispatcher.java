@@ -21,9 +21,7 @@
  */
 package org.jboss.gwt.flux.dag;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -31,74 +29,31 @@ import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Agreement;
 import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.Store;
+import org.jboss.gwt.flux.impl.NoopLifecycle;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 
 /**
- * @author Harald Pehl
+ * A dispatcher implementation with global locking and dependency resolution between stores based on directed acyclic
+ * graphs (DAG).
+ *
+ * @see <a href="http://en.wikipedia.org/wiki/Directed_acyclic_graph">http://en.wikipedia.org/wiki/Directed_acyclic_graph</a>
+ * @see <a href="http://en.wikipedia.org/wiki/Topological_ordering">http://en.wikipedia.org/wiki/Topological_ordering</a>
  */
 public class DAGDispatcher implements Dispatcher {
 
     private boolean locked;
     private final Stack<Action> queue;
     private final Map<Class<? extends Store>, Store.Callback> callbacks;
-    private final List<DAGDiagnostics> diagnostics = new ArrayList<>();
-
-
-    public interface DAGDiagnostics extends Diagnostics {
-
-        void onDispatch(Action a);
-
-        void onLock();
-
-        void onExecute(Class<?> s, Action a);
-
-        void onAck(Class<?> s, Action a);
-
-        void onNack(Class<?> s, Action a, final Throwable t);
-
-        void onUnlock();
-    }
-
-
-    final DAGDiagnostics logDelegate = new DAGDiagnostics() {
-        @Override
-        public void onDispatch(final Action a) {
-            for (DAGDiagnostics d : diagnostics) { d.onDispatch(a); }
-        }
-
-        @Override
-        public void onLock() {
-            for (DAGDiagnostics d : diagnostics) { d.onLock(); }
-        }
-
-        @Override
-        public void onExecute(final Class<?> s, final Action a) {
-            for (DAGDiagnostics d : diagnostics) { d.onExecute(s, a); }
-        }
-
-        @Override
-        public void onAck(final Class<?> s, final Action a) {
-            for (DAGDiagnostics d : diagnostics) { d.onAck(s, a); }
-        }
-
-        @Override
-        public void onNack(final Class<?> s, final Action a, final Throwable t) {
-            for (DAGDiagnostics d : diagnostics) { d.onNack(s, a, t); }
-        }
-
-        @Override
-        public void onUnlock() {
-            for (DAGDiagnostics d : diagnostics) { d.onUnlock(); }
-        }
-    };
+    private Lifecycle lifecycle;
 
     public DAGDispatcher() {
         locked = false;
         queue = new Stack<>();
         callbacks = new HashMap<>();
+        lifecycle = new NoopLifecycle();
     }
 
     @Override
@@ -109,11 +64,10 @@ public class DAGDispatcher implements Dispatcher {
 
     @Override
     public void dispatch(final Action action) {
-        logDelegate.onDispatch(action);
+        lifecycle.onDispatch(action);
 
         if (!locked) {
             // lock globally
-            logDelegate.onLock();
             locked = true;
 
             // collect agreements
@@ -152,7 +106,7 @@ public class DAGDispatcher implements Dispatcher {
 
         DirectedGraph<Class<? extends Store>, DefaultEdge> dag = new DefaultDirectedGraph<>(DefaultEdge.class);
 
-        // Add vertexes
+        // Add vertices (stores)
         for (Map.Entry<Class<? extends Store>, Agreement> entry : approvals.entrySet()) {
             Class<? extends Store> store = entry.getKey();
             Agreement agreement = entry.getValue();
@@ -162,7 +116,7 @@ public class DAGDispatcher implements Dispatcher {
             }
         }
 
-        // Add edges
+        // Add edges (dependencies from one store to other stores)
         for (Map.Entry<Class<? extends Store>, Agreement> entry : approvals.entrySet()) {
             Class<? extends Store> store = entry.getKey();
             Agreement agreement = entry.getValue();
@@ -177,7 +131,6 @@ public class DAGDispatcher implements Dispatcher {
             final TopologicalOrderIterator<Class<? extends Store>, DefaultEdge> iterator) {
 
         if (!iterator.hasNext()) {
-            logDelegate.onUnlock();
             locked = false;
             if (!queue.isEmpty()) {
                 dispatch(queue.pop());
@@ -185,19 +138,19 @@ public class DAGDispatcher implements Dispatcher {
             return;
         }
 
-        final Class<?> store = iterator.next();
+        final Class<? extends Store> store = iterator.next();
         Store.Callback callback = callbacks.get(store);
-        logDelegate.onExecute(store, action);
+        lifecycle.onExecute(store, action);
         callback.execute(action, new Channel() {
             @Override
             public void ack() {
-                logDelegate.onAck(store, action);
+                lifecycle.onAck(store, action);
                 proceed();
             }
 
             @Override
             public void nack(final Throwable t) {
-                logDelegate.onNack(store, action, t);
+                lifecycle.onNack(store, action, t);
                 proceed();
             }
 
@@ -208,11 +161,9 @@ public class DAGDispatcher implements Dispatcher {
     }
 
     @Override
-    public void addDiagnostics(final Diagnostics d) {
-        if (!(d instanceof DAGDiagnostics)) {
-            throw new IllegalArgumentException("Diagnostics must be of type " + DAGDiagnostics.class);
-        }
-        this.diagnostics.add((DAGDiagnostics) d);
+    public void registerLifecycle(final Lifecycle lifecycle) {
+        assert lifecycle != null : "Lifecylce must not be null!";
+        this.lifecycle = lifecycle;
     }
 }
 
