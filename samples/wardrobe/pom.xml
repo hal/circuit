@@ -47,6 +47,10 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.gwt.flux</groupId>
+            <artifactId>flux-dag</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.gwt.flux</groupId>
             <artifactId>flux-processor</artifactId>
             <scope>provided</scope>
         </dependency>

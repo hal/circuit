@@ -51,11 +51,11 @@ public class DAGDispatcher implements Dispatcher {
 
         void onLock();
 
-        void onExecute(Class<?> s, Action a);
+        void onExecute(Class<? extends Store> s, Action a);
 
-        void onAck(Class<?> s, Action a);
+        void onAck(Class<? extends Store> s, Action a);
 
-        void onNack(Class<?> s, Action a, final Throwable t);
+        void onNack(Class<? extends Store> s, Action a, final Throwable t);
 
         void onUnlock();
     }
@@ -84,17 +84,17 @@ public class DAGDispatcher implements Dispatcher {
             }
 
             @Override
-            public void onExecute(final Class<?> s, final Action a) {
+            public void onExecute(final Class<? extends Store> s, final Action a) {
                 for (DAGDiagnostics d : diagnostics) { d.onExecute(s, a); }
             }
 
             @Override
-            public void onAck(final Class<?> s, final Action a) {
+            public void onAck(final Class<? extends Store> s, final Action a) {
                 for (DAGDiagnostics d : diagnostics) { d.onAck(s, a); }
             }
 
             @Override
-            public void onNack(final Class<?> s, final Action a, final Throwable t) {
+            public void onNack(final Class<? extends Store> s, final Action a, final Throwable t) {
                 for (DAGDiagnostics d : diagnostics) { d.onNack(s, a, t); }
             }
 
