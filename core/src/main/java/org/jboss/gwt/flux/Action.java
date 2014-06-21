@@ -22,8 +22,7 @@
 package org.jboss.gwt.flux;
 
 /**
- * An action carrying a payload.
- * TODO Must the action itself implement hashCode() & equals() or its payload?
+ * An action carrying a payload. The payload must implement {@code hashCode()} and {@code equals()}.
  */
 public interface Action<P> {
 

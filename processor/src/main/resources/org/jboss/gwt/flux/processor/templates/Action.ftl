@@ -21,4 +21,24 @@ public class ${actionClassName} implements Action<${payloadClassName}> {
     public ${payloadClassName} getPayload() {
         return payload;
     }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) { return true; }
+        if (!(o instanceof ${actionClassName})) { return false; }
+
+        ${actionClassName} that = (${actionClassName}) o;
+        if (payload != null ? !payload.equals(that.payload) : that.payload != null) { return false; }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return payload != null ? payload.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return "Action<${payloadClassName}>(" + payload + ")";
+    }
 }
