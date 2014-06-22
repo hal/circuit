@@ -19,10 +19,26 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.todo.client.actions;
+package org.jboss.gwt.flux.sample.wardrobe.stores;
 
-/**
- * Marker interface for all _todo_ related actions.
- */
-public interface TodoActions {
+import org.jboss.gwt.flux.Dispatcher;
+import org.jboss.gwt.flux.meta.Receive;
+import org.jboss.gwt.flux.meta.Store;
+import org.jboss.gwt.flux.sample.wardrobe.actions.Dress;
+import org.jboss.gwt.flux.sample.wardrobe.actions.Undress;
+
+@Store
+@SuppressWarnings("UnusedParameters")
+public class UnderwearStore {
+
+    @Receive
+    public void dress(Dress action, Dispatcher.Channel channel) {
+        channel.ack();
+    }
+
+    @Receive(dependencies = TrousersStore.class)
+    public void undress(Undress action, Dispatcher.Channel channel) {
+        channel.ack();
+    }
 }
+

@@ -36,4 +36,11 @@
     <name>Flux :: Metadata</name>
     <description>Metadata annotation to generate Flux stores and dispatcher.</description>
     <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.gwt</groupId>
+            <artifactId>gwt-user</artifactId>
+        </dependency>
+    </dependencies>
 </project>

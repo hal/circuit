@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.todo.client;
+package org.jboss.gwt.flux.sample.todo.client.stores;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -29,78 +29,83 @@ import javax.enterprise.context.ApplicationScoped;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
-import org.jboss.gwt.flux.AbstractStore;
-import org.jboss.gwt.flux.Action;
-import org.jboss.gwt.flux.Agreement;
+import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.gwt.flux.Dispatcher;
+import org.jboss.gwt.flux.StoreChangedEvent;
+import org.jboss.gwt.flux.meta.Receive;
+import org.jboss.gwt.flux.meta.Store;
+import org.jboss.gwt.flux.sample.todo.client.TodoServiceAsync;
 import org.jboss.gwt.flux.sample.todo.client.actions.ListTodos;
 import org.jboss.gwt.flux.sample.todo.client.actions.RemoveTodo;
 import org.jboss.gwt.flux.sample.todo.client.actions.SaveTodo;
-import org.jboss.gwt.flux.sample.todo.client.actions.TodoActions;
 import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
+@Store
 @ApplicationScoped
-public class TodoStore extends AbstractStore {
+@SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
+public class TodoStore {
 
     abstract class TodoCallback<T> implements AsyncCallback<T> {
 
+        private final Dispatcher.Channel channel;
+
+        public TodoCallback(final Dispatcher.Channel channel) {
+            this.channel = channel;
+        }
+
         @Override
         public void onFailure(final Throwable caught) {
-            // TODO Error handling
+            channel.nack(caught);
         }
     }
 
 
     private final List<Todo> todos;
     private final TodoServiceAsync todoService;
+    private final EventBus eventBus;
 
     @Inject
-    public TodoStore(final Dispatcher dispatcher, final TodoServiceAsync todoService) {
+    public TodoStore(final TodoServiceAsync todoService, EventBus eventBus) {
         this.todos = new LinkedList<>();
         this.todoService = todoService;
+        this.eventBus = eventBus;
+    }
 
-        dispatcher.register(TodoStore.class, new Callback() {
+    @Receive
+    public void onList(final ListTodos listTodos, final Dispatcher.Channel channel) {
+        todoService.list(new TodoCallback<Collection<Todo>>(channel) {
             @Override
-            public Agreement voteFor(final Action action) {
-                if (action instanceof TodoActions) {
-                    return new Agreement(true);
-                }
-                return Agreement.NONE;
-            }
-
-            @Override
-            public void execute(final Action action, final Dispatcher.Channel channel) {
-                process(action, channel);
+            public void onSuccess(final Collection<Todo> result) {
+                todos.clear();
+                todos.addAll(result);
+                channel.ack();
+                eventBus.fireEvent(new StoreChangedEvent());
             }
         });
     }
 
-    private void process(final Action action, final Dispatcher.Channel channel) {
-        if (action instanceof ListTodos) {
-            todoService.list(new TodoCallback<Collection<Todo>>() {
-                @Override
-                public void onSuccess(final Collection<Todo> result) {
-                    todos.clear();
-                    todos.addAll(result);
-                    channel.ack();
-                    fireChanged();
-                }
-            });
-        } else if (action instanceof SaveTodo) {
-            todoService.save((Todo) action.getPayload(), new TodoCallback<Void>() {
-                @Override
-                public void onSuccess(final Void result) {
-                    process(new ListTodos(), channel);
-                }
-            });
-        } else if (action instanceof RemoveTodo) {
-            todoService.delete((Todo) action.getPayload(), new TodoCallback<Void>() {
-                @Override
-                public void onSuccess(final Void result) {
-                    process(new ListTodos(), channel);
-                }
-            });
-        }
+    @Receive
+    public void onStore(final SaveTodo saveTodo, final Dispatcher.Channel channel) {
+        todoService.save(saveTodo.getTodo(), new TodoCallback<Void>(channel) {
+            @Override
+            public void onSuccess(final Void result) {
+                onList(new ListTodos(), channel);
+            }
+        });
+    }
+
+    @Receive
+    public void onRemove(final RemoveTodo removeTodo, final Dispatcher.Channel channel) {
+        todoService.delete(removeTodo.getTodo(), new TodoCallback<Void>(channel) {
+            @Override
+            public void onSuccess(final Void result) {
+                onList(new ListTodos(), channel);
+            }
+
+            private void fireChanged() {
+                eventBus.fireEvent(new StoreChangedEvent());
+            }
+        });
     }
 
     public List<Todo> getTodos() {

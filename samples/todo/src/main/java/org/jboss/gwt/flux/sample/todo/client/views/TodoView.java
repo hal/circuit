@@ -31,10 +31,10 @@ import com.google.gwt.user.client.ui.InlineLabel;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.EventHandler;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
-import org.jboss.gwt.flux.Dispatcher;
-import org.jboss.gwt.flux.sample.todo.client.TodoStore;
+import org.jboss.gwt.flux.sample.todo.client.TodoDispatcher;
 import org.jboss.gwt.flux.sample.todo.client.actions.RemoveTodo;
 import org.jboss.gwt.flux.sample.todo.client.actions.SaveTodo;
+import org.jboss.gwt.flux.sample.todo.client.stores.TodoStore;
 import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
 @SuppressWarnings("UnusedDeclaration")
@@ -44,7 +44,7 @@ public class TodoView extends Composite {
     private Todo todo;
 
     @Inject TodoStore store;
-    @Inject Dispatcher dispatcher;
+    @Inject TodoDispatcher dispatcher;
     @DataField Element check = DOM.createSpan();
     @Inject @DataField InlineLabel name;
     @DataField Element remove = DOM.createElement("i");

@@ -43,11 +43,11 @@
     <dependencies>
         <dependency>
             <groupId>org.jboss.gwt.flux</groupId>
-            <artifactId>flux-meta</artifactId>
+            <artifactId>flux-dag</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jboss.gwt.flux</groupId>
-            <artifactId>flux-dag</artifactId>
+            <artifactId>flux-meta</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jboss.gwt.flux</groupId>
@@ -58,6 +58,25 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>target/generated-sources/annotations</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- The next plugins work together to enable APT support -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -70,11 +89,11 @@
                         </goals>
                         <configuration>
                             <proc>only</proc>
+                            <failOnError>false</failOnError>
                             <compilerArguments>
-                                <!--
-                                    Options for the annotation processors
-                                -->
                                 <Acdi>false</Acdi>
+                                <AdispatcherName>WardrobeDispatcher</AdispatcherName>
+                                <AdispatcherPackage>org.jboss.gwt.flux.sample.wardrobe</AdispatcherPackage>
                             </compilerArguments>
                         </configuration>
                     </execution>
@@ -91,6 +110,36 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!--<plugin>-->
+                <!--<groupId>org.bsc.maven</groupId>-->
+                <!--<artifactId>maven-processor-plugin</artifactId>-->
+                <!--<version>2.2.4</version>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>process</id>-->
+                        <!--<goals>-->
+                            <!--<goal>process</goal>-->
+                        <!--</goals>-->
+                        <!--<phase>generate-sources</phase>-->
+                        <!--<configuration>-->
+                            <!--<defaultOutputDirectory>${project.build.directory}/generated-sources/annotations</defaultOutputDirectory>-->
+                            <!--<options>-->
+                                <!--<cdi>false</cdi>-->
+                                <!--<dispatcherName>WardrobeDispatcher</dispatcherName>-->
+                                <!--<dispatcherPackage>org.jboss.gwt.flux.sample.wardrobe</dispatcherPackage>-->
+                            <!--</options>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-compiler-plugin</artifactId>-->
+                <!--<configuration>-->
+                    <!--<compilerArgument>-proc:none</compilerArgument>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
         </plugins>
     </build>
 </project>

@@ -22,12 +22,16 @@
 package org.jboss.gwt.flux.processor;
 
 import static javax.tools.Diagnostic.Kind.NOTE;
+import static org.jboss.gwt.flux.processor.GenerationUtil.*;
 
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedOptions;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
@@ -40,15 +44,25 @@ import org.jboss.gwt.flux.meta.Action;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 @SupportedAnnotationTypes("org.jboss.gwt.flux.meta.Action")
+@SupportedOptions({"cdi", "dispatcherName", "dispatcherPackage"})
 public class ActionProcessor extends AbstractErrorAbsorbingProcessor {
+
+    private final Set<ActionInfo> actionInfos;
+    private String dispatcherName;
+    private String dispatcherPackage;
+
+    public ActionProcessor() {
+        actionInfos = new HashSet<>();
+        dispatcherName = DEFAULT_DISPATCHER_NAME;
+    }
 
     @Override
     protected boolean processWithExceptions(final Set<? extends TypeElement> annotations,
             final RoundEnvironment roundEnv)
             throws Exception {
 
+        final Messager messager = processingEnv.getMessager();
         if (!roundEnv.processingOver()) {
-            final Messager messager = processingEnv.getMessager();
 
             for (Element e : roundEnv.getElementsAnnotatedWith(Action.class)) {
                 if (e.getKind() == ElementKind.CLASS) {
@@ -61,6 +75,13 @@ public class ActionProcessor extends AbstractErrorAbsorbingProcessor {
                     final String actionClassName = GenerationUtil.actionImplementation(payloadClassName);
                     messager.printMessage(Diagnostic.Kind.NOTE,
                             "Discovered annotated action [" + classElement.getQualifiedName() + "]");
+
+                    // Prepare stuff for application dispatcher
+                    if (dispatcherPackage == null) {
+                        dispatcherPackage = packageElement.getQualifiedName().toString();
+                    }
+                    actionInfos.add(new ActionInfo(classElement.getQualifiedName().toString(),
+                            GenerationUtil.actionImplementation(classElement.getQualifiedName().toString())));
 
                     try {
                         messager.printMessage(Diagnostic.Kind.NOTE, "Generating code for [" + actionClassName + "]");
@@ -76,6 +97,32 @@ public class ActionProcessor extends AbstractErrorAbsorbingProcessor {
                         processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, msg, classElement);
                     }
                 }
+            }
+        } else {
+
+            // Generate application dispatcher
+            final Map<String, String> options = processingEnv.getOptions();
+            String option = options.get(OPT_DISPATCHER_NAME);
+            if (option != null) {
+                dispatcherName = option;
+            }
+            option = options.get(OPT_DISPATCHER_PACKAGE);
+            if (option != null) {
+                dispatcherPackage = option;
+            }
+            Boolean cdi = Boolean.valueOf(options.get(OPT_CDI));
+
+            try {
+                messager.printMessage(Diagnostic.Kind.NOTE, "Generating code for [" + dispatcherName + "]");
+                DispatcherGenerator generator = new DispatcherGenerator();
+                final StringBuffer code = generator.generate(dispatcherPackage, dispatcherName, actionInfos, cdi);
+                writeCode(dispatcherPackage, dispatcherName, code);
+
+                messager.printMessage(NOTE,
+                        "Successfully generated action implementation [" + dispatcherName + "]");
+            } catch (GenerationException ge) {
+                final String msg = ge.getMessage();
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, msg);
             }
         }
         return true;

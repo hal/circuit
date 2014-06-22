@@ -21,17 +21,39 @@
  */
 package org.jboss.gwt.flux.sample.todo.client.actions;
 
-import org.jboss.gwt.flux.Action;
+import org.jboss.gwt.flux.meta.Action;
 import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
-public class SaveTodo implements Action, TodoActions {
+@Action
+public class SaveTodo {
 
     private final Todo todo;
 
     public SaveTodo(final Todo todo) {this.todo = todo;}
 
-    @Override
-    public Todo getPayload() {
+    public Todo getTodo() {
         return todo;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) { return true; }
+        if (!(o instanceof SaveTodo)) { return false; }
+
+        SaveTodo that = (SaveTodo) o;
+
+        if (!todo.equals(that.todo)) { return false; }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return todo.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "RemoveTodo(" + todo + ")";
     }
 }

@@ -45,6 +45,19 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.jboss.gwt.flux</groupId>
+            <artifactId>flux-dag</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.gwt.flux</groupId>
+            <artifactId>flux-meta</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.gwt.flux</groupId>
+            <artifactId>flux-processor</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.jboss.errai</groupId>
             <artifactId>errai-cdi-client</artifactId>
             <!-- The bundled dependency to Guava 13.0.1 does not compile with GWT 2.6.1 -->
@@ -111,10 +124,70 @@
                         </goals>
                         <configuration>
                             <sources>
+                                <source>target/generated-sources/annotations</source>
                                 <!-- Enable refresh for GWT development mode -->
                                 <source>${basedir}/../../core/src/main/java</source>
                                 <source>${basedir}/../../core/src/main/resources</source>
+                                <source>${basedir}/../../dag/src/main/java</source>
+                                <source>${basedir}/../../dag/src/main/resources</source>
+                                <source>${basedir}/../../meta/src/main/java</source>
+                                <source>${basedir}/../../meta/src/main/resources</source>
                             </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-generated-sources</id>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>target/generated-sources/annotations</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- The next plugins work together to enable APT support -->
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>process-annotation</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <proc>only</proc>
+                            <failOnError>false</failOnError>
+                            <compilerArguments>
+                                <Acdi>true</Acdi>
+                                <AdispatcherName>TodoDispatcher</AdispatcherName>
+                                <AdispatcherPackage>org.jboss.gwt.flux.sample.todo.client</AdispatcherPackage>
+                            </compilerArguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!-- Don't change this ID (it overrides the default ID) -->
+                        <id>default-compile</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <proc>none</proc>
                         </configuration>
                     </execution>
                 </executions>
@@ -136,7 +209,10 @@
                     <runTarget>index.html</runTarget>
                     <hostedWebapp>${webAppDirectory}</hostedWebapp>
                     <compileSourcesArtifacts>
-                        <artifact>org.jboss.gwt.flux:flux</artifact>
+                        <artifact>org.jgrapht:jgrapht-core</artifact>
+                        <artifact>org.jboss.gwt.flux:flux-core</artifact>
+                        <artifact>org.jboss.gwt.flux:flux-dag</artifact>
+                        <artifact>org.jboss.gwt.flux:flux-meta</artifact>
                     </compileSourcesArtifacts>
                     <extraJvmArgs>-Xmx1g -Xms756m -XX:CompileThreshold=1000 -Dlog4j.ignoreTCL=true</extraJvmArgs>
                 </configuration>

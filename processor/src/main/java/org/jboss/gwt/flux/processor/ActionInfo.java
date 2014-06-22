@@ -19,25 +19,42 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.wardrobe.stores;
+package org.jboss.gwt.flux.processor;
 
-import org.jboss.gwt.flux.Dispatcher;
-import org.jboss.gwt.flux.meta.Receive;
-import org.jboss.gwt.flux.meta.Store;
-import org.jboss.gwt.flux.sample.wardrobe.actions.Dress;
-import org.jboss.gwt.flux.sample.wardrobe.actions.Undress;
+public class ActionInfo {
+    private final String payload;
+    private final String action;
 
-@Store
-@SuppressWarnings("UnusedParameters")
-public class Pullover {
-
-    @Receive(dependencies = Undershirt.class)
-    public void dress(Dress action, Dispatcher.Channel channel) {
-        channel.ack();
+    public ActionInfo(final String payload, final String action) {
+        this.payload = payload;
+        this.action = action;
     }
 
-    @Receive(dependencies = Coat.class)
-    public void undress(Undress action, Dispatcher.Channel channel) {
-        channel.ack();
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) { return true; }
+        if (!(o instanceof ActionInfo)) { return false; }
+
+        ActionInfo that = (ActionInfo) o;
+
+        if (!action.equals(that.action)) { return false; }
+        if (!payload.equals(that.payload)) { return false; }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = payload.hashCode();
+        result = 31 * result + action.hashCode();
+        return result;
+    }
+
+    public String getPayload() {
+        return payload;
+    }
+
+    public String getAction() {
+        return action;
     }
 }

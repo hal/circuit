@@ -21,7 +21,8 @@
  */
 package org.jboss.gwt.flux.sample.todo.client.actions;
 
-import org.jboss.gwt.flux.impl.EmptyAction;
+import org.jboss.gwt.flux.meta.Action;
 
-public class ListTodos extends EmptyAction implements TodoActions {
+@Action
+public class ListTodos {
 }

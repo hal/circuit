@@ -19,32 +19,25 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.flux.sample.todo.client.views;
+package org.jboss.gwt.flux.sample.wardrobe.stores;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import org.jboss.gwt.flux.Dispatcher;
+import org.jboss.gwt.flux.meta.Receive;
+import org.jboss.gwt.flux.meta.Store;
+import org.jboss.gwt.flux.sample.wardrobe.actions.Dress;
+import org.jboss.gwt.flux.sample.wardrobe.actions.Undress;
 
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.InlineLabel;
-import org.jboss.errai.ui.shared.api.annotations.DataField;
-import org.jboss.errai.ui.shared.api.annotations.Templated;
+@Store
+@SuppressWarnings("UnusedParameters")
+public class ShoesStore {
 
-@ApplicationScoped
-@SuppressWarnings("UnusedDeclaration")
-@Templated("View.html#queueInfo")
-public class QueueInfoView extends Composite {
+    @Receive(dependencies = {TrousersStore.class, SocksStore.class})
+    public void dress(Dress action, Dispatcher.Channel channel) {
+        channel.ack();
+    }
 
-    @Inject @DataField InlineLabel info;
-
-    public void refresh(int queueSize) {
-        if (queueSize > 0) {
-            addStyleName("queue-full");
-            removeStyleName("queue-empty");
-            info.setText(queueSize + " action(s) in queue");
-        } else {
-            removeStyleName("queue-full");
-            addStyleName("queue-empty");
-            info.setText("No actions in queue");
-        }
+    @Receive
+    public void undress(Undress action, Dispatcher.Channel channel) {
+        channel.ack();
     }
 }

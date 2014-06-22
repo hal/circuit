@@ -22,9 +22,12 @@
   -->
 <module rename-to="todo">
     <inherits name="com.google.gwt.user.User"/>
+
     <inherits name="org.jboss.errai.enterprise.CDI"/>
     <inherits name="org.jboss.errai.ui.UI"/>
-    <inherits name="org.jboss.gwt.Flux"/>
+
+    <inherits name="org.jboss.gwt.flux.DAG"/>
+    <inherits name="org.jboss.gwt.flux.Meta"/>
 
     <source path="client"/>
     <source path="resources"/>

@@ -75,7 +75,6 @@ import org.jgrapht.graph.DefaultEdge;
 @SupportedAnnotationTypes("org.jboss.gwt.flux.meta.Store")
 public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
 
-    static final String CDI_FLAG = "cdi";
     static final String GRAPH_VIZ_OUTPUT = "dependencies.gv";
 
     private final Map<String, GraphVizInfo> graphVizInfos;
@@ -100,7 +99,7 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
             final Types typeUtils = processingEnv.getTypeUtils();
             final Elements elementUtils = processingEnv.getElementUtils();
             final Map<String, String> options = processingEnv.getOptions();
-            final Boolean cdi = Boolean.valueOf(options.get(CDI_FLAG));
+            final Boolean cdi = Boolean.valueOf(options.get(OPT_CDI));
 
             for (Element e : roundEnv.getElementsAnnotatedWith(Store.class)) {
                 TypeElement storeElement = (TypeElement) e;

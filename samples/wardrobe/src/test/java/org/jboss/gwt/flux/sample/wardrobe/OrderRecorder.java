@@ -29,9 +29,6 @@ import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Store;
 import org.jboss.gwt.flux.dag.DAGDispatcher;
 
-/**
- * @author Harald Pehl
- */
 public class OrderRecorder implements DAGDispatcher.DAGDiagnostics {
 
     private final List<Class<? extends Store>> order;

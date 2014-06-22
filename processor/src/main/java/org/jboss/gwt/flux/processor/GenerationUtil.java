@@ -44,6 +44,11 @@ final class GenerationUtil {
 
     private GenerationUtil() {}
 
+    static final String OPT_CDI = "cdi";
+    static final String OPT_DISPATCHER_NAME = "dispatcherName";
+    static final String OPT_DISPATCHER_PACKAGE = "dispatcherPackage";
+    static final String DEFAULT_DISPATCHER_NAME = "ApplicationDispatcher";
+
     /**
      * Handy constant for an emtpy array of argument types.
      */
@@ -61,7 +66,7 @@ final class GenerationUtil {
     }
 
     static String storeImplementation(String delegate) {
-        return delegate + "Store";
+        return delegate + "Impl";
     }
 
     /**

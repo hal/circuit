@@ -22,8 +22,8 @@
   -->
 
 <module>
-    <inherits name="com.google.web.bindery.event.Event"/>
     <inherits name="org.jboss.gwt.Flux"/>
+    <inherits name="org.JGraphT"/>
 
     <source path="dag"/>
 </module>

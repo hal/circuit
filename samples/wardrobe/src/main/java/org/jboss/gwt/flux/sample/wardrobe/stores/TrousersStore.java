@@ -29,16 +29,15 @@ import org.jboss.gwt.flux.sample.wardrobe.actions.Undress;
 
 @Store
 @SuppressWarnings("UnusedParameters")
-public class Underwear {
+public class TrousersStore {
 
-    @Receive
+    @Receive(dependencies = UnderwearStore.class)
     public void dress(Dress action, Dispatcher.Channel channel) {
         channel.ack();
     }
 
-    @Receive(dependencies = Trousers.class)
+    @Receive(dependencies = {CoatStore.class, ShoesStore.class})
     public void undress(Undress action, Dispatcher.Channel channel) {
         channel.ack();
     }
 }
-

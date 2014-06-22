@@ -26,26 +26,28 @@ import javax.inject.Inject;
 import com.google.gwt.user.client.ui.RootPanel;
 import org.jboss.errai.ioc.client.api.AfterInitialization;
 import org.jboss.errai.ioc.client.api.EntryPoint;
-import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.sample.todo.client.actions.ListTodos;
+import org.jboss.gwt.flux.sample.todo.client.views.DiagnosticsView;
 import org.jboss.gwt.flux.sample.todo.client.views.MainView;
-import org.jboss.gwt.flux.sample.todo.client.views.QueueInfoView;
 import org.jboss.gwt.flux.sample.todo.resources.TodoResources;
 
 @EntryPoint
 @SuppressWarnings("UnusedDeclaration")
 public class App {
 
+    @Inject TodoDispatcher todoDispatcher;
     @Inject TodoResources resources;
     @Inject MainView mainView;
-    @Inject QueueInfoView queueInfoView;
-    @Inject Dispatcher dispatcher;
+    @Inject DiagnosticsView diagnosticsView;
 
     @AfterInitialization
     public void init() {
         resources.css().ensureInjected();
+        todoDispatcher.addDiagnostics(diagnosticsView);
+
         RootPanel.get().add(mainView);
-        RootPanel.get().add(queueInfoView);
-        dispatcher.dispatch(new ListTodos());
+        RootPanel.get().add(diagnosticsView);
+
+        todoDispatcher.dispatch(new ListTodos());
     }
 }
