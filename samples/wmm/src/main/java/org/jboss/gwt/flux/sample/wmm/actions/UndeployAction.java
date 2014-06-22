@@ -21,9 +21,16 @@
  */
 package org.jboss.gwt.flux.sample.wmm.actions;
 
-public class UndeployAction extends DeploymentAction {
+import org.jboss.gwt.flux.Action;
 
-    public UndeployAction(final String deployment, final String server) {
-        super(deployment, server);
+public class UndeployAction implements Action<Deployment> {
+
+    private final Deployment payload;
+
+    public UndeployAction(final Deployment payload) {this.payload = payload;}
+
+    @Override
+    public Deployment getPayload() {
+        return payload;
     }
 }

@@ -21,25 +21,43 @@
  */
 package org.jboss.gwt.flux.sample.wmm.actions;
 
-import org.jboss.gwt.flux.Action;
+public class Deployment {
 
-public abstract class DeploymentAction implements Action<String> {
-
-    private final String deployment;
+    private final String name;
     private final String server;
 
-    protected DeploymentAction(final String deployment, final String server) {
-        this.deployment = deployment;
+    public Deployment(final String name, final String server) {
+        this.name = name;
         this.server = server;
     }
 
     @Override
-    public String getPayload() {
-        return deployment;
+    public boolean equals(final Object o) {
+        if (this == o) { return true; }
+        if (!(o instanceof Deployment)) { return false; }
+
+        Deployment that = (Deployment) o;
+
+        if (!name.equals(that.name)) { return false; }
+        if (!server.equals(that.server)) { return false; }
+
+        return true;
     }
 
-    public String getDeployment() {
-        return getPayload();
+    @Override
+    public int hashCode() {
+        int result = name.hashCode();
+        result = 31 * result + server.hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Deployment(" + name + ", " + server + ")";
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String getServer() {

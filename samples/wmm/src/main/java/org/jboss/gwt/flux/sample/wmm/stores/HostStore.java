@@ -31,12 +31,9 @@ import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.sample.wmm.actions.StartServerAction;
 import org.jboss.gwt.flux.sample.wmm.actions.StopServerAction;
 
-/**
- * @author Harald Pehl
- */
 public class HostStore extends AbstractStore {
 
-    public final Set<String> runningServers = new HashSet<>();
+    private final Set<String> runningServers = new HashSet<>();
 
     public HostStore(final Dispatcher dispatcher) {
 
@@ -55,13 +52,18 @@ public class HostStore extends AbstractStore {
             @Override
             public void execute(final Action action, final Dispatcher.Channel channel) {
                 if (action instanceof StartServerAction) {
-                    runningServers.add((String) action.getPayload());
+                    StartServerAction start = (StartServerAction) action;
+                    runningServers.add(start.getPayload());
                 } else if (action instanceof StopServerAction) {
-                    //noinspection SuspiciousMethodCalls
-                    runningServers.remove(action.getPayload());
+                    StopServerAction stop = (StopServerAction) action;
+                    runningServers.remove(stop.getPayload());
                 }
                 channel.ack();
             }
         });
+    }
+
+    public Set<String> getRunningServers() {
+        return runningServers;
     }
 }

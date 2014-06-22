@@ -21,33 +21,32 @@
  */
 package org.jboss.gwt.flux.sample.wmm.stores;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.Iterator;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import org.jboss.gwt.flux.AbstractStore;
 import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Agreement;
 import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.sample.wmm.actions.DeployAction;
-import org.jboss.gwt.flux.sample.wmm.actions.DeploymentAction;
+import org.jboss.gwt.flux.sample.wmm.actions.Deployment;
 import org.jboss.gwt.flux.sample.wmm.actions.StopServerAction;
 import org.jboss.gwt.flux.sample.wmm.actions.UndeployAction;
 
 public class DeploymentStore extends AbstractStore {
 
     // deployment -> server instances
-    public final Map<String, List<String>> deployments;
+    private final Multimap<String, String> deployments;
 
     public DeploymentStore(final Dispatcher dispatcher) {
-        deployments = new HashMap<>();
+        deployments = HashMultimap.create();
 
         dispatcher.register(DeploymentStore.class, new Callback() {
             @Override
             public Agreement voteFor(final Action action) {
                 Agreement agreement = Agreement.NONE;
-                if (action instanceof DeploymentAction || action instanceof StopServerAction) {
+                if (action instanceof DeployAction || action instanceof UndeployAction || action instanceof StopServerAction) {
                     agreement = new Agreement(true);
                 }
                 return agreement;
@@ -55,21 +54,30 @@ public class DeploymentStore extends AbstractStore {
 
             @Override
             public void execute(final Action action, final Dispatcher.Channel channel) {
-                if (action instanceof DeployAction) {
-                    DeployAction deployAction = (DeployAction) action;
-                    List<String> servers = deployments.get(deployAction.getDeployment());
-                    if (servers == null) {
-                        servers = new LinkedList<>();
-                        deployments.put(deployAction.getDeployment(), servers);
+                if (action instanceof StopServerAction) {
+                    String serverToStop = ((StopServerAction) action).getPayload();
+                    for (Iterator<String> iterator = deployments.values().iterator(); iterator.hasNext(); ) {
+                        String server = iterator.next();
+                        if (server.equals(serverToStop)) {
+                            iterator.remove();
+                        }
                     }
-                    servers.add(deployAction.getServer());
+                }
+                else if (action instanceof DeployAction) {
+                    DeployAction deployAction = (DeployAction) action;
+                    Deployment deployment = deployAction.getPayload();
+                    deployments.put(deployment.getName(), deployment.getServer());
                 } else if (action instanceof UndeployAction) {
                     UndeployAction undeployAction = (UndeployAction) action;
-                    List<String> servers = deployments.get(undeployAction.getDeployment());
-                    servers.remove(undeployAction.getServer());
+                    Deployment deployment = undeployAction.getPayload();
+                    deployments.remove(deployment.getName(), deployment.getServer());
                 }
                 channel.ack();
             }
         });
+    }
+
+    public Multimap<String, String> getDeployments() {
+        return deployments;
     }
 }

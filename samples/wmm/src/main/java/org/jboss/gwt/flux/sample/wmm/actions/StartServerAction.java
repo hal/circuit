@@ -21,9 +21,16 @@
  */
 package org.jboss.gwt.flux.sample.wmm.actions;
 
-public class StartServerAction extends ServerAction {
+import org.jboss.gwt.flux.Action;
 
-    public StartServerAction(final String server) {
-        super(server);
+public class StartServerAction implements Action<String> {
+
+    private final String server;
+
+    public StartServerAction(final String server) {this.server = server;}
+
+    @Override
+    public String getPayload() {
+        return server;
     }
 }

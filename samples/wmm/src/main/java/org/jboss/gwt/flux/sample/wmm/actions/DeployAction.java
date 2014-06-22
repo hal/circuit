@@ -21,9 +21,16 @@
  */
 package org.jboss.gwt.flux.sample.wmm.actions;
 
-public class DeployAction extends DeploymentAction {
+import org.jboss.gwt.flux.Action;
 
-    public DeployAction(final String deployment, final String server) {
-        super(deployment, server);
+public class DeployAction implements Action<Deployment> {
+
+    private final Deployment payload;
+
+    public DeployAction(final Deployment payload) {this.payload = payload;}
+
+    @Override
+    public Deployment getPayload() {
+        return payload;
     }
 }

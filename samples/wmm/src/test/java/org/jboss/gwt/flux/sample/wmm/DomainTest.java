@@ -21,7 +21,15 @@
  */
 package org.jboss.gwt.flux.sample.wmm;
 
+import static org.junit.Assert.*;
+
 import org.jboss.gwt.flux.Dispatcher;
+import org.jboss.gwt.flux.dag.DAGDispatcher;
+import org.jboss.gwt.flux.sample.wmm.actions.DeployAction;
+import org.jboss.gwt.flux.sample.wmm.actions.Deployment;
+import org.jboss.gwt.flux.sample.wmm.actions.StartServerAction;
+import org.jboss.gwt.flux.sample.wmm.actions.StopServerAction;
+import org.jboss.gwt.flux.sample.wmm.actions.UndeployAction;
 import org.jboss.gwt.flux.sample.wmm.stores.DeploymentStore;
 import org.jboss.gwt.flux.sample.wmm.stores.HostStore;
 import org.junit.Before;
@@ -38,81 +46,72 @@ public class DomainTest {
 
     @Before
     public void setUp() {
-//        dispatcher = new DAGDispatcher();
-//
-//        deploymentStore = new DeploymentStore(dispatcher);
-//        hostStore = new HostStore(dispatcher);
-//
-//        // Domain setup
-//        dispatcher.dispatch(new Action(Actions.START_SERVER, "server-1"));
-//        dispatcher.dispatch(new Action(Actions.START_SERVER, "server-2"));
+        dispatcher = new DAGDispatcher();
+        deploymentStore = new DeploymentStore(dispatcher);
+        hostStore = new HostStore(dispatcher);
     }
 
     @Test
-    public void domainSetup() {
-//        Assert.assertTrue(hostStore.serverInstances.size() == 2);
-//        Assert.assertTrue(hostStore.serverInstances.containsKey("server-1"));
-//        Assert.assertTrue(hostStore.serverInstances.containsKey("server-2"));
+    public void startServer() {
+        dispatchStartServers();
+
+        assertEquals(2, hostStore.getRunningServers().size());
+        assertTrue(hostStore.getRunningServers().contains("server-1"));
+        assertTrue(hostStore.getRunningServers().contains("server-2"));
     }
 
     @Test
-    public void deployment() {
-//        dispatcher.dispatch(new Action(Actions.DEPLOY, new String[]{"foo.war", "server-1"}));
-//        dispatcher.dispatch(new Action(Actions.DEPLOY, new String[]{"bar.war", "server-1"}));
+    public void deploy() {
+        dispatchStartServers();
+        dispatchDeploy();
 
-//        Assert.assertTrue(deploymentStore.deployments.size() == 2);
-//        Assert.assertTrue(deploymentStore.deployments.containsKey("foo.war"));
+        assertEquals(3, deploymentStore.getDeployments().size());
+        assertEquals(1, deploymentStore.getDeployments().get("foo.jar").size());
+        assertEquals(2, deploymentStore.getDeployments().get("bar.jar").size());
+
+        assertEquals("server-1", deploymentStore.getDeployments().get("foo.jar").iterator().next());
+        assertTrue(deploymentStore.getDeployments().get("bar.jar").contains("server-1"));
+        assertTrue(deploymentStore.getDeployments().get("bar.jar").contains("server-2"));
     }
 
     @Test
-    public void dependencies() {
-//        final Map<Action, List<Class<?>>> executionOrder = new HashMap<>();
-//
-//        DAGDispatcher.DAGDiagnostics diagnostics = new DAGDispatcher.DAGDiagnostics() {
-//            @Override
-//            public void onDispatch(final Action a) {
-//
-//            }
-//
-//            @Override
-//            public void onLock() {
-//
-//            }
-//
-//            @Override
-//            public void onExecute(final Class<?> s, final Action a) {
-//                List<Class<?>> stores = executionOrder.get(a);
-//                if (stores == null) {
-//                    stores = new LinkedList<>();
-//                    executionOrder.put(a, stores);
-//                }
-//                stores.add(s);
-//            }
-//
-//            @Override
-//            public void onAck(final Class<?> s, final Action a) {
-//
-//            }
-//
-//            @Override
-//            public void onNack(final Class<?> s, final Action a, final Throwable t) {
-//
-//            }
-//
-//            @Override
-//            public void onUnlock() {
-//
-//            }
-//        };
-//        dispatcher.addDiagnostics(diagnostics);
-//
-//        dispatcher.dispatch(new Action(Actions.DEPLOY, new String[]{"foo.war", "server-1"}));
-//        Action stopAction = new Action(Actions.STOP_SERVER, "server-1");
-//        dispatcher.dispatch(stopAction);
-//
-//        List<Class<?>> stores = executionOrder.get(stopAction);
-//        Assert.assertEquals(2, stores.size());
-//        Assert.assertEquals(DeploymentStore.class, stores.get(0));
-//        Assert.assertEquals(HostStore.class, stores.get(1));
+    public void undeploy() {
+        dispatchStartServers();
+        dispatchDeploy();
+        dispatcher.dispatch(new UndeployAction(new Deployment("foo.jar", "server-1")));
+
+        assertEquals(2, deploymentStore.getDeployments().size());
+        assertFalse(deploymentStore.getDeployments().containsKey("foo.jar"));
+        assertEquals(2, deploymentStore.getDeployments().get("bar.jar").size());
+
+        assertTrue(deploymentStore.getDeployments().get("bar.jar").contains("server-1"));
+        assertTrue(deploymentStore.getDeployments().get("bar.jar").contains("server-2"));
+    }
+
+    @Test
+    public void stopServer() {
+        dispatchStartServers();
+        dispatchDeploy();
+        dispatcher.dispatch(new StopServerAction("server-1"));
+
+        assertEquals(1, hostStore.getRunningServers().size());
+        assertFalse(hostStore.getRunningServers().contains("server-1"));
+        assertTrue(hostStore.getRunningServers().contains("server-2"));
+
+        assertEquals(1, deploymentStore.getDeployments().size());
+        assertFalse(deploymentStore.getDeployments().containsKey("foo.jar"));
+        assertEquals(1, deploymentStore.getDeployments().get("bar.jar").size());
+        assertTrue(deploymentStore.getDeployments().get("bar.jar").contains("server-2"));
+    }
+
+    private void dispatchStartServers() {
+        dispatcher.dispatch(new StartServerAction("server-1"));
+        dispatcher.dispatch(new StartServerAction("server-2"));
+    }
+
+    private void dispatchDeploy() {
+        dispatcher.dispatch(new DeployAction(new Deployment("foo.jar", "server-1")));
+        dispatcher.dispatch(new DeployAction(new Deployment("bar.jar", "server-1")));
+        dispatcher.dispatch(new DeployAction(new Deployment("bar.jar", "server-2")));
     }
 }

@@ -21,9 +21,16 @@
  */
 package org.jboss.gwt.flux.sample.wmm.actions;
 
-public class StopServerAction extends ServerAction {
+import org.jboss.gwt.flux.Action;
 
-    public StopServerAction(final String server) {
-        super(server);
+public class StopServerAction implements Action<String> {
+
+    private final String server;
+
+    public StopServerAction(final String server) {this.server = server;}
+
+    @Override
+    public String getPayload() {
+        return server;
     }
 }
