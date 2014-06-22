@@ -70,6 +70,12 @@
                         </goals>
                         <configuration>
                             <proc>only</proc>
+                            <compilerArguments>
+                                <!--
+                                    Options for the annotation processors
+                                -->
+                                <Acdi>false</Acdi>
+                            </compilerArguments>
                         </configuration>
                     </execution>
                     <execution>

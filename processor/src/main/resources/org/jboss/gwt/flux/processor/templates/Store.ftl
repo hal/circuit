@@ -2,9 +2,14 @@
 <#-- @ftlvariable name="storeClassName" type="java.lang.String" -->
 <#-- @ftlvariable name="storeDelegate" type="java.lang.String" -->
 <#-- @ftlvariable name="receiveInfos" type="java.util.List<org.jboss.gwt.flux.processor.ReceiveInfo>" -->
+<#-- @ftlvariable name="cdi" type="java.lang.Boolean" -->
 package ${packageName};
 
 import javax.annotation.Generated;
+<#if cdi>
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+</#if>
 
 import org.jboss.gwt.flux.AbstractStore;
 import org.jboss.gwt.flux.Action;
@@ -14,13 +19,22 @@ import org.jboss.gwt.flux.Dispatcher;
 /*
  * WARNING! This class is generated. Do not modify.
  */
+<#if cdi>
+@ApplicationScoped
+</#if>
 @Generated("org.jboss.gwt.flux.processor.StoreProcessor")
 public class ${storeClassName} extends AbstractStore {
 
     private final ${storeDelegate} delegate;
 
-    public ${storeClassName}(Dispatcher dispatcher) {
-        delegate = new ${storeDelegate}();
+    <#if cdi>
+    @Inject
+    public ${storeClassName}(final ${storeDelegate} delegate, final Dispatcher dispatcher) {
+        this.delegate = delegate;
+    <#else>
+    public ${storeClassName}(final Dispatcher dispatcher) {
+        this.delegate = new ${storeDelegate}();
+    </#if>
 
         dispatcher.register(${storeClassName}.class, new Callback() {
             @Override
@@ -48,5 +62,9 @@ public class ${storeClassName} extends AbstractStore {
                 </#list>
             }
         });
+    }
+
+    public ${storeDelegate} getDelegate() {
+        return delegate;
     }
 }

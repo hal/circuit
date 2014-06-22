@@ -73,10 +73,12 @@
     </licenses>
 
     <properties>
+        <enterprise.cdi.version>1.1</enterprise.cdi.version>
         <errai.version>3.0.0.Final</errai.version>
         <freemarker.version>2.3.20</freemarker.version>
         <gwt.version>2.6.1</gwt.version>
         <guava.version>17.0</guava.version>
+        <javax.inject.version>1</javax.inject.version>
         <jgrapht.version>0.9.1-hal</jgrapht.version>
         <junit.version>4.11</junit.version>
     </properties>
@@ -134,6 +136,16 @@
                 <version>${errai.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.inject</groupId>
+                <artifactId>javax.inject</artifactId>
+                <version>${javax.inject.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.enterprise</groupId>
+                <artifactId>cdi-api</artifactId>
+                <version>${enterprise.cdi.version}</version>
             </dependency>
 
             <!-- GWT & related -->

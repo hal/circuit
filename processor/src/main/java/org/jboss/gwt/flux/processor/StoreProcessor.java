@@ -41,6 +41,7 @@ import java.util.Set;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedOptions;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
@@ -69,10 +70,12 @@ import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
+@SupportedOptions({"cdi"})
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 @SupportedAnnotationTypes("org.jboss.gwt.flux.meta.Store")
 public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
 
+    static final String CDI_FLAG = "cdi";
     static final String GRAPH_VIZ_OUTPUT = "dependencies.gv";
 
     private final Map<String, GraphVizInfo> graphVizInfos;
@@ -96,6 +99,8 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
         if (!roundEnv.processingOver()) {
             final Types typeUtils = processingEnv.getTypeUtils();
             final Elements elementUtils = processingEnv.getElementUtils();
+            final Map<String, String> options = processingEnv.getOptions();
+            final Boolean cdi = Boolean.valueOf(options.get(CDI_FLAG));
 
             for (Element e : roundEnv.getElementsAnnotatedWith(Store.class)) {
                 TypeElement storeElement = (TypeElement) e;
@@ -114,7 +119,7 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
                         messager.printMessage(NOTE, "Generating code for [" + storeClassName + "]");
                         StoreGenerator generator = new StoreGenerator();
                         final StringBuffer code = generator.generate(packageName, storeClassName, storeDelegate,
-                                receiveInfos);
+                                receiveInfos, cdi);
                         writeCode(packageName, storeClassName, code);
 
                         messager.printMessage(NOTE,
