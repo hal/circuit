@@ -41,7 +41,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 
-public class FittingRoomTest {
+public class WardrobeTest {
 
     private WardrobeDispatcher dispatcher;
     private OrderRecorder orderRecorder;
