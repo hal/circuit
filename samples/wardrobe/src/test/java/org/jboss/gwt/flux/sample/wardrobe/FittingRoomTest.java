@@ -43,27 +43,27 @@ import org.junit.Test;
 
 public class FittingRoomTest {
 
-    private WardrobeDispatcher wd;
+    private WardrobeDispatcher dispatcher;
     private OrderRecorder orderRecorder;
 
     @Before
     public void setUp() {
-        wd = new WardrobeDispatcher(new DAGDispatcher());
+        dispatcher = new WardrobeDispatcher(new DAGDispatcher());
         orderRecorder = new OrderRecorder();
-        wd.addDiagnostics(orderRecorder);
+        dispatcher.addDiagnostics(orderRecorder);
 
-        new CoatStoreImpl(wd.getDispatcher());
-        new PulloverStoreImpl(wd.getDispatcher());
-        new ShoesStoreImpl(wd.getDispatcher());
-        new SocksStoreImpl(wd.getDispatcher());
-        new TrousersStoreImpl(wd.getDispatcher());
-        new UndershirtStoreImpl(wd.getDispatcher());
-        new UnderwearStoreImpl(wd.getDispatcher());
+        new CoatStoreImpl(dispatcher.getDispatcher());
+        new PulloverStoreImpl(dispatcher.getDispatcher());
+        new ShoesStoreImpl(dispatcher.getDispatcher());
+        new SocksStoreImpl(dispatcher.getDispatcher());
+        new TrousersStoreImpl(dispatcher.getDispatcher());
+        new UndershirtStoreImpl(dispatcher.getDispatcher());
+        new UnderwearStoreImpl(dispatcher.getDispatcher());
     }
 
     @Test
     public void dressOrder() {
-        wd.dispatch(new Dress());
+        dispatcher.dispatch(new Dress());
         List<Class<? extends Store>> order = orderRecorder.getOrder();
 
         // verify seven stores
@@ -89,7 +89,7 @@ public class FittingRoomTest {
 
     @Test
     public void undressOrder() {
-        wd.dispatch(new Undress());
+        dispatcher.dispatch(new Undress());
         List<Class<? extends Store>> order = orderRecorder.getOrder();
 
         // verify seven stores
