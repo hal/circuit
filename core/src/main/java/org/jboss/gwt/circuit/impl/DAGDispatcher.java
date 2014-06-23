@@ -162,7 +162,7 @@ public class DAGDispatcher implements Dispatcher {
         }
 
         // cycle detection
-        CycleDetector<Class<?>, DefaultEdge> cycleDetection = new CycleDetector<>(dag);
+        /*CycleDetector<Class<?>, DefaultEdge> cycleDetection = new CycleDetector<>(dag);
         Set<Class<?>> cycles = cycleDetection.findCycles();
         if(cycles.size()>0)
         {
@@ -177,7 +177,7 @@ public class DAGDispatcher implements Dispatcher {
             }
 
             throw new CycleDetected(sb.toString());
-        }
+        }         */
 
         return dag;
     }
