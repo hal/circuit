@@ -22,53 +22,9 @@
 package org.jboss.gwt.flux;
 
 /**
- * An action carrying a payload and a type.
+ * An action carrying a payload. The payload must implement {@code hashCode()} and {@code equals()}.
  */
-public final class Action {
+public interface Action<P> {
 
-    private final String type;
-    private final Object payload; // TODO Consider using Optional<T> once JDK 8 is available
-
-    public Action(final String type) {
-        this(type, null);
-    }
-
-    public Action(final String type, final Object payload) {
-        this.type = type;
-        this.payload = payload;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <P> P getPayload() {
-        return (P) payload;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) { return true; }
-        if (!(o instanceof Action)) { return false; }
-
-        Action action = (Action) o;
-
-        if (payload != null ? !payload.equals(action.payload) : action.payload != null) { return false; }
-        if (!type.equals(action.type)) { return false; }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = type.hashCode();
-        result = 31 * result + (payload != null ? payload.hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return "Action(" + type + ", " + payload + ")";
-    }
+    P getPayload();
 }

@@ -79,19 +79,23 @@ h1 {
     margin-right: 1rem;
 }
 
-.queue-full, .queue-empty {
+.diagnostics-locked, .diagnostics {
     position: fixed;
     bottom: 0;
     right: 0;
-    font-size: 80%;
+    font-size: 66%;
     color: #666;
     margin: 1rem 1rem .2rem;
 }
 
-.queue-full .fa-cog {
+.diagnostics-locked .fa-cog {
     display: inline-block;
 }
 
-.queue-empty .fa-cog {
+.diagnostics .fa-cog {
     display: none;
+}
+
+.diagnostics-info {
+    padding-left: .33rem;
 }

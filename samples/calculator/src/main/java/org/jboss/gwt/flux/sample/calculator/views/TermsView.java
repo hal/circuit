@@ -21,11 +21,17 @@
  */
 package org.jboss.gwt.flux.sample.calculator.views;
 
+import org.jboss.gwt.flux.StoreChangedEvent;
 import org.jboss.gwt.flux.sample.calculator.CalculatorStore;
 
 public class TermsView implements View {
 
     public TermsView(final CalculatorStore store) {
-        store.addChangedHandler(event -> System.out.printf("Number of terms:    %d\n", store.getResults().size()));
+        store.addChangedHandler(new StoreChangedEvent.StoreChangedHandler() {
+            @Override
+            public void onChange(final StoreChangedEvent event) {
+                System.out.printf("Number of terms:    %d\n", store.getResults().size());
+            }
+        });
     }
 }

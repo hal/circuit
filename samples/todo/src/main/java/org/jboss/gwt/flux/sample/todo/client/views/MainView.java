@@ -25,14 +25,15 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.InlineHyperlink;
+import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.EventHandler;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
-import org.jboss.gwt.flux.Action;
 import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.StoreChangedEvent;
-import org.jboss.gwt.flux.sample.todo.client.TodoStore;
-import org.jboss.gwt.flux.sample.todo.client.actions.TodoActions;
+import org.jboss.gwt.flux.sample.todo.client.TodoDispatcher;
+import org.jboss.gwt.flux.sample.todo.client.actions.SaveTodo;
+import org.jboss.gwt.flux.sample.todo.client.stores.TodoStore;
 import org.jboss.gwt.flux.sample.todo.shared.Todo;
 
 import javax.annotation.PostConstruct;
@@ -45,15 +46,17 @@ import java.util.List;
 public class MainView extends Composite {
 
     @Inject TodoStore store;
-    @Inject
-    Dispatcher dispatcher;
+    @Inject TodoDispatcher dispatcher;
+    @Inject EventBus eventBus;
+
     @Inject @DataField FlowPanel todosContainer;
     @Inject Instance<TodoView> todoViewFactory;
     @Inject @DataField InlineHyperlink add;
 
+
     @PostConstruct
     public void init() {
-        store.addChangedHandler(new StoreChangedEvent.StoreChangedHandler() {
+        eventBus.addHandler(StoreChangedEvent.TYPE, new StoreChangedEvent.StoreChangedHandler() {
             @Override
             public void onChange(final StoreChangedEvent event) {
                 showTodos(store.getTodos());
@@ -72,6 +75,6 @@ public class MainView extends Composite {
 
     @EventHandler("add")
     public void onAdd(ClickEvent event) {
-        dispatcher.dispatch(new Action(TodoActions.SAVE, new Todo("New todo @ " + System.currentTimeMillis())));
+        dispatcher.dispatch(new SaveTodo(new Todo("New todo @ " + System.currentTimeMillis())));
     }
 }

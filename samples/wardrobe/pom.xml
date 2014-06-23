@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ JBoss, Home of Professional Open Source.
+  ~ Copyright 2010, Red Hat, Inc., and individual contributors
+  ~ as indicated by the @author tags. See the copyright.txt file in the
+  ~ distribution for a full listing of individual contributors.
+  ~
+  ~ This is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU Lesser General Public License as
+  ~ published by the Free Software Foundation; either version 2.1 of
+  ~ the License, or (at your option) any later version.
+  ~
+  ~ This software is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public
+  ~ License along with this software; if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+  ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+  -->
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.jboss.gwt.flux</groupId>
+        <artifactId>flux-samples-parent</artifactId>
+        <version>0.0.2</version>
+    </parent>
+
+    <artifactId>flux-wardrobe-sample</artifactId>
+    <name>Flux :: Samples :: Wardrobe</name>
+    <description>
+        Console based Flux sample simulating dress and undress of dependent items of clothing.
+        Uses the DAG dispatcher and the meta annotations.
+    </description>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jboss.gwt.flux</groupId>
+            <artifactId>flux-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.gwt.flux</groupId>
+            <artifactId>flux-meta</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.gwt.flux</groupId>
+            <artifactId>flux-processor</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!--
+                This is an alternate configuration for APT processing. It uses a patched [1] maven-processor-plugin
+                which maps the APT level javax.tools.Diagnostic.Kind.NOTE correctly to Maven's INFO log level.
+                [1] https://code.google.com/r/haraldpehl-maven-annotation-plugin/
+             -->
+            <!--
+            <plugin>
+                <groupId>org.bsc.maven</groupId>
+                <artifactId>maven-processor-plugin</artifactId>
+                <version>3.1.0-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <id>process</id>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <defaultOutputDirectory>${project.build.directory}/generated-sources/annotations</defaultOutputDirectory>
+                            <options>
+                                <cdi>false</cdi>
+                                <dispatcherName>WardrobeDispatcher</dispatcherName>
+                                <dispatcherPackage>org.jboss.gwt.flux.sample.wardrobe</dispatcherPackage>
+                            </options>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerArgument>-proc:none</compilerArgument>
+                </configuration>
+            </plugin>
+            -->
+
+            <!-- The next plugins work together to enable APT support -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>target/generated-sources/annotations</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>process-annotation</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <proc>only</proc>
+                            <failOnError>false</failOnError>
+                            <compilerArguments>
+                                <Acdi>false</Acdi>
+                                <AdispatcherName>WardrobeDispatcher</AdispatcherName>
+                                <AdispatcherPackage>org.jboss.gwt.flux.sample.wardrobe</AdispatcherPackage>
+                            </compilerArguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!-- Don't change this ID (it overrides the default ID) -->
+                        <id>default-compile</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <proc>none</proc>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

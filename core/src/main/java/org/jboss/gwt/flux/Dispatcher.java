@@ -22,7 +22,7 @@
 package org.jboss.gwt.flux;
 
 /**
- * The dispatcher registers store callbacks and dispatches actions.
+ * The dispatcher manages store callbacks and dispatches actions.
  */
 public interface Dispatcher {
 
@@ -32,13 +32,20 @@ public interface Dispatcher {
     public interface Channel {
 
         /**
-         * Must be called by stores to signal the processing of a callback.
+         * Must be called by stores to signal the successful processing of a callback.
          */
         void ack();
 
+        /**
+         * Must be called by stores to signal an error during the processing of a callback.
+         */
         void nack(Throwable t);
     }
 
+
+    /**
+     * Interface for accessing workflow data from a dispatcher.
+     */
     interface Diagnostics {
     }
 
@@ -48,9 +55,13 @@ public interface Dispatcher {
     <S extends Store> void register(Class<S> store, Store.Callback callback);
 
     /**
-     * Calls all registered callbacks.
+     * Dispatches the actions to all registered stores, which voted with an approved agreement. The stores are called
+     * according to the dependencies specified in the agreement for the given action.
      */
     void dispatch(Action action);
 
+    /**
+     * Registers a diagnostics instance.
+     */
     void addDiagnostics(Diagnostics diagnostics);
 }

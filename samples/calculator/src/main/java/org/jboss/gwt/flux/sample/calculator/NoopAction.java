@@ -21,19 +21,11 @@
  */
 package org.jboss.gwt.flux.sample.calculator;
 
-import org.jboss.gwt.flux.Action;
+import org.jboss.gwt.flux.impl.SimpleAction;
 
-public class NoopAction implements Action<Void, NoopAction.Type> {
+public class NoopAction extends SimpleAction {
 
-    public enum Type {Noop}
-
-    @Override
-    public Void getPayload() {
-        return null;
-    }
-
-    @Override
-    public Type getType() {
-        return Type.Noop;
+    public NoopAction() {
+        super("noop");
     }
 }

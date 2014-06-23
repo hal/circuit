@@ -21,15 +21,17 @@
  */
 package org.jboss.gwt.flux.sample.todo.client.cdi;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.gwt.flux.Dispatcher;
 import org.jboss.gwt.flux.impl.DAGDispatcher;
 import org.jboss.gwt.flux.sample.todo.client.TodoService;
 import org.jboss.gwt.flux.sample.todo.client.TodoServiceAsync;
 import org.jboss.gwt.flux.sample.todo.resources.TodoResources;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
 
 @ApplicationScoped
 @SuppressWarnings("UnusedDeclaration")
@@ -49,7 +51,13 @@ public class Producer {
 
     @Produces
     @ApplicationScoped
-    public Dispatcher createDispatcher() {
-        return new DAGDispatcher();
+    public EventBus produceEventBus() {
+        return new SimpleEventBus();
     }
-}
+
+    @Produces
+    @ApplicationScoped
+    public Dispatcher produceDispatcher() {
+        return new DAGDispatcher();
+    }}
+

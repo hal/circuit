@@ -32,40 +32,19 @@
         <version>0.0.2</version>
     </parent>
 
-    <artifactId>flux</artifactId>
+    <artifactId>flux-core</artifactId>
     <name>Flux :: Core</name>
-    <description>
-        GWT implementation of the Flux patterns. See http://facebook.github.io/react/docs/flux-overview.html
-    </description>
-    <packaging>jar</packaging>
+    <description>Core Flux API</description>
+
 
     <dependencies>
         <dependency>
             <groupId>org.jgrapht</groupId>
             <artifactId>jgrapht-core</artifactId>
-            <version>0.9.1-hal</version>
         </dependency>
         <dependency>
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-user</artifactId>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>jar-no-fork</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>

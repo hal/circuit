@@ -31,35 +31,32 @@ import org.jboss.gwt.flux.impl.NoopChannel;
 
 public class SequentialDispatcher implements Dispatcher {
 
-    private final Map<Enum, Store.Callback> callbacks;
+    private final Map<Class<?>, Store.Callback> callbacks;
 
     public SequentialDispatcher() {callbacks = new HashMap<>();}
 
     @Override
-    @SafeVarargs
-    public final <A extends Action, T extends Enum<T>> void register(final Store.Callback<A> callback, final T type,
-            final T... types) {
-        callbacks.put(type, callback);
-        if (types != null && types.length != 0) {
-            for (T t : types) {
-                callbacks.put(t, callback);
-            }
-        }
+    public <S extends Store> void register(final Class<S> store, final Store.Callback callback) {
+        callbacks.put(store, callback);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <A extends Action> void dispatch(final A action) {
-        System.out.printf("~-~-~-~-~ Processing %s with payload '%s'\n", action.getClass().getSimpleName(),
-                action.getPayload());
+    public void dispatch(final Action action) {
+        System.out.printf("~-~-~-~-~ Processing %s\n", action);
 
-        Store.Callback callback = callbacks.get(action.getType());
-        if (callback != null) {
-            callback.execute(action, NoopChannel.INSTANCE);
-        } else {
-            System.out.printf("No callback found for action type %s\n", action.getType());
+        for (Store.Callback callback : callbacks.values()) {
+            if (callback.voteFor(action).isApproved()) {
+                callback.execute(action, NoopChannel.INSTANCE);
+            } else {
+                System.out.printf("Ignoring unsupported %s\n", action);
+            }
         }
 
         System.out.printf("~-~-~-~-~ Finished\n\n");
+    }
+
+    @Override
+    public void addDiagnostics(final Diagnostics diagnostics) {
+        throw new UnsupportedOperationException("Diagnostics are not supported for " + SequentialDispatcher.class);
     }
 }

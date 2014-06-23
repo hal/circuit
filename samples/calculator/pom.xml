@@ -34,6 +34,9 @@
 
     <artifactId>flux-calculator-sample</artifactId>
     <name>Flux :: Samples :: Calculator</name>
-    <description>Command line application using Flux</description>
+    <description>
+        Console based Flux sample simulating a calculator. Uses a simple sequential dispatcher implementation without
+        locking and dependency resolution.
+    </description>
     <packaging>jar</packaging>
 </project>

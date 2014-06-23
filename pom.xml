@@ -36,7 +36,7 @@
     <artifactId>flux-parent</artifactId>
     <version>0.0.2</version>
     <name>Flux</name>
-    <description>Parent POM of Flux</description>
+    <description>GWT implementation of the Flux pattern. See http://facebook.github.io/react/docs/flux-overview.html</description>
     <packaging>pom</packaging>
 
     <organization>
@@ -75,18 +75,22 @@
     <properties>
         <maven.compiler.target>1.7</maven.compiler.target>
         <maven.compiler.source>1.7</maven.compiler.source>
-
+        <enterprise.cdi.version>1.1</enterprise.cdi.version>
         <errai.version>3.0.0.Final</errai.version>
+        <freemarker.version>2.3.20</freemarker.version>
         <gwt.version>2.6.1</gwt.version>
 
         <!-- See https://issues.jboss.org/browse/ERRAI-760 -->
         <guava.version>17.0</guava.version>
-
+        <javax.inject.version>1</javax.inject.version>
+        <jgrapht.version>0.9.1-hal</jgrapht.version>
         <junit.version>4.11</junit.version>
     </properties>
 
     <modules>
         <module>core</module>
+        <module>meta</module>
+        <module>processor</module>
         <module>samples</module>
     </modules>
 
@@ -95,8 +99,30 @@
             <!-- Flux -->
             <dependency>
                 <groupId>org.jboss.gwt.flux</groupId>
-                <artifactId>flux</artifactId>
+                <artifactId>flux-core</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.gwt.flux</groupId>
+                <artifactId>flux-dag</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.gwt.flux</groupId>
+                <artifactId>flux-meta</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.gwt.flux</groupId>
+                <artifactId>flux-processor</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- JGraphT -->
+            <dependency>
+                <groupId>org.jgrapht</groupId>
+                <artifactId>jgrapht-core</artifactId>
+                <version>${jgrapht.version}</version>
             </dependency>
 
             <!-- Errai -->
@@ -114,6 +140,16 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>javax.inject</groupId>
+                <artifactId>javax.inject</artifactId>
+                <version>${javax.inject.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.enterprise</groupId>
+                <artifactId>cdi-api</artifactId>
+                <version>${enterprise.cdi.version}</version>
+            </dependency>
 
             <!-- GWT & related -->
             <dependency>
@@ -130,6 +166,13 @@
                 <groupId>com.google.gwt</groupId>
                 <artifactId>gwt-user</artifactId>
                 <version>${gwt.version}</version>
+            </dependency>
+
+            <!-- Freemarker -->
+            <dependency>
+                <groupId>org.freemarker</groupId>
+                <artifactId>freemarker</artifactId>
+                <version>${freemarker.version}</version>
             </dependency>
 
             <!-- Test -->
