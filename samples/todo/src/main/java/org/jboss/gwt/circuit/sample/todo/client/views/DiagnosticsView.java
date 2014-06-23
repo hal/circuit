@@ -35,7 +35,7 @@ import org.jboss.gwt.circuit.impl.DAGDispatcher;
 @ApplicationScoped
 @SuppressWarnings("UnusedDeclaration")
 @Templated("View.html#queueInfo")
-public class DiagnosticsView extends Composite implements DAGDispatcher.DAGDiagnostics {
+public class DiagnosticsView extends Composite implements DAGDispatcher.Diagnostics {
 
     @Inject @DataField InlineLabel info;
     private int dispatched;
@@ -71,19 +71,19 @@ public class DiagnosticsView extends Composite implements DAGDispatcher.DAGDiagn
     }
 
     @Override
-    public void onExecute(final Class<? extends Store> s, final Action a) {
+    public void onExecute(final Class<?> s, final Action a) {
         executed++;
         refresh();
     }
 
     @Override
-    public void onAck(final Class<? extends Store> s, final Action a) {
+    public void onAck(final Class<?> s, final Action a) {
         acked++;
         refresh();
     }
 
     @Override
-    public void onNack(final Class<? extends Store> s, final Action a, final Throwable t) {
+    public void onNack(final Class<?> s, final Action a, final Throwable t) {
         nacked++;
         refresh();
     }

@@ -21,20 +21,20 @@
  */
 package org.jboss.gwt.circuit.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.Store;
 import org.jgrapht.DirectedGraph;
+import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.traverse.TopologicalOrderIterator;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 
 /**
  * A dispatcher implementation with global locking and dependency resolution between stores based on directed acyclic
@@ -45,64 +45,33 @@ import org.jgrapht.traverse.TopologicalOrderIterator;
  */
 public class DAGDispatcher implements Dispatcher {
 
-    public interface DAGDiagnostics extends Diagnostics {
+    public interface Diagnostics extends Dispatcher.Diagnostics {
 
         void onDispatch(Action a);
 
         void onLock();
 
-        void onExecute(Class<? extends Store> s, Action a);
+        void onExecute(Class<?> s, Action a);
 
-        void onAck(Class<? extends Store> s, Action a);
+        void onAck(Class<?> s, Action a);
 
-        void onNack(Class<? extends Store> s, Action a, final Throwable t);
+        void onNack(Class<?> s, Action a, final Throwable t);
 
         void onUnlock();
     }
 
+    public final static int BOUNDS_SIZE = 50;
 
     private boolean locked;
-    private final Stack<Action> queue;
+    private final Queue<Action> queue;
     private final Map<Class<? extends Store>, Store.Callback> callbacks;
-    private final List<DAGDiagnostics> diagnostics;
-    private final DAGDiagnostics logDelegate;
+    private final DelegatingDiag diag;
 
     public DAGDispatcher() {
         locked = false;
-        queue = new Stack<>();
+        queue = new BoundedQueue<Action>(BOUNDS_SIZE);
         callbacks = new HashMap<>();
-        diagnostics = new ArrayList<>();
-        logDelegate = new DAGDiagnostics() {
-            @Override
-            public void onDispatch(final Action a) {
-                for (DAGDiagnostics d : diagnostics) { d.onDispatch(a); }
-            }
-
-            @Override
-            public void onLock() {
-                for (DAGDiagnostics d : diagnostics) { d.onLock(); }
-            }
-
-            @Override
-            public void onExecute(final Class<? extends Store> s, final Action a) {
-                for (DAGDiagnostics d : diagnostics) { d.onExecute(s, a); }
-            }
-
-            @Override
-            public void onAck(final Class<? extends Store> s, final Action a) {
-                for (DAGDiagnostics d : diagnostics) { d.onAck(s, a); }
-            }
-
-            @Override
-            public void onNack(final Class<? extends Store> s, final Action a, final Throwable t) {
-                for (DAGDiagnostics d : diagnostics) { d.onNack(s, a, t); }
-            }
-
-            @Override
-            public void onUnlock() {
-                for (DAGDiagnostics d : diagnostics) { d.onUnlock(); }
-            }
-        };
+        diag = new DelegatingDiag();
     }
 
     @Override
@@ -113,21 +82,35 @@ public class DAGDispatcher implements Dispatcher {
 
     @Override
     public void dispatch(final Action action) {
-        logDelegate.onDispatch(action);
+        diag.onDispatch(action);
 
         if (!locked) {
             // lock globally
-            logDelegate.onLock();
-            locked = true;
+            lock();
 
             // collect approvals
             Map<Class<? extends Store>, Agreement> approvals = prepare(action);
 
             // complete callbacks
-            complete(action, approvals);
+            if(approvals.isEmpty()) {
+                unlock();
+            }
+            else {
+                complete(action, approvals);
+            }
         } else {
-            queue.push(action);
+            queue.offer(action);
         }
+    }
+
+    private void lock() {
+        diag.onLock();
+        locked = true;
+    }
+
+    private void unlock() {
+        diag.onUnlock();
+        locked = false;
     }
 
     private Map<Class<? extends Store>, Agreement> prepare(final Action action) {
@@ -145,17 +128,19 @@ public class DAGDispatcher implements Dispatcher {
     }
 
     private void complete(final Action action, final Map<Class<? extends Store>, Agreement> approvals) {
-        DirectedGraph<Class<? extends Store>, DefaultEdge> dag = createDag(approvals);
+
+        DirectedGraph<Class<?>, DefaultEdge> dag = createDag(approvals);
         // TODO Cache topological order
-        TopologicalOrderIterator<Class<? extends Store>, DefaultEdge> iterator = new TopologicalOrderIterator<>(
-                dag);
+        TopologicalOrderIterator<Class<?>, DefaultEdge> iterator = new TopologicalOrderIterator<>(dag);
+
         executeInOrder(action, iterator);
     }
 
-    private DirectedGraph<Class<? extends Store>, DefaultEdge> createDag(
-            final Map<Class<? extends Store>, Agreement> approvals) {
+    private DirectedGraph<Class<?>, DefaultEdge> createDag(
+            final Map<Class<? extends Store>, Agreement> approvals
+    ) {
 
-        DirectedGraph<Class<? extends Store>, DefaultEdge> dag = new DefaultDirectedGraph<>(DefaultEdge.class);
+        DirectedGraph<Class<?>, DefaultEdge> dag = new DefaultDirectedGraph<>(new EdgeFactoryImpl());
 
         // Add vertices (stores)
         for (Map.Entry<Class<? extends Store>, Agreement> entry : approvals.entrySet()) {
@@ -175,34 +160,51 @@ public class DAGDispatcher implements Dispatcher {
                 dag.addEdge(depStore, store);
             }
         }
+
+        // cycle detection
+        CycleDetector<Class<?>, DefaultEdge> cycleDetection = new CycleDetector<>(dag);
+        Set<Class<?>> cycles = cycleDetection.findCycles();
+        if(cycles.size()>0)
+        {
+            StringBuffer sb = new StringBuffer();
+            int i=1;
+            for(Class<?> store : cycles)
+            {
+                sb.append(store.getName());
+                if(i<cycles.size())
+                    sb.append(" > ");
+                i++;
+            }
+
+            throw new CycleDetected(sb.toString());
+        }
+
         return dag;
     }
 
-    private void executeInOrder(final Action action,
-            final TopologicalOrderIterator<Class<? extends Store>, DefaultEdge> iterator) {
+    private void executeInOrder(final Action action, final TopologicalOrderIterator<Class<?>, DefaultEdge> iterator) {
 
         if (!iterator.hasNext()) {
-            logDelegate.onUnlock();
-            locked = false;
+            unlock();
             if (!queue.isEmpty()) {
-                dispatch(queue.pop());
+                dispatch(queue.poll());
             }
             return;
         }
 
-        final Class<? extends Store> store = iterator.next();
+        final Class<?> store = iterator.next();
         Store.Callback callback = callbacks.get(store);
-        logDelegate.onExecute(store, action);
+        diag.onExecute(store, action);
         callback.execute(action, new Channel() {
             @Override
             public void ack() {
-                logDelegate.onAck(store, action);
+                diag.onAck(store, action);
                 proceed();
             }
 
             @Override
             public void nack(final Throwable t) {
-                logDelegate.onNack(store, action, t);
+                diag.onNack(store, action, t);
                 proceed();
             }
 
@@ -213,11 +215,13 @@ public class DAGDispatcher implements Dispatcher {
     }
 
     @Override
-    public void addDiagnostics(final Diagnostics d) {
-        if (!(d instanceof DAGDiagnostics)) {
-            throw new IllegalArgumentException("Diagnostics must be of type " + DAGDiagnostics.class);
-        }
-        this.diagnostics.add((DAGDiagnostics) d);
+    public void addDiagnostics(final Dispatcher.Diagnostics d) {
+        this.diag.add(d);
+    }
+
+    @Override
+    public void removeDiagnostics(Dispatcher.Diagnostics d) {
+        this.diag.remove(d);
     }
 }
 

@@ -64,4 +64,9 @@ public interface Dispatcher {
      * Registers a diagnostics instance.
      */
     void addDiagnostics(Diagnostics diagnostics);
+
+    /**
+     * Removes a diagnostics instance.
+     */
+    void removeDiagnostics(Diagnostics diagnostics);
 }

@@ -59,4 +59,9 @@ public class SequentialDispatcher implements Dispatcher {
     public void addDiagnostics(final Diagnostics diagnostics) {
         throw new UnsupportedOperationException("Diagnostics are not supported for " + SequentialDispatcher.class);
     }
+
+    @Override
+    public void removeDiagnostics(Diagnostics diagnostics) {
+        throw new UnsupportedOperationException("Diagnostics are not supported for " + SequentialDispatcher.class);
+    }
 }

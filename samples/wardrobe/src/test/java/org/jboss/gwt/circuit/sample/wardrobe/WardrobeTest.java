@@ -64,7 +64,7 @@ public class WardrobeTest {
     @Test
     public void dressOrder() {
         dispatcher.dispatch(new Dress());
-        List<Class<? extends Store>> order = orderRecorder.getOrder();
+        List<Class<?>> order = orderRecorder.getOrder();
 
         // verify seven stores
         assertEquals(7, order.size());
@@ -90,7 +90,7 @@ public class WardrobeTest {
     @Test
     public void undressOrder() {
         dispatcher.dispatch(new Undress());
-        List<Class<? extends Store>> order = orderRecorder.getOrder();
+        List<Class<?>> order = orderRecorder.getOrder();
 
         // verify seven stores
         assertEquals(7, order.size());

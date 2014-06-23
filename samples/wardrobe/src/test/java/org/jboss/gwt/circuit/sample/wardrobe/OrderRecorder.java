@@ -29,9 +29,9 @@ import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Store;
 import org.jboss.gwt.circuit.impl.DAGDispatcher;
 
-public class OrderRecorder implements DAGDispatcher.DAGDiagnostics {
+public class OrderRecorder implements DAGDispatcher.Diagnostics {
 
-    private final List<Class<? extends Store>> order;
+    private final List<Class<?>> order;
 
     public OrderRecorder() {
         order = new ArrayList<>();
@@ -48,17 +48,17 @@ public class OrderRecorder implements DAGDispatcher.DAGDiagnostics {
     }
 
     @Override
-    public void onExecute(final Class<?  extends Store> s, final Action a) {
+    public void onExecute(final Class<?> s, final Action a) {
         // noop
     }
 
     @Override
-    public void onAck(final Class<?  extends Store> s, final Action a) {
+    public void onAck(final Class<?> s, final Action a) {
         order.add(s);
     }
 
     @Override
-    public void onNack(final Class<? extends Store> s, final Action a, final Throwable t) {
+    public void onNack(final Class<?> s, final Action a, final Throwable t) {
         // noop
     }
 
@@ -67,7 +67,7 @@ public class OrderRecorder implements DAGDispatcher.DAGDiagnostics {
         // noop
     }
 
-    public List<Class<? extends Store>> getOrder() {
+    public List<Class<?>> getOrder() {
         return Collections.unmodifiableList(order);
     }
 }
