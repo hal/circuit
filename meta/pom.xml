@@ -27,14 +27,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.jboss.gwt.flux</groupId>
-        <artifactId>flux-parent</artifactId>
+        <groupId>org.jboss.gwt.circuit</groupId>
+        <artifactId>circuit-parent</artifactId>
         <version>0.0.2</version>
     </parent>
 
-    <artifactId>flux-meta</artifactId>
-    <name>Flux :: Metadata</name>
-    <description>Metadata annotation to generate Flux stores and dispatcher.</description>
+    <artifactId>circuit-meta</artifactId>
+    <name>circuit :: Metadata</name>
+    <description>Metadata annotation to generate circuit stores and dispatcher.</description>
     <packaging>jar</packaging>
 
     <dependencies>

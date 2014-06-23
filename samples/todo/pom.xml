@@ -27,15 +27,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.jboss.gwt.flux</groupId>
-        <artifactId>flux-samples-parent</artifactId>
+        <groupId>org.jboss.gwt.circuit</groupId>
+        <artifactId>circuit-samples-parent</artifactId>
         <version>0.0.2</version>
     </parent>
 
-    <artifactId>flux-todo-sample</artifactId>
-    <name>Flux :: Samples :: Todo</name>
+    <artifactId>circuit-todo-sample</artifactId>
+    <name>circuit :: Samples :: Todo</name>
     <description>
-        GWT based Flux sample of a todo manager. Uses the DAG dispatcher and the meta annotations.
+        GWT based circuit sample of a todo manager. Uses the DAG dispatcher and the meta annotations.
     </description>
     <packaging>war</packaging>
 
@@ -45,16 +45,16 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.jboss.gwt.flux</groupId>
-            <artifactId>flux-core</artifactId>
+            <groupId>org.jboss.gwt.circuit</groupId>
+            <artifactId>circuit-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.jboss.gwt.flux</groupId>
-            <artifactId>flux-meta</artifactId>
+            <groupId>org.jboss.gwt.circuit</groupId>
+            <artifactId>circuit-meta</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.jboss.gwt.flux</groupId>
-            <artifactId>flux-processor</artifactId>
+            <groupId>org.jboss.gwt.circuit</groupId>
+            <artifactId>circuit-processor</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -174,7 +174,7 @@
                             <compilerArguments>
                                 <Acdi>true</Acdi>
                                 <AdispatcherName>TodoDispatcher</AdispatcherName>
-                                <AdispatcherPackage>org.jboss.gwt.flux.sample.todo.client</AdispatcherPackage>
+                                <AdispatcherPackage>org.jboss.gwt.circuit.sample.todo.client</AdispatcherPackage>
                             </compilerArguments>
                         </configuration>
                     </execution>
@@ -209,9 +209,8 @@
                     <hostedWebapp>${webAppDirectory}</hostedWebapp>
                     <compileSourcesArtifacts>
                         <artifact>org.jgrapht:jgrapht-core</artifact>
-                        <artifact>org.jboss.gwt.flux:flux-core</artifact>
-                        <artifact>org.jboss.gwt.flux:flux-dag</artifact>
-                        <artifact>org.jboss.gwt.flux:flux-meta</artifact>
+                        <artifact>org.jboss.gwt.circuit:circuit-core</artifact>
+                        <artifact>org.jboss.gwt.circuit:circuit-meta</artifact>
                     </compileSourcesArtifacts>
                     <extraJvmArgs>-Xmx1g -Xms756m -XX:CompileThreshold=1000 -Dlog4j.ignoreTCL=true</extraJvmArgs>
                 </configuration>

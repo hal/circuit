@@ -27,14 +27,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.jboss.gwt.flux</groupId>
-        <artifactId>flux-parent</artifactId>
+        <groupId>org.jboss.gwt.circuit</groupId>
+        <artifactId>circuit-parent</artifactId>
         <version>0.0.2</version>
     </parent>
 
-    <artifactId>flux-core</artifactId>
-    <name>Flux :: Core</name>
-    <description>Core Flux API</description>
+    <artifactId>circuit-core</artifactId>
+    <name>circuit :: Core</name>
+    <description>Core circuit API</description>
 
 
     <dependencies>

@@ -1,2 +1,2 @@
-org.jboss.gwt.flux.processor.ActionProcessor
-org.jboss.gwt.flux.processor.StoreProcessor
+org.jboss.gwt.circuit.processor.ActionProcessor
+org.jboss.gwt.circuit.processor.StoreProcessor

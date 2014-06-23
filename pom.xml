@@ -32,11 +32,11 @@
         <version>14</version>
     </parent>
 
-    <groupId>org.jboss.gwt.flux</groupId>
-    <artifactId>flux-parent</artifactId>
+    <groupId>org.jboss.gwt.circuit</groupId>
+    <artifactId>circuit-parent</artifactId>
     <version>0.0.2</version>
-    <name>Flux</name>
-    <description>GWT implementation of the Flux pattern. See http://facebook.github.io/react/docs/flux-overview.html</description>
+    <name>circuit</name>
+    <description>GWT implementation of the circuit pattern. See http://facebook.github.io/react/docs/circuit-overview.html</description>
     <packaging>pom</packaging>
 
     <organization>
@@ -96,25 +96,25 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Flux -->
+            <!-- circuit -->
             <dependency>
-                <groupId>org.jboss.gwt.flux</groupId>
-                <artifactId>flux-core</artifactId>
+                <groupId>org.jboss.gwt.circuit</groupId>
+                <artifactId>circuit-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jboss.gwt.flux</groupId>
-                <artifactId>flux-dag</artifactId>
+                <groupId>org.jboss.gwt.circuit</groupId>
+                <artifactId>circuit-dag</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jboss.gwt.flux</groupId>
-                <artifactId>flux-meta</artifactId>
+                <groupId>org.jboss.gwt.circuit</groupId>
+                <artifactId>circuit-meta</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jboss.gwt.flux</groupId>
-                <artifactId>flux-processor</artifactId>
+                <groupId>org.jboss.gwt.circuit</groupId>
+                <artifactId>circuit-processor</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

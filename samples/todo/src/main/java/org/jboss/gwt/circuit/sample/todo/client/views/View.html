@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <title>MainView</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=9">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+    <link href="../../../../../../../../../webapp/normalize.css" rel="stylesheet" type="text/css">
+    <link href="../../../../../../../../../resources/org/jboss/gwt/circuit/sample/todo/resources/todo.css" rel="stylesheet" type="text/css">
+    <link href="http://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,300,700" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<div data-field="main">
+    <h1>Circuit Todo Manager</h1>
+
+    <div data-field="todosContainer" class="todos">
+        <div data-field="todoContainer" class="todo">
+            <span data-field="check" class="todo-check">
+                <i title="Click to mark as done" class="fa fa-square-o fa-lg"></i>
+                <i title="Click to mark as undone" class="fa fa-check-square-o fa-lg"></i>
+            </span>
+            <span data-field="name" class="todo-name">lorem ipsum</span>
+            <span class="todo-control">
+                <i title="Click to remove" data-field="remove" class="fa fa-trash-o fa-lg"></i>
+            </span>
+        </div>
+        <!-- Sample Todos -->
+        <div class="todo">
+            <span class="todo-uncheck">
+                <i title="Click to mark as done" class="fa fa-square-o fa-lg"></i>
+                <i title="Click to mark as undone" class="fa fa-check-square-o fa-lg"></i>
+            </span>
+            <span class="todo-name todo-done">dolor sit amet</span>
+            <span class="todo-control">
+                <i title="Click to remove" data-field="remove" class="fa fa-trash-o fa-lg"></i>
+            </span>
+        </div>
+        <div class="todo">
+            <span class="todo-check">
+                <i title="Click to mark as done" class="fa fa-square-o fa-lg"></i>
+                <i title="Click to mark as undone" class="fa fa-check-square-o fa-lg"></i>
+            </span>
+            <span class="todo-name">consetetur sadipscing elitr</span>
+            <span class="todo-control">
+                <i title="Click to remove" data-field="remove" class="fa fa-trash-o fa-lg"></i>
+            </span>
+        </div>
+    </div>
+    <div class="todo-add">
+        <a data-field="add" href="#"><i class="fa fa-plus fa-lg"></i>Add Task</a>
+    </div>
+</div>
+<div data-field="queueInfo" class="diagnostics-locked">
+    <i class="fa fa-cog fa-spin"></i><span class="diagnostics-info" data-field="info">Diagnostics...</span>
+</div>
+</body>
+</html>
