@@ -46,8 +46,10 @@ public class BoundedQueue<T> implements Queue<T> {
     @Override
     public boolean offer(T e) {
         boolean added = false;
-        if(size()<capacity)
-            added = list.offerFirst(e);
+        if(size()<capacity) {
+            list.addFirst(e);
+            added = true;
+        }
         return added;
     }
 
