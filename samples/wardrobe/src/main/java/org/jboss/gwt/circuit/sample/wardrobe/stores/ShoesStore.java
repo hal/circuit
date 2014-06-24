@@ -22,8 +22,8 @@
 package org.jboss.gwt.circuit.sample.wardrobe.stores;
 
 import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.meta.Receive;
-import org.jboss.gwt.circuit.meta.Store;
+import org.jboss.gwt.circuit.meta.*;
+import org.jboss.gwt.circuit.meta.Process;
 import org.jboss.gwt.circuit.sample.wardrobe.actions.Dress;
 import org.jboss.gwt.circuit.sample.wardrobe.actions.Undress;
 
@@ -31,13 +31,13 @@ import org.jboss.gwt.circuit.sample.wardrobe.actions.Undress;
 @SuppressWarnings("UnusedParameters")
 public class ShoesStore {
 
-    @Receive(dependencies = {TrousersStore.class, SocksStore.class})
-    public void dress(Dress action, Dispatcher.Channel channel) {
+    @Process(actionType = Dress.class, dependencies = {TrousersStore.class, SocksStore.class})
+    public void dress(Dispatcher.Channel channel) {
         channel.ack();
     }
 
-    @Receive
-    public void undress(Undress action, Dispatcher.Channel channel) {
+    @org.jboss.gwt.circuit.meta.Process(actionType = Undress.class)
+    public void undress(Dispatcher.Channel channel) {
         channel.ack();
     }
 }

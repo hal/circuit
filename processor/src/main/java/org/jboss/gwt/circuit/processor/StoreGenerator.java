@@ -21,6 +21,7 @@
  */
 package org.jboss.gwt.circuit.processor;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +29,7 @@ import java.util.Set;
 class StoreGenerator extends AbstractGenerator {
 
     StringBuffer generate(final String packageName, final String storeClassName, String storeDelegate,
-            Set<ReceiveInfo> receiveInfos, final Boolean cdi)
+            Collection<ReceiveInfo> receiveInfos, final Boolean cdi)
             throws GenerationException {
 
         Map<String, Object> context = new HashMap<>();

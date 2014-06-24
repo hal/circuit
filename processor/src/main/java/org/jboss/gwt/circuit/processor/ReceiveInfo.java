@@ -28,15 +28,25 @@ import java.util.Set;
 public class ReceiveInfo {
 
     private final String method;
-    private final String payload;
-    private final String action;
-    private final Set<String> dependencies;
+    private String payload;
+    private final String actionType;
+    private Set<String> dependencies;
 
-    public ReceiveInfo(final String method, final String payload) {
+    public ReceiveInfo(final String method, String actionType, final String payload) {
         this.method = method;
         this.payload = payload;
-        this.action = GenerationUtil.actionImplementation(payload);
+        this.actionType = actionType;
         this.dependencies = new HashSet<>();
+    }
+
+    public ReceiveInfo(String method, String actionType) {
+        this.method = method;
+        this.actionType = actionType;
+        this.dependencies = new HashSet<>();
+    }
+
+    public boolean isSingleArg() {
+        return payload == null;
     }
 
     public void addDependency(String storeClassName) {
@@ -51,8 +61,8 @@ public class ReceiveInfo {
         return payload;
     }
 
-    public String getAction() {
-        return action;
+    public String getActionType() {
+        return actionType;
     }
 
     public boolean hasDependencies() {

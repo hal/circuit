@@ -66,7 +66,7 @@ final class GenerationUtil {
     }
 
     static String storeImplementation(String delegate) {
-        return delegate + "Impl";
+        return delegate + "Adapter";
     }
 
     /**

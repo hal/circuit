@@ -21,16 +21,22 @@
  */
 package org.jboss.gwt.circuit.sample.todo.client.actions;
 
-import org.jboss.gwt.circuit.meta.Action;
+import org.jboss.gwt.circuit.meta.ActionType;
 import org.jboss.gwt.circuit.sample.todo.shared.Todo;
 
-@Action
-public class SaveTodo {
+@ActionType
+public class SaveTodo implements org.jboss.gwt.circuit.Action<Todo> {
 
     private final Todo todo;
 
     public SaveTodo(final Todo todo) {this.todo = todo;}
 
+    @Override
+    public Todo getPayload() {
+        return todo;
+    }
+
+    @Deprecated
     public Todo getTodo() {
         return todo;
     }

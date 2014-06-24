@@ -29,7 +29,7 @@ import com.google.gwt.user.client.ui.InlineLabel;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.EventHandler;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
-import org.jboss.gwt.circuit.sample.todo.client.TodoDispatcher;
+import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.sample.todo.client.actions.RemoveTodo;
 import org.jboss.gwt.circuit.sample.todo.client.actions.SaveTodo;
 import org.jboss.gwt.circuit.sample.todo.client.stores.TodoStore;
@@ -44,7 +44,8 @@ public class TodoView extends Composite {
     private Todo todo;
 
     @Inject TodoStore store;
-    @Inject TodoDispatcher dispatcher;
+    @Inject
+    Dispatcher dispatcher;
     @DataField Element check = DOM.createSpan();
     @Inject @DataField InlineLabel name;
     @DataField Element remove = DOM.createElement("i");

@@ -10,7 +10,7 @@
  * the License, or (at your option) any later version.
  *
  * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * but WITHOUT ANY WARRANTY; without even the Adapteried warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
  *
@@ -26,38 +26,39 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.dag.DAGDispatcher;
 import org.jboss.gwt.circuit.sample.wardrobe.actions.Dress;
 import org.jboss.gwt.circuit.sample.wardrobe.actions.Undress;
-import org.jboss.gwt.circuit.sample.wardrobe.stores.CoatStoreImpl;
-import org.jboss.gwt.circuit.sample.wardrobe.stores.PulloverStoreImpl;
-import org.jboss.gwt.circuit.sample.wardrobe.stores.ShoesStoreImpl;
-import org.jboss.gwt.circuit.sample.wardrobe.stores.SocksStoreImpl;
-import org.jboss.gwt.circuit.sample.wardrobe.stores.TrousersStoreImpl;
-import org.jboss.gwt.circuit.sample.wardrobe.stores.UndershirtStoreImpl;
-import org.jboss.gwt.circuit.sample.wardrobe.stores.UnderwearStoreImpl;
+import org.jboss.gwt.circuit.sample.wardrobe.stores.CoatStoreAdapter;
+import org.jboss.gwt.circuit.sample.wardrobe.stores.PulloverStoreAdapter;
+import org.jboss.gwt.circuit.sample.wardrobe.stores.ShoesStoreAdapter;
+import org.jboss.gwt.circuit.sample.wardrobe.stores.SocksStoreAdapter;
+import org.jboss.gwt.circuit.sample.wardrobe.stores.TrousersStoreAdapter;
+import org.jboss.gwt.circuit.sample.wardrobe.stores.UndershirtStoreAdapter;
+import org.jboss.gwt.circuit.sample.wardrobe.stores.UnderwearStoreAdapter;
 import org.junit.Before;
 import org.junit.Test;
 
 
 public class WardrobeTest {
 
-    private WardrobeDispatcher dispatcher;
+    private Dispatcher dispatcher;
     private OrderRecorder orderRecorder;
 
     @Before
     public void setUp() {
-        dispatcher = new WardrobeDispatcher(new DAGDispatcher());
+        dispatcher = new DAGDispatcher();
         orderRecorder = new OrderRecorder();
         dispatcher.addDiagnostics(orderRecorder);
 
-        new CoatStoreImpl(dispatcher.getDispatcher());
-        new PulloverStoreImpl(dispatcher.getDispatcher());
-        new ShoesStoreImpl(dispatcher.getDispatcher());
-        new SocksStoreImpl(dispatcher.getDispatcher());
-        new TrousersStoreImpl(dispatcher.getDispatcher());
-        new UndershirtStoreImpl(dispatcher.getDispatcher());
-        new UnderwearStoreImpl(dispatcher.getDispatcher());
+        new CoatStoreAdapter(dispatcher);
+        new PulloverStoreAdapter(dispatcher);
+        new ShoesStoreAdapter(dispatcher);
+        new SocksStoreAdapter(dispatcher);
+        new TrousersStoreAdapter(dispatcher);
+        new UndershirtStoreAdapter(dispatcher);
+        new UnderwearStoreAdapter(dispatcher);
     }
 
     @Test
@@ -69,21 +70,21 @@ public class WardrobeTest {
         assertEquals(7, order.size());
 
         // verify dependencies: Coat
-        assertTrue(order.indexOf(CoatStoreImpl.class) > order.indexOf(PulloverStoreImpl.class));
-        assertTrue(order.indexOf(CoatStoreImpl.class) > order.indexOf(TrousersStoreImpl.class));
-        assertTrue(order.indexOf(CoatStoreImpl.class) > order.indexOf(UndershirtStoreImpl.class));
-        assertTrue(order.indexOf(CoatStoreImpl.class) > order.indexOf(UnderwearStoreImpl.class));
+        assertTrue(order.indexOf(CoatStoreAdapter.class) > order.indexOf(PulloverStoreAdapter.class));
+        assertTrue(order.indexOf(CoatStoreAdapter.class) > order.indexOf(TrousersStoreAdapter.class));
+        assertTrue(order.indexOf(CoatStoreAdapter.class) > order.indexOf(UndershirtStoreAdapter.class));
+        assertTrue(order.indexOf(CoatStoreAdapter.class) > order.indexOf(UnderwearStoreAdapter.class));
 
         // verify dependencies: Pullover
-        assertTrue(order.indexOf(PulloverStoreImpl.class) > order.indexOf(UnderwearStoreImpl.class));
+        assertTrue(order.indexOf(PulloverStoreAdapter.class) > order.indexOf(UnderwearStoreAdapter.class));
 
         // verify dependencies: Shoes
-        assertTrue(order.indexOf(ShoesStoreImpl.class) > order.indexOf(TrousersStoreImpl.class));
-        assertTrue(order.indexOf(ShoesStoreImpl.class) > order.indexOf(SocksStoreImpl.class));
-        assertTrue(order.indexOf(ShoesStoreImpl.class) > order.indexOf(UnderwearStoreImpl.class));
+        assertTrue(order.indexOf(ShoesStoreAdapter.class) > order.indexOf(TrousersStoreAdapter.class));
+        assertTrue(order.indexOf(ShoesStoreAdapter.class) > order.indexOf(SocksStoreAdapter.class));
+        assertTrue(order.indexOf(ShoesStoreAdapter.class) > order.indexOf(UnderwearStoreAdapter.class));
 
         // verify dependencies: Trousers
-        assertTrue(order.indexOf(TrousersStoreImpl.class) > order.indexOf(UnderwearStoreImpl.class));
+        assertTrue(order.indexOf(TrousersStoreAdapter.class) > order.indexOf(UnderwearStoreAdapter.class));
     }
 
     @Test
@@ -95,22 +96,22 @@ public class WardrobeTest {
         assertEquals(7, order.size());
 
         // verify dependencies: Pullover
-        assertTrue(order.indexOf(PulloverStoreImpl.class) > order.indexOf(CoatStoreImpl.class));
+        assertTrue(order.indexOf(PulloverStoreAdapter.class) > order.indexOf(CoatStoreAdapter.class));
 
         // verify dependencies: Socks
-        assertTrue(order.indexOf(SocksStoreImpl.class) > order.indexOf(ShoesStoreImpl.class));
+        assertTrue(order.indexOf(SocksStoreAdapter.class) > order.indexOf(ShoesStoreAdapter.class));
 
         // verify dependencies: Trousers
-        assertTrue(order.indexOf(TrousersStoreImpl.class) > order.indexOf(CoatStoreImpl.class));
-        assertTrue(order.indexOf(TrousersStoreImpl.class) > order.indexOf(ShoesStoreImpl.class));
+        assertTrue(order.indexOf(TrousersStoreAdapter.class) > order.indexOf(CoatStoreAdapter.class));
+        assertTrue(order.indexOf(TrousersStoreAdapter.class) > order.indexOf(ShoesStoreAdapter.class));
 
         // verify dependencies: Undershirt
-        assertTrue(order.indexOf(UndershirtStoreImpl.class) > order.indexOf(PulloverStoreImpl.class));
-        assertTrue(order.indexOf(UndershirtStoreImpl.class) > order.indexOf(CoatStoreImpl.class));
+        assertTrue(order.indexOf(UndershirtStoreAdapter.class) > order.indexOf(PulloverStoreAdapter.class));
+        assertTrue(order.indexOf(UndershirtStoreAdapter.class) > order.indexOf(CoatStoreAdapter.class));
 
         // verify dependencies: Underwear
-        assertTrue(order.indexOf(UnderwearStoreImpl.class) > order.indexOf(TrousersStoreImpl.class));
-        assertTrue(order.indexOf(UnderwearStoreImpl.class) > order.indexOf(CoatStoreImpl.class));
-        assertTrue(order.indexOf(UnderwearStoreImpl.class) > order.indexOf(ShoesStoreImpl.class));
+        assertTrue(order.indexOf(UnderwearStoreAdapter.class) > order.indexOf(TrousersStoreAdapter.class));
+        assertTrue(order.indexOf(UnderwearStoreAdapter.class) > order.indexOf(CoatStoreAdapter.class));
+        assertTrue(order.indexOf(UnderwearStoreAdapter.class) > order.indexOf(ShoesStoreAdapter.class));
     }
 }

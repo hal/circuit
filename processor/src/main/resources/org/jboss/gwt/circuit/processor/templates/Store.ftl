@@ -41,7 +41,7 @@ public class ${storeClassName} extends AbstractStore {
             public Agreement voteFor(final Action action) {
                 Agreement agreement = Agreement.NONE;
                 <#list receiveInfos as receiveInfo>
-                if (action instanceof ${receiveInfo.action}) {
+                if (action instanceof ${receiveInfo.actionType}) {
                 <#if receiveInfo.hasDependencies()>
                     agreement = new Agreement(true, ${receiveInfo.dependencies});
                 <#else>
@@ -55,15 +55,21 @@ public class ${storeClassName} extends AbstractStore {
             @Override
             public void execute(final Action action, final Dispatcher.Channel channel) {
                 <#list receiveInfos as receiveInfo>
-                if (action instanceof ${receiveInfo.action}) {
-                    ${receiveInfo.action} concreteAction = (${receiveInfo.action}) action;
-                    delegate.${receiveInfo.method}(concreteAction.getPayload(), channel);
+                if (action instanceof ${receiveInfo.actionType}) {
+
+                    <#if receiveInfo.isSingleArg()>
+                        delegate.${receiveInfo.method}(channel);
+                    <#else>
+                        delegate.${receiveInfo.method}(((${receiveInfo.actionType})action).getPayload(), channel);
+                    </#if>
+
                 }
                 </#list>
             }
         });
     }
 
+    // TODO: public access needed?
     public ${storeDelegate} getDelegate() {
         return delegate;
     }

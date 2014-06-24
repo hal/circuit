@@ -32,8 +32,8 @@ import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.StoreChangedEvent;
-import org.jboss.gwt.circuit.meta.Receive;
-import org.jboss.gwt.circuit.meta.Store;
+import org.jboss.gwt.circuit.meta.*;
+import org.jboss.gwt.circuit.meta.Process;
 import org.jboss.gwt.circuit.sample.todo.client.TodoServiceAsync;
 import org.jboss.gwt.circuit.sample.todo.client.actions.ListTodos;
 import org.jboss.gwt.circuit.sample.todo.client.actions.RemoveTodo;
@@ -59,7 +59,6 @@ public class TodoStore {
         }
     }
 
-
     private final List<Todo> todos;
     private final TodoServiceAsync todoService;
     private final EventBus eventBus;
@@ -71,8 +70,8 @@ public class TodoStore {
         this.eventBus = eventBus;
     }
 
-    @Receive
-    public void onList(final ListTodos listTodos, final Dispatcher.Channel channel) {
+    @Process(actionType = ListTodos.class)
+    public void onList(final Dispatcher.Channel channel) {
         todoService.list(new TodoCallback<Collection<Todo>>(channel) {
             @Override
             public void onSuccess(final Collection<Todo> result) {
@@ -84,22 +83,22 @@ public class TodoStore {
         });
     }
 
-    @Receive
-    public void onStore(final SaveTodo saveTodo, final Dispatcher.Channel channel) {
-        todoService.save(saveTodo.getTodo(), new TodoCallback<Void>(channel) {
+    @Process(actionType = SaveTodo.class)
+    public void onStore(final Todo todo, final Dispatcher.Channel channel) {
+        todoService.save(todo, new TodoCallback<Void>(channel) {
             @Override
             public void onSuccess(final Void result) {
-                onList(new ListTodos(), channel);
+                onList(channel);
             }
         });
     }
 
-    @Receive
-    public void onRemove(final RemoveTodo removeTodo, final Dispatcher.Channel channel) {
-        todoService.delete(removeTodo.getTodo(), new TodoCallback<Void>(channel) {
+    @Process(actionType = RemoveTodo.class)
+    public void onRemove(final Todo todo, final Dispatcher.Channel channel) {
+        todoService.delete(todo, new TodoCallback<Void>(channel) {
             @Override
             public void onSuccess(final Void result) {
-                onList(new ListTodos(), channel);
+                onList(channel);
             }
 
             private void fireChanged() {

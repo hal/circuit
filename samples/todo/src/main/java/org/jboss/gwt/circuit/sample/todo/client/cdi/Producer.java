@@ -59,5 +59,6 @@ public class Producer {
     @ApplicationScoped
     public Dispatcher produceDispatcher() {
         return new DAGDispatcher();
-    }}
+    }
+}
 

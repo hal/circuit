@@ -23,7 +23,7 @@ package org.jboss.gwt.circuit.sample.calculator;
 
 import org.jboss.gwt.circuit.Action;
 
-public class TermAction implements Action {
+public class TermAction implements Action<Term> {
 
     private final Term term;
 

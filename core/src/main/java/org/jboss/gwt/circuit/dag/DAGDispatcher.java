@@ -85,21 +85,30 @@ public class DAGDispatcher implements Dispatcher {
         diag.onDispatch(action);
 
         if (!locked) {
-            // lock globally
-            lock();
+            dispatchInternal(action);
 
-            // collect approvals
-            Map<Class<? extends Store>, Agreement> approvals = prepare(action);
-
-            // complete callbacks
-            if(approvals.isEmpty()) {
-                unlock();
-            }
-            else {
-                complete(action, approvals);
-            }
         } else {
-            queue.offer(action);
+            boolean accepted = queue.offer(action);
+            if(!accepted)
+            {
+                System.out.println("WARN: Dispatcher is dropping action "+action.getClass().getName()+", due to exceeded buffer");
+            }
+        }
+    }
+
+    private void dispatchInternal(Action action) {
+        // lock globally
+        lock();
+
+        // collect approvals
+        Map<Class<? extends Store>, Agreement> approvals = prepare(action);
+
+        // complete callbacks
+        if(approvals.isEmpty()) {
+            unlock();
+        }
+        else {
+            complete(action, approvals);
         }
     }
 
@@ -187,7 +196,7 @@ public class DAGDispatcher implements Dispatcher {
         if (!iterator.hasNext()) {
             unlock();
             if (!queue.isEmpty()) {
-                dispatch(queue.poll());
+                dispatchInternal(queue.poll());
             }
             return;
         }

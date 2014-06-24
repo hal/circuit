@@ -19,23 +19,25 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.circuit.processor;
+package org.jboss.gwt.circuit.meta;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-class DispatcherGenerator extends AbstractGenerator {
+/**
+ * Marks a method within a class annotated with {@link Store} as the method which should receive actions.
+ * The method must return void and have at most two parameters, but at least one:
+ * <ul>
+ *     <li>Action w/o payload: A single parameter of type {@link org.jboss.gwt.circuit.Dispatcher.Channel} is required</li>
+ *     <li>Action with payload: The first parameter is the action, the second one the Dispatcher.Channel </li>
+ * </ul>
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD})
+public @interface Process {
 
-    StringBuffer generate(final String packageName, final String dispatcherClassName, Set<ActionInfo> actionInfos,
-            final Boolean cdi)
-            throws GenerationException {
-
-        Map<String, Object> context = new HashMap<>();
-        context.put("packageName", packageName);
-        context.put("dispatcherClassName", dispatcherClassName);
-        context.put("actionInfos", actionInfos);
-        context.put("cdi", cdi);
-        return generate(context, "Dispatcher.ftl");
-    }
+    Class<?> actionType();
+    Class<?>[] dependencies() default {};
 }

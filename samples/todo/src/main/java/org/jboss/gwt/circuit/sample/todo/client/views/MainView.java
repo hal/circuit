@@ -29,8 +29,8 @@ import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.EventHandler;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
+import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.StoreChangedEvent;
-import org.jboss.gwt.circuit.sample.todo.client.TodoDispatcher;
 import org.jboss.gwt.circuit.sample.todo.client.actions.SaveTodo;
 import org.jboss.gwt.circuit.sample.todo.client.stores.TodoStore;
 import org.jboss.gwt.circuit.sample.todo.shared.Todo;
@@ -45,7 +45,8 @@ import java.util.List;
 public class MainView extends Composite {
 
     @Inject TodoStore store;
-    @Inject TodoDispatcher dispatcher;
+    @Inject
+    Dispatcher dispatcher;
     @Inject EventBus eventBus;
 
     @Inject @DataField FlowPanel todosContainer;

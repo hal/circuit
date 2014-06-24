@@ -26,6 +26,7 @@ import javax.inject.Inject;
 import com.google.gwt.user.client.ui.RootPanel;
 import org.jboss.errai.ioc.client.api.AfterInitialization;
 import org.jboss.errai.ioc.client.api.EntryPoint;
+import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.sample.todo.client.actions.ListTodos;
 import org.jboss.gwt.circuit.sample.todo.client.views.DiagnosticsView;
 import org.jboss.gwt.circuit.sample.todo.client.views.MainView;
@@ -35,7 +36,9 @@ import org.jboss.gwt.circuit.sample.todo.resources.TodoResources;
 @SuppressWarnings("UnusedDeclaration")
 public class App {
 
-    @Inject TodoDispatcher todoDispatcher;
+    @Inject
+    Dispatcher todoDispatcher;
+
     @Inject TodoResources resources;
     @Inject MainView mainView;
     @Inject DiagnosticsView diagnosticsView;

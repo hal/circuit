@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -62,9 +61,8 @@ import javax.tools.StandardLocation;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.meta.Action;
-import org.jboss.gwt.circuit.meta.Receive;
-import org.jboss.gwt.circuit.meta.Store;
+import org.jboss.gwt.circuit.meta.*;
+import org.jboss.gwt.circuit.meta.Process;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -101,6 +99,7 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
             final Map<String, String> options = processingEnv.getOptions();
             final Boolean cdi = Boolean.valueOf(options.get(OPT_CDI));
 
+            // store annotations
             for (Element e : roundEnv.getElementsAnnotatedWith(Store.class)) {
                 TypeElement storeElement = (TypeElement) e;
                 PackageElement packageElement = (PackageElement) storeElement.getEnclosingElement();
@@ -112,7 +111,7 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
 
                 List<ExecutableElement> receiveMethods = new ArrayList<>();
                 if (findValidReceiveMethods(messager, typeUtils, elementUtils, storeElement, receiveMethods)) {
-                    Set<ReceiveInfo> receiveInfos = getReceiveInfos(messager, typeUtils, storeElement,
+                    Collection<ReceiveInfo> receiveInfos = getReceiveInfos(messager, typeUtils, storeElement,
                             receiveMethods);
                     try {
                         messager.printMessage(NOTE, "Generating code for [" + storeClassName + "]");
@@ -132,6 +131,7 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
                     break;
                 }
             }
+
         } else {
             // After all files were generated write GraphViz and validate dependencies
             String graphVizFile = writeGraphViz(messager);
@@ -147,78 +147,101 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
         StringBuilder errorMessage = new StringBuilder();
         NoType voidType = typeUtils.getNoType(TypeKind.VOID);
         List<ExecutableElement> allReceiveMethods = getAnnotatedMethods(storeElement, processingEnv,
-                Receive.class.getName(), voidType, ANY_PARAMS, errorMessage);
+                Process.class.getName(), voidType, ANY_PARAMS, errorMessage);
         if (allReceiveMethods.isEmpty()) {
             messager.printMessage(ERROR, String.format(
                     "No receive methods found in [%s]. Please use @%s to mark one or several methods as receive methods.",
-                    storeElement.getQualifiedName(), Receive.class.getName()));
+                    storeElement.getQualifiedName(), Process.class.getName()));
             valid = false;
         }
         for (ExecutableElement receiveMethod : allReceiveMethods) {
-            if (receiveMethod.getParameters().size() != 2) {
-                messager.printMessage(ERROR, String.format(
-                        "Receive method '%s' in store '%s' has wrong number of arguments: Expected 2, found %d",
-                        receiveMethod, storeElement.getQualifiedName(), receiveMethod.getParameters().size()));
-                valid = false;
-            }
-            else if (!GenerationUtil.doParametersMatch(typeUtils, elementUtils, receiveMethod,
-                    new String[]{Object.class.getName(), Dispatcher.Channel.class.getName().replace('$', '.')})) {
-                messager.printMessage(ERROR, String.format(
-                        "Receive method '%s' in store '%s' has wrong signature: Expected '%s(<Payload>, %s)'",
-                        receiveMethod, storeElement.getQualifiedName(), receiveMethod.getSimpleName(),
-                        Dispatcher.Channel.class.getName()));
-                valid = false;
-            } else {
-                receiveMethods.add(receiveMethod);
-            }
+            receiveMethods.add(receiveMethod);
         }
         return valid;
     }
 
-    private Set<ReceiveInfo> getReceiveInfos(final Messager messager, final Types typeUtils,
+    private Collection<ReceiveInfo> getReceiveInfos(final Messager messager, final Types typeUtils,
             final TypeElement storeElement, final List<ExecutableElement> receiveMethods) throws GenerationException {
 
-        final Set<ReceiveInfo> receiveInfos = new HashSet<>();
+        final List<ReceiveInfo> receiveInfos = new LinkedList<>();
         final String storeDelegate = storeElement.getSimpleName().toString();
         for (ExecutableElement methodElement : receiveMethods) {
 
-            // First parameter must be something annotated with @Action
-            VariableElement payloadParameter = methodElement.getParameters().get(0);
-            TypeElement payloadParameterType = (TypeElement) typeUtils.asElement(payloadParameter.asType());
-            if (payloadParameterType.getAnnotation(Action.class) == null) {
-                String error = String.format(
-                        "The first parameter '%s' of the receive method '%s' in store '%s' must be annotated with @%s in order to act as payload!",
-                        payloadParameter.getSimpleName(), methodElement, storeElement.getQualifiedName(),
-                        Action.class.getName());
-                messager.printMessage(Diagnostic.Kind.ERROR, error);
-            }
-
-            ReceiveInfo receiveInfo = new ReceiveInfo(methodElement.getSimpleName().toString(),
-                    payloadParameterType.getQualifiedName().toString());
-            receiveInfos.add(receiveInfo);
-
-            // read dependencies
+            String actionType = Void.class.getCanonicalName();
             Collection<String> dependencies = Collections.emptySet();
             for (AnnotationMirror am : methodElement.getAnnotationMirrors()) {
-                if (Receive.class.getName().equals(am.getAnnotationType().toString())) {
+                if (org.jboss.gwt.circuit.meta.Process.class.getName().equals(am.getAnnotationType().toString())) {
                     for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : am
                             .getElementValues().entrySet()) {
                         if ("dependencies".equals(entry.getKey().getSimpleName().toString())) {
                             dependencies = GenerationUtil.extractValue(entry.getValue());
                         }
+                        else if ("actionType".equals(entry.getKey().getSimpleName().toString())) {
+                            actionType = (String)((Set)GenerationUtil.extractValue(entry.getValue())).iterator().next();
+                        }
                     }
                 }
             }
-            for (String dependency : dependencies) {
-                receiveInfo.addDependency(storeImplementation(dependency) + ".class");
+
+            if(methodElement.getParameters().size()==2) {
+
+                // first parameter is action actionType, the second one a channel
+                VariableElement payloadParameter = methodElement.getParameters().get(0);
+                TypeElement payloadParameterType = (TypeElement) typeUtils.asElement(payloadParameter.asType());
+                receiveInfos.add(
+                        new ReceiveInfo(methodElement.getSimpleName().toString(),
+                                actionType,
+                                payloadParameterType.getQualifiedName().toString()
+                        )
+                );
+            }
+            else if(methodElement.getParameters().size()==1)
+            {
+                // if a single param is used it need to be a channel
+                VariableElement param = methodElement.getParameters().get(0);
+                TypeElement paramType = (TypeElement) typeUtils.asElement(param.asType());
+                if(!paramType.getQualifiedName().toString().equals(Dispatcher.Channel.class.getCanonicalName()))
+                {
+                    String error = String.format(
+                            "Illegal type for parameter '%s' on method '%s' in class '%s'. Expected type "+Dispatcher.Channel.class.getCanonicalName(),
+                            param.getSimpleName(), methodElement.getSimpleName(), storeElement.getSimpleName());
+                    messager.printMessage(Diagnostic.Kind.ERROR, error);
+                    continue;
+                }
+
+                receiveInfos.add(
+                        new ReceiveInfo(methodElement.getSimpleName().toString(),
+                                actionType
+                        )
+                );
+            }
+            else
+            {
+                // anything beyond two parameters on receive methods is considered an error
+                String error = String.format(
+                        "Illegal number of argument on method '%s' in class '%s'",
+                        methodElement.getSimpleName(), storeElement.getSimpleName());
+                messager.printMessage(Diagnostic.Kind.ERROR, error);
+                continue;
             }
 
+            // --------------------------
+
+            ReceiveInfo receiveInfo = receiveInfos.get(receiveInfos.size() - 1);
+            for(String store : dependencies)   {
+                // IMPORTANT: The actual dependency is the adapter class!
+                final String storeAdapter = GenerationUtil.storeImplementation(store);
+                receiveInfo.addDependency(storeAdapter+ ".class");
+            }
+
+            // --------------------------
+
             // record dependencies in a different data structures to generate GraphViz...
-            String payload = payloadParameterType.getSimpleName().toString();
-            GraphVizInfo graphVizInfo = graphVizInfos.get(payload);
+
+            GraphVizInfo graphVizInfo = graphVizInfos.get(actionType);
             if (graphVizInfo == null) {
-                graphVizInfo = new GraphVizInfo(payload);
-                graphVizInfos.put(payload, graphVizInfo);
+                graphVizInfo = new GraphVizInfo(actionType);
+                graphVizInfos.put(actionType, graphVizInfo);
             }
             graphVizInfo.addStore(storeDelegate);
             List<String> simpleDependencies = new LinkedList<>();
@@ -229,14 +252,16 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
                 graphVizInfo.addDependency(storeDelegate, simpleDependency);
             }
 
+            // --------------------------
             // ...and verify DAG
-            Multimap<String, String> dag = dagValidation.get(payload);
+            Multimap<String, String> dag = dagValidation.get(actionType);
             if (dag == null) {
                 dag = HashMultimap.create();
-                dagValidation.put(payload, dag);
+                dagValidation.put(actionType, dag);
             }
             dag.putAll(storeDelegate, simpleDependencies);
         }
+
         return receiveInfos;
     }
 
