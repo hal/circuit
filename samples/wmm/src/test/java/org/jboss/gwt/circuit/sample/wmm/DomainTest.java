@@ -24,7 +24,7 @@ package org.jboss.gwt.circuit.sample.wmm;
 import static org.junit.Assert.*;
 
 import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.impl.DAGDispatcher;
+import org.jboss.gwt.circuit.dag.DAGDispatcher;
 import org.jboss.gwt.circuit.sample.wmm.actions.DeployAction;
 import org.jboss.gwt.circuit.sample.wmm.actions.Deployment;
 import org.jboss.gwt.circuit.sample.wmm.actions.StartServerAction;

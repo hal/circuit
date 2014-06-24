@@ -1,8 +1,7 @@
 package org.jboss.gwt.circuit.test;
 
 import org.jboss.gwt.circuit.Action;
-import org.jboss.gwt.circuit.Store;
-import org.jboss.gwt.circuit.impl.DAGDispatcher;
+import org.jboss.gwt.circuit.dag.DAGDispatcher;
 
 import java.util.LinkedList;
 import java.util.List;

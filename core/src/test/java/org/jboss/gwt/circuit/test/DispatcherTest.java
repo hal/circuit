@@ -24,8 +24,9 @@ package org.jboss.gwt.circuit.test;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
 import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.impl.CycleDetected;
-import org.jboss.gwt.circuit.impl.DAGDispatcher;
+import org.jboss.gwt.circuit.dag.BoundedQueue;
+import org.jboss.gwt.circuit.dag.CycleDetected;
+import org.jboss.gwt.circuit.dag.DAGDispatcher;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -81,18 +82,37 @@ public class DispatcherTest {
 
             @Override
             protected Agreement vote(Action action) {
-                return new Agreement(true, BarStore.class);  // declare dependency
+                return new Agreement(true, BarStore.class);
             }
         };
 
         BarStore bar = new BarStore(dispatcher) {
             @Override
             protected Agreement vote(Action action) {
-                return new Agreement(true, FooStore.class);  // declare dependency
+                return new Agreement(true, FooStore.class);  // declare cyclic dependency
             }
         };
 
         dispatcher.dispatch(new FooBarAction(0));
+    }
+
+    @Test
+    public void boundedQueue() {
+        BoundedQueue<Integer> queue = new BoundedQueue<>(3);
+        queue.offer(1);
+        queue.offer(2);
+        queue.offer(3);
+        boolean enqueued = queue.offer(4);
+
+        assertEquals(3, queue.size());
+        assertFalse("fourth item should not have been enqueued", enqueued);
+
+        assertTrue(1==queue.poll());
+        assertTrue(2==queue.poll());
+        assertTrue(3==queue.poll());
+
+        assertTrue("queue should be empty", queue.isEmpty());
+        assertTrue(queue.poll() == null);
     }
 
 }

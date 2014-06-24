@@ -19,14 +19,21 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.circuit.impl;
+package org.jboss.gwt.circuit.util;
 
-import org.jboss.gwt.circuit.Action;
+import org.jboss.gwt.circuit.Dispatcher;
 
-public class EmptyAction implements Action<Void> {
+public class NoopChannel {
 
-    @Override
-    public Void getPayload() {
-        return null;
-    }
+    public static Dispatcher.Channel INSTANCE = new Dispatcher.Channel() {
+        @Override
+        public void ack() {
+            // noop
+        }
+
+        @Override
+        public void nack(final Throwable t) {
+            // noop
+        }
+    };
 }

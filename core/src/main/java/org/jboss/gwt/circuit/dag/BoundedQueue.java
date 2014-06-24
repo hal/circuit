@@ -1,4 +1,4 @@
-package org.jboss.gwt.circuit.impl;
+package org.jboss.gwt.circuit.dag;
 
 import java.util.LinkedList;
 import java.util.Collection;
@@ -47,8 +47,7 @@ public class BoundedQueue<T> implements Queue<T> {
     public boolean offer(T e) {
         boolean added = false;
         if(size()<capacity) {
-            list.addFirst(e);
-            added = true;
+            added = list.add(e);
         }
         return added;
     }

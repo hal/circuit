@@ -29,8 +29,7 @@ import com.google.gwt.user.client.ui.InlineLabel;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 import org.jboss.gwt.circuit.Action;
-import org.jboss.gwt.circuit.Store;
-import org.jboss.gwt.circuit.impl.DAGDispatcher;
+import org.jboss.gwt.circuit.dag.DAGDispatcher;
 
 @ApplicationScoped
 @SuppressWarnings("UnusedDeclaration")

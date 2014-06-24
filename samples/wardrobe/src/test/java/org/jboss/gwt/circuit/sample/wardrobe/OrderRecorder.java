@@ -26,8 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jboss.gwt.circuit.Action;
-import org.jboss.gwt.circuit.Store;
-import org.jboss.gwt.circuit.impl.DAGDispatcher;
+import org.jboss.gwt.circuit.dag.DAGDispatcher;
 
 public class OrderRecorder implements DAGDispatcher.Diagnostics {
 

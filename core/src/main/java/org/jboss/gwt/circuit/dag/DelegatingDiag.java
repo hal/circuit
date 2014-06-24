@@ -1,4 +1,4 @@
-package org.jboss.gwt.circuit.impl;
+package org.jboss.gwt.circuit.dag;
 
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;

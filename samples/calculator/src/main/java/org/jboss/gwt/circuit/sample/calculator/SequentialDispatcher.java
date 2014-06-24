@@ -27,7 +27,7 @@ import java.util.Map;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.Store;
-import org.jboss.gwt.circuit.impl.NoopChannel;
+import org.jboss.gwt.circuit.util.NoopChannel;
 
 public class SequentialDispatcher implements Dispatcher {
 

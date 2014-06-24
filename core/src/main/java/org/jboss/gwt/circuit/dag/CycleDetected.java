@@ -1,4 +1,4 @@
-package org.jboss.gwt.circuit.impl;
+package org.jboss.gwt.circuit.dag;
 
 /**
  * @author Heiko Braun

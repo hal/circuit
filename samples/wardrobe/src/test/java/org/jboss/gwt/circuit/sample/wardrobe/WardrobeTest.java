@@ -26,8 +26,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import org.jboss.gwt.circuit.Store;
-import org.jboss.gwt.circuit.impl.DAGDispatcher;
+import org.jboss.gwt.circuit.dag.DAGDispatcher;
 import org.jboss.gwt.circuit.sample.wardrobe.actions.Dress;
 import org.jboss.gwt.circuit.sample.wardrobe.actions.Undress;
 import org.jboss.gwt.circuit.sample.wardrobe.stores.CoatStoreImpl;

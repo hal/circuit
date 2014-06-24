@@ -21,7 +21,7 @@
  */
 package org.jboss.gwt.circuit.sample.calculator;
 
-import org.jboss.gwt.circuit.impl.SimpleAction;
+import org.jboss.gwt.circuit.util.SimpleAction;
 
 public class NoopAction extends SimpleAction {
 

@@ -1,4 +1,4 @@
-package org.jboss.gwt.circuit.impl;
+package org.jboss.gwt.circuit.dag;
 
 import org.jgrapht.EdgeFactory;
 import org.jgrapht.graph.DefaultEdge;

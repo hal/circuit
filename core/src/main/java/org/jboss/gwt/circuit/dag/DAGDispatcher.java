@@ -19,14 +19,13 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.circuit.impl;
+package org.jboss.gwt.circuit.dag;
 
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.Store;
 import org.jgrapht.DirectedGraph;
-import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.traverse.TopologicalOrderIterator;
@@ -34,7 +33,6 @@ import org.jgrapht.traverse.TopologicalOrderIterator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 
 /**
  * A dispatcher implementation with global locking and dependency resolution between stores based on directed acyclic
