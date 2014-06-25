@@ -24,7 +24,7 @@ public class BarStore {
 
             @Override
             public void complete(Action action, Dispatcher.Channel channel) {
-                complete(action, channel);
+                process(action, channel);
             }
         });
     }
