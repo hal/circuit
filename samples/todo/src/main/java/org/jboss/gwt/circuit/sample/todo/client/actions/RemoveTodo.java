@@ -21,11 +21,12 @@
  */
 package org.jboss.gwt.circuit.sample.todo.client.actions;
 
+import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.meta.ActionType;
 import org.jboss.gwt.circuit.sample.todo.shared.Todo;
 
 @ActionType
-public class RemoveTodo implements org.jboss.gwt.circuit.Action<Todo> {
+public class RemoveTodo implements Action<Todo> {
 
     private final Todo todo;
 

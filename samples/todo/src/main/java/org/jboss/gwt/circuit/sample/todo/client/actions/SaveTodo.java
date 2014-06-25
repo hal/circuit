@@ -21,11 +21,12 @@
  */
 package org.jboss.gwt.circuit.sample.todo.client.actions;
 
+import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.meta.ActionType;
 import org.jboss.gwt.circuit.sample.todo.shared.Todo;
 
 @ActionType
-public class SaveTodo implements org.jboss.gwt.circuit.Action<Todo> {
+public class SaveTodo implements Action<Todo> {
 
     private final Todo todo;
 

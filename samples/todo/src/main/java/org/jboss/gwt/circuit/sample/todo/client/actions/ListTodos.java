@@ -21,10 +21,11 @@
  */
 package org.jboss.gwt.circuit.sample.todo.client.actions;
 
+import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.meta.ActionType;
 
 @ActionType
-public class ListTodos implements org.jboss.gwt.circuit.Action<Void>{
+public class ListTodos implements Action<Void>{
     @Override
     public Void getPayload() {
         return null;
