@@ -239,7 +239,8 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
             // record dependencies in a different data structures to generate GraphViz...
             GraphVizInfo graphVizInfo = graphVizInfos.get(actionType);
             if (graphVizInfo == null) {
-                graphVizInfo = new GraphVizInfo(actionType);
+                String shortActionType = actionType.substring(actionType.lastIndexOf('.') + 1);
+                graphVizInfo = new GraphVizInfo(shortActionType);
                 graphVizInfos.put(actionType, graphVizInfo);
             }
             graphVizInfo.addStore(storeDelegate);
