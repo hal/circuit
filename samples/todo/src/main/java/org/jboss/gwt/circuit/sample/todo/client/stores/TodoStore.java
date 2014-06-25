@@ -84,6 +84,10 @@ public class TodoStore extends AbstractStore {
             this.selectedUser = null;
         else
             this.selectedUser = user;
+
+        // reset selection
+        selectedTodo=null;
+
         channel.ack();
         fireChanged(TodoStore.class);
     }
