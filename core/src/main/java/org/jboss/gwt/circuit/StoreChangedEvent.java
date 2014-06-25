@@ -24,7 +24,7 @@ package org.jboss.gwt.circuit;
 import com.google.web.bindery.event.shared.Event;
 
 /**
- * Event to inform about changes in a {@link org.jboss.gwt.circuit.Store}
+ * Event to inform about changes in a store
  */
 public class StoreChangedEvent extends Event<StoreChangedEvent.StoreChangedHandler> {
 
