@@ -21,25 +21,31 @@
  */
 package org.jboss.gwt.circuit.sample.todo.client.views;
 
-import com.google.gwt.cell.client.CheckboxCell;
-import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.PropagatesChange;
+import org.jboss.gwt.circuit.sample.todo.client.actions.RemoveTodo;
+import org.jboss.gwt.circuit.sample.todo.client.actions.ResolveTodo;
 import org.jboss.gwt.circuit.sample.todo.client.actions.SaveTodo;
+import org.jboss.gwt.circuit.sample.todo.client.actions.SelectTodo;
 import org.jboss.gwt.circuit.sample.todo.client.actions.SelectUser;
 import org.jboss.gwt.circuit.sample.todo.client.stores.TodoStore;
 import org.jboss.gwt.circuit.sample.todo.client.stores.UserStore;
@@ -51,6 +57,7 @@ import java.util.List;
 
 @SuppressWarnings("UnusedDeclaration")
 public class TodoView extends Composite {
+
 
     @Inject
     TodoStore todoStore;
@@ -65,6 +72,10 @@ public class TodoView extends Composite {
     Dispatcher dispatcher;
 
     // --------------------------------------
+
+    private final Button removeButton;
+
+    private final Button doneButton;
 
     private ListBox users;
 
@@ -97,13 +108,30 @@ public class TodoView extends Composite {
         table.getElement().setAttribute("style", "width:90%");
         table.setEmptyTableWidget(new HTML("No Todo items found!"));
 
+        final SingleSelectionModel<Todo> selectionModel = new SingleSelectionModel<Todo>();
+        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+            @Override
+            public void onSelectionChange(SelectionChangeEvent selectionChangeEvent) {
+                dispatcher.dispatch(new SelectTodo(selectionModel.getSelectedObject()));
+            }
+        });
+
+        table.setSelectionModel(selectionModel);
+
         dataProvider = new ListDataProvider<Todo>();
         dataProvider.addDataDisplay(table);
 
-        TextColumn<Todo> nameColumn = new TextColumn<Todo>() {
+        ;
+
+        Column<Todo, SafeHtml> nameColumn = new Column<Todo, SafeHtml>(new SafeHtmlCell()) {
             @Override
-            public String getValue(Todo object) {
-                return object.getName();
+            public SafeHtml getValue(Todo object) {
+                String css = object.isDone() ? "todo-done":"none";
+                SafeHtmlBuilder html = new SafeHtmlBuilder();
+                html.appendHtmlConstant("<div class="+css+">");
+                html.appendEscaped(object.getName());
+                html.appendHtmlConstant("</div>");
+                return html.toSafeHtml();
             }
         };
         table.addColumn(nameColumn, "Todo");
@@ -123,23 +151,34 @@ public class TodoView extends Composite {
             public void onClick(ClickEvent clickEvent) {
                 dispatcher.dispatch(
                         new SaveTodo(
-                                new Todo("New todo @ " + System.currentTimeMillis(),
-                                        Todo.USER_ANY)
+                                new Todo("New todo @ " + System.currentTimeMillis())
                         )
                 );
             }
         });
 
-        Button removeButton = new Button("Remove", new ClickHandler() {
+        removeButton = new Button("Remove", new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-
+                dispatcher.dispatch(new RemoveTodo(selectionModel.getSelectedObject()));
             }
         });
+        removeButton.setEnabled(false); // enabled by selection
+
+        doneButton = new Button("Done", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                Todo todo = selectionModel.getSelectedObject();
+                todo.setDone(true);
+                dispatcher.dispatch(new ResolveTodo(todo));
+            }
+        });
+        doneButton.setEnabled(false); // enabled by selection
 
         HorizontalPanel tools = new HorizontalPanel();
         tools.add(addButton);
         tools.add(removeButton);
+        tools.add(doneButton);
 
         layout.add(tools);
 
@@ -155,6 +194,8 @@ public class TodoView extends Composite {
                     @Override
                     public void onChange(Class<?> source) {
                         showTodos(todoStore.getTodos());
+                        removeButton.setEnabled(todoStore.getSelectedTodo()!=null);
+                        doneButton.setEnabled(todoStore.getSelectedTodo()!=null);
                     }
                 }
         );

@@ -45,6 +45,8 @@ public class ${storeClassName} {
 
             @Override
             public void complete(final Action action, final Dispatcher.Channel channel) {
+
+                boolean matched = false;
                 <#list receiveInfos as receiveInfo>
                 if (action instanceof ${receiveInfo.actionType}) {
 
@@ -54,8 +56,16 @@ public class ${storeClassName} {
                         delegate.${receiveInfo.method}(((${receiveInfo.actionType})action).getPayload(), channel);
                     </#if>
 
+                    matched = true;
+
                 }
                 </#list>
+
+                if(!matched)
+                {
+                    System.out.println("WARN: Unmatched action "+action.getClass().getName() + " in store "+delegate.getClass());
+                    channel.ack();
+                }
             }
         });
     }

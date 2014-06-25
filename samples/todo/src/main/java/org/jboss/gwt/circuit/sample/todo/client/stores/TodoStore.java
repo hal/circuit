@@ -38,7 +38,9 @@ import org.jboss.gwt.circuit.meta.Process;
 import org.jboss.gwt.circuit.sample.todo.client.TodoServiceAsync;
 import org.jboss.gwt.circuit.sample.todo.client.actions.ListTodos;
 import org.jboss.gwt.circuit.sample.todo.client.actions.RemoveTodo;
+import org.jboss.gwt.circuit.sample.todo.client.actions.ResolveTodo;
 import org.jboss.gwt.circuit.sample.todo.client.actions.SaveTodo;
+import org.jboss.gwt.circuit.sample.todo.client.actions.SelectTodo;
 import org.jboss.gwt.circuit.sample.todo.client.actions.SelectUser;
 import org.jboss.gwt.circuit.sample.todo.shared.Todo;
 
@@ -47,7 +49,8 @@ import org.jboss.gwt.circuit.sample.todo.shared.Todo;
 @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
 public class TodoStore extends AbstractStore {
 
-    private String filter;
+    private String selectedUser;
+    private Todo selectedTodo;
 
     abstract class TodoCallback<T> implements AsyncCallback<T> {
 
@@ -78,9 +81,9 @@ public class TodoStore extends AbstractStore {
     public void onSelectUser(String user, final Dispatcher.Channel channel) {
 
         if(user.equals(Todo.USER_ANY))
-            this.filter = null;
+            this.selectedUser = null;
         else
-            this.filter = user;
+            this.selectedUser = user;
         channel.ack();
         fireChanged(TodoStore.class);
     }
@@ -98,8 +101,29 @@ public class TodoStore extends AbstractStore {
         });
     }
 
+    @Process(actionType = ResolveTodo.class)
+    public void onResolve(Todo todo, final Dispatcher.Channel channel) {
+        todoService.save(todo, new TodoCallback<Void>(channel) {
+            @Override
+            public void onSuccess(final Void result) {
+                onList(channel);
+            }
+        });
+    }
+
+    @Process(actionType = SelectTodo.class)
+    public void onSelect(final Todo todo, final Dispatcher.Channel channel) {
+        this.selectedTodo = todo;
+        channel.ack();
+        fireChanged(TodoStore.class);
+    }
+
     @Process(actionType = SaveTodo.class)
     public void onStore(final Todo todo, final Dispatcher.Channel channel) {
+
+        String assignee = (selectedUser!=null) ? selectedUser : Todo.USER_ANY;
+        todo.setUser(assignee);
+
         todoService.save(todo, new TodoCallback<Void>(channel) {
             @Override
             public void onSuccess(final Void result) {
@@ -122,14 +146,18 @@ public class TodoStore extends AbstractStore {
     public List<Todo> getTodos() {
 
         List<Todo> filtered = new ArrayList<>();
-        // apply filter
+        // apply selectedUser
         for(Todo todo : this.todos)
         {
-            if(filter==null || filter.equals(todo.getUser()))
+            if(selectedUser ==null || selectedUser.equals(todo.getUser()))
                 filtered.add(todo);
 
         }
 
         return filtered;
+    }
+
+    public Todo getSelectedTodo() {
+        return selectedTodo;
     }
 }

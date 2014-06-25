@@ -99,3 +99,24 @@ h1 {
 .diagnostics-info {
     padding-left: .33rem;
 }
+
+.gwt-TabBarItem {
+    padding:5px;
+    font-weight: BOLD;
+    color:#cccccc;
+    border-top:1px solid black;
+    border-right:1px solid black;
+    border-left:1px solid black;
+}
+
+.gwt-TabBarItem-selected {
+    color:#333333!important;
+}
+
+.gwt-TabBarFirst, .gwt-TabBarRest {
+    border-bottom:1px solid black;
+}
+
+.gwt-TabPanelBottom {
+    padding-top:20px;
+}

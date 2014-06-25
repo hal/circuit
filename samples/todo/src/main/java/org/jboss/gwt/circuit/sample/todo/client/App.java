@@ -22,6 +22,7 @@
 package org.jboss.gwt.circuit.sample.todo.client;
 
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.TabPanel;
@@ -57,6 +58,7 @@ public class App {
         tabs.getElement().setAttribute("style", "margin:30px;width:100%; height:100%");
 
         tabs.add(todoView, "Todo List");
+        tabs.add(new HTML("Coming soon ..."), "User Management");
 
         tabs.selectTab(0);
 
