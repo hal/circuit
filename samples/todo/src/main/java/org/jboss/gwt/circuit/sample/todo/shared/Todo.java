@@ -55,20 +55,25 @@ public class Todo implements Serializable {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) { return true; }
-        if (!(o instanceof Todo)) { return false; }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         Todo todo = (Todo) o;
 
-        if (!id.equals(todo.id)) { return false; }
+        if (!id.equals(todo.id)) return false;
+        if (!name.equals(todo.name)) return false;
+        if (!user.equals(todo.user)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        int result = id.hashCode();
+        result = 31 * result + name.hashCode();
+        result = 31 * result + user.hashCode();
+        return result;
     }
 
     @Override

@@ -134,9 +134,14 @@ public class TodoStore extends AbstractStore {
 
     @Process(actionType = RemoveTodo.class)
     public void onRemove(final Todo todo, final Dispatcher.Channel channel) {
+
         todoService.delete(todo, new TodoCallback<Void>(channel) {
             @Override
             public void onSuccess(final Void result) {
+
+                if(todo.equals(selectedTodo))
+                    selectedTodo = null;
+
                 onList(channel);
             }
 
