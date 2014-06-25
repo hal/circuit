@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * An agreement is a way a store can express its support for an action and its dependencies to other stores for that
+ * An agreement is a way for a store to express its support for an action and its dependencies to other stores for that
  * action.
  */
 public class Agreement {
