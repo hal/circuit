@@ -22,6 +22,7 @@
 package org.jboss.gwt.circuit.sample.todo.client;
 
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
@@ -31,6 +32,7 @@ import org.jboss.errai.ioc.client.api.EntryPoint;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.sample.todo.client.actions.ListTodos;
 import org.jboss.gwt.circuit.sample.todo.client.actions.LoadUsers;
+import org.jboss.gwt.circuit.sample.todo.client.views.DiagnosticsView;
 import org.jboss.gwt.circuit.sample.todo.client.views.TodoView;
 import org.jboss.gwt.circuit.sample.todo.resources.TodoResources;
 
@@ -43,15 +45,22 @@ public class App {
     @Inject
     Dispatcher dispatcher;
 
-    @Inject TodoResources resources;
+    @Inject
+    TodoResources resources;
+
     @Inject
     TodoView todoView;
+
+    @Inject
+    DiagnosticsView diagnosticsView;
 
     @AfterInitialization
     public void init() {
         resources.css().ensureInjected();
-        //dispatcher.addDiagnostics(diagnosticsView);
+        dispatcher.addDiagnostics(diagnosticsView);
 
+        DockLayoutPanel layout = new DockLayoutPanel(Style.Unit.PX);
+        layout.getElement().setAttribute("style", "width:100%; height:100%");
 
         TabPanel tabs = new TabPanel();
         tabs.getElement().setId("app-container");
@@ -62,7 +71,10 @@ public class App {
 
         tabs.selectTab(0);
 
-        RootPanel.get().add(tabs);
+        layout.addSouth(diagnosticsView, 50);
+        layout.add(tabs);
+
+        RootPanel.get().add(layout);
 
         // application init
         dispatcher.dispatch(new LoadUsers());
