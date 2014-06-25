@@ -24,20 +24,20 @@ package org.jboss.gwt.circuit.sample.wmm.stores;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jboss.gwt.circuit.AbstractStore;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
 import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.StoreCallback;
 import org.jboss.gwt.circuit.sample.wmm.actions.StartServerAction;
 import org.jboss.gwt.circuit.sample.wmm.actions.StopServerAction;
 
-public class HostStore extends AbstractStore {
+public class HostStore {
 
     private final Set<String> runningServers = new HashSet<>();
 
     public HostStore(final Dispatcher dispatcher) {
 
-        dispatcher.register(HostStore.class, new Callback() {
+        dispatcher.register(HostStore.class, new StoreCallback() {
             @Override
             public Agreement voteFor(final Action action) {
                 Agreement agreement = Agreement.NONE;
@@ -54,6 +54,7 @@ public class HostStore extends AbstractStore {
                 if (action instanceof StartServerAction) {
                     StartServerAction start = (StartServerAction) action;
                     runningServers.add(start.getPayload());
+
                 } else if (action instanceof StopServerAction) {
                     StopServerAction stop = (StopServerAction) action;
                     runningServers.remove(stop.getPayload());

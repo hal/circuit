@@ -21,6 +21,8 @@
  */
 package org.jboss.gwt.circuit.test;
 
+import static org.junit.Assert.*;
+
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
 import org.jboss.gwt.circuit.Dispatcher;
@@ -30,55 +32,45 @@ import org.jboss.gwt.circuit.dag.DAGDispatcher;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
-/**
- * @author Harald Pehl
- * @author Heiko Braun
- */
 public class DispatcherTest {
 
     private Dispatcher dispatcher;
-    private TestDiagnostics diag;
+    private TestDiagnostics diagnostics;
 
     @Before
     public void setUp() {
         dispatcher = new DAGDispatcher();
-        diag = new TestDiagnostics();
-        dispatcher.addDiagnostics(diag);
+        diagnostics = new TestDiagnostics();
+        dispatcher.addDiagnostics(diagnostics);
     }
 
     @Test
     public void noStoresRegistered() {
-
         dispatcher.dispatch(new FooBarAction(1));
-        assertFalse("Dispatcher should not remain locked if no stores are registered", diag.isLocked());
+        assertFalse("Dispatcher should not remain locked if no stores are registered", diagnostics.isLocked());
     }
 
     @Test
     public void dependencies() {
-        FooStore foo = new FooStore(dispatcher) {
+        new FooStore(dispatcher) {
 
             @Override
             protected Agreement vote(Action action) {
                 return new Agreement(true, BarStore.class);  // declare dependency
             }
         };
-
-        BarStore bar = new BarStore(dispatcher);
+        new BarStore(dispatcher);
 
         dispatcher.dispatch(new FooBarAction(0));
 
-        assertTrue("Both stores should have processed the action", diag.getNumExecuted()==2);
-
-        assertTrue("BarStore should be first", diag.getExecutionOrder().get(0) == BarStore.class);
-
-        assertTrue("FooStore should be second", diag.getExecutionOrder().get(1) == FooStore.class);
+        assertTrue("Both stores should have processed the action", diagnostics.getNumExecuted() == 2);
+        assertTrue("BarStore should be first", diagnostics.getExecutionOrder().get(0) == BarStore.class);
+        assertTrue("FooStore should be second", diagnostics.getExecutionOrder().get(1) == FooStore.class);
     }
 
     @Test(expected = CycleDetected.class)
     public void dependencyCycles() {
-        FooStore foo = new FooStore(dispatcher) {
+        new FooStore(dispatcher) {
 
             @Override
             protected Agreement vote(Action action) {
@@ -86,7 +78,7 @@ public class DispatcherTest {
             }
         };
 
-        BarStore bar = new BarStore(dispatcher) {
+        new BarStore(dispatcher) {
             @Override
             protected Agreement vote(Action action) {
                 return new Agreement(true, FooStore.class);  // declare cyclic dependency
@@ -107,12 +99,11 @@ public class DispatcherTest {
         assertEquals(3, queue.size());
         assertFalse("fourth item should not have been enqueued", enqueued);
 
-        assertTrue(1==queue.poll());
-        assertTrue(2==queue.poll());
-        assertTrue(3==queue.poll());
+        assertTrue(1 == queue.poll());
+        assertTrue(2 == queue.poll());
+        assertTrue(3 == queue.poll());
 
         assertTrue("queue should be empty", queue.isEmpty());
         assertTrue(queue.poll() == null);
     }
-
 }

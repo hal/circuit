@@ -1,8 +1,8 @@
 package org.jboss.gwt.circuit.dag;
 
-import java.util.LinkedList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 
@@ -12,14 +12,16 @@ import java.util.Queue;
  * This queue orders elements FIFO (first-in-first-out).
  * The head of the queue is that element that has been on the queue the longest time.
  * The tail of the queue is that element that has been on the queue the shortest time.
- * New elements are inserted at the tail of the queue, and the queue retrieval operations obtain elements at the head of the queue.
+ * New elements are inserted at the tail of the queue, and the queue retrieval operations obtain elements at the head of
+ * the queue.
  * <p/>
  * The optional capacity bound constructor argument serves as a way to prevent excessive queue expansion.
  * The capacity, if unspecified, is equal to Integer.MAX_VALUE.
  * Linked nodes are dynamically created upon each insertion unless this would bring the queue above capacity.
  *
- * @author Heiko Braun
  * @param <T> queue items
+ *
+ * @author Heiko Braun
  */
 public class BoundedQueue<T> implements Queue<T> {
 
@@ -37,8 +39,7 @@ public class BoundedQueue<T> implements Queue<T> {
 
     @Override
     public boolean add(T e) {
-        if(size()>=capacity)
-            throw new IllegalStateException("Capacity exceeded: "+capacity);
+        if (size() >= capacity) { throw new IllegalStateException("Capacity exceeded: " + capacity); }
 
         return list.add(e);
     }
@@ -46,7 +47,7 @@ public class BoundedQueue<T> implements Queue<T> {
     @Override
     public boolean offer(T e) {
         boolean added = false;
-        if(size()<capacity) {
+        if (size() < capacity) {
             added = list.add(e);
         }
         return added;
@@ -142,7 +143,6 @@ public class BoundedQueue<T> implements Queue<T> {
     }
 
     public int remainingCapacity() {
-        return capacity-size();
+        return capacity - size();
     }
-
 }

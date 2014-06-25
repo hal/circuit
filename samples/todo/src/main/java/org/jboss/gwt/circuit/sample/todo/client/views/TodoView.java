@@ -21,6 +21,8 @@
  */
 package org.jboss.gwt.circuit.sample.todo.client.views;
 
+import javax.inject.Inject;
+
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.user.client.DOM;
@@ -35,8 +37,6 @@ import org.jboss.gwt.circuit.sample.todo.client.actions.SaveTodo;
 import org.jboss.gwt.circuit.sample.todo.client.stores.TodoStore;
 import org.jboss.gwt.circuit.sample.todo.shared.Todo;
 
-import javax.inject.Inject;
-
 @SuppressWarnings("UnusedDeclaration")
 @Templated("View.html#todoContainer")
 public class TodoView extends Composite {
@@ -44,8 +44,7 @@ public class TodoView extends Composite {
     private Todo todo;
 
     @Inject TodoStore store;
-    @Inject
-    Dispatcher dispatcher;
+    @Inject Dispatcher dispatcher;
     @DataField Element check = DOM.createSpan();
     @Inject @DataField InlineLabel name;
     @DataField Element remove = DOM.createElement("i");

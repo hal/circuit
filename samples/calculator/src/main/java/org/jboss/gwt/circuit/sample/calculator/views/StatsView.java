@@ -30,14 +30,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jboss.gwt.circuit.ChangeManagement;
 import org.jboss.gwt.circuit.StoreChangedEvent;
 import org.jboss.gwt.circuit.sample.calculator.CalculatorStore;
 import org.jboss.gwt.circuit.sample.calculator.Term;
 
 public class StatsView implements View {
 
-    public StatsView(final CalculatorStore store) {
-        store.addChangedHandler(new StoreChangedEvent.StoreChangedHandler() {
+    public StatsView(final CalculatorStore store, final ChangeManagement changeManagement) {
+        changeManagement.addStoreChangedHandler(CalculatorStore.class, new StoreChangedEvent.StoreChangedHandler() {
             @Override
             public void onChange(final StoreChangedEvent event) {
                 Map<Op, List<Term>> termsByOp = new HashMap<>();

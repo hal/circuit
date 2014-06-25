@@ -1,24 +1,18 @@
 package org.jboss.gwt.circuit.test;
 
-import com.google.web.bindery.event.shared.HandlerRegistration;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
 import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.Store;
-import org.jboss.gwt.circuit.StoreChangedEvent;
+import org.jboss.gwt.circuit.StoreCallback;
 
-/**
- * @author Heiko Braun
- * @date 23/06/14
- */
-public class BarStore implements Store {
+public class BarStore {
 
     private Dispatcher dispatcher;
 
     public BarStore(Dispatcher dispatcher) {
         this.dispatcher = dispatcher;
 
-        this.dispatcher.register(BarStore.class, new Callback() {
+        this.dispatcher.register(BarStore.class, new StoreCallback() {
             @Override
             public Agreement voteFor(Action action) {
                 return vote(action);
@@ -37,10 +31,5 @@ public class BarStore implements Store {
 
     protected void process(Action action, Dispatcher.Channel channel) {
         channel.ack();
-    }
-
-    @Override
-    public HandlerRegistration addChangedHandler(StoreChangedEvent.StoreChangedHandler handler) {
-        return null;
     }
 }

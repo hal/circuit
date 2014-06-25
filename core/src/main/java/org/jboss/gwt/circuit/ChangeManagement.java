@@ -28,24 +28,26 @@ import com.google.web.bindery.event.shared.HandlerRegistration;
 import com.google.web.bindery.event.shared.SimpleEventBus;
 
 /**
- * Abstract store using a {@link com.google.web.bindery.event.shared.SimpleEventBus} to register {@link
- * org.jboss.gwt.circuit.StoreChangedEvent.StoreChangedHandler}s and fire {@link org.jboss.gwt.circuit.StoreChangedEvent}s.
+ * Central instance to handle {@link org.jboss.gwt.circuit.StoreChangedEvent}s.
  */
-public abstract class AbstractStore implements Store {
+public class ChangeManagement {
 
     private final EventBus eventBus;
 
-    protected AbstractStore() {
-        this.eventBus = new SimpleEventBus();
+    /**
+     * Create a new instance using {@link com.google.web.bindery.event.shared.SimpleEventBus}
+     */
+    public ChangeManagement() {
+        this(new SimpleEventBus());
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public HandlerRegistration addChangedHandler(final StoreChangedHandler handler) {
-        return eventBus.addHandler(StoreChangedEvent.TYPE, handler);
+    public ChangeManagement(final EventBus eventBus) {this.eventBus = eventBus;}
+
+    public <S> HandlerRegistration addStoreChangedHandler(Class<S> store, StoreChangedHandler handler) {
+        return eventBus.addHandlerToSource(StoreChangedEvent.TYPE, store, handler);
     }
 
-    protected void fireChanged() {
-        eventBus.fireEvent(new StoreChangedEvent());
+    public <S> void fireChanged(Class<S> store) {
+        eventBus.fireEventFromSource(new StoreChangedEvent(), store);
     }
 }

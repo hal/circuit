@@ -173,8 +173,6 @@
                             <failOnError>false</failOnError>
                             <compilerArguments>
                                 <Acdi>true</Acdi>
-                                <AdispatcherName>TodoDispatcher</AdispatcherName>
-                                <AdispatcherPackage>org.jboss.gwt.circuit.sample.todo.client</AdispatcherPackage>
                             </compilerArguments>
                         </configuration>
                     </execution>

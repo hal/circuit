@@ -36,9 +36,7 @@ import org.jboss.gwt.circuit.sample.todo.resources.TodoResources;
 @SuppressWarnings("UnusedDeclaration")
 public class App {
 
-    @Inject
-    Dispatcher todoDispatcher;
-
+    @Inject Dispatcher todoDispatcher;
     @Inject TodoResources resources;
     @Inject MainView mainView;
     @Inject DiagnosticsView diagnosticsView;

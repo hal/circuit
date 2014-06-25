@@ -23,6 +23,7 @@ package org.jboss.gwt.circuit.sample.calculator;
 
 import java.util.Random;
 
+import org.jboss.gwt.circuit.ChangeManagement;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.sample.calculator.views.InputView;
 import org.jboss.gwt.circuit.sample.calculator.views.StatsView;
@@ -39,17 +40,19 @@ public class Calculator {
 
     private final int numberOfActions;
     private final Dispatcher dispatcher;
+    private final ChangeManagement changeManagement;
     private final CalculatorStore store;
 
     public Calculator(final int numberOfActions) {
         this.numberOfActions = numberOfActions;
         this.dispatcher = new SequentialDispatcher();
-        this.store = new CalculatorStore(dispatcher);
+        this.changeManagement = new ChangeManagement();
+        this.store = new CalculatorStore(dispatcher, changeManagement);
     }
 
     public void run() {
-        new StatsView(store);
-        new TermsView(store);
+        new StatsView(store, changeManagement);
+        new TermsView(store, changeManagement);
         new InputView(dispatcher, numberOfActions).dispatch();
     }
 }

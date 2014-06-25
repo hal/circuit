@@ -21,39 +21,20 @@
  */
 package org.jboss.gwt.circuit;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 /**
- * An agreement is a way a store can express its support for an action and its dependencies to other stores for that
- * action.
+ * A callback used by the {@link Dispatcher} to pass an {@link Action} to
+ * the store.
  */
-public class Agreement {
+public interface StoreCallback {
 
-    public final static Agreement NONE = new Agreement(false);
-    public final static Agreement ANY = new Agreement(true);
+    /**
+     * Called by the dispatcher before the action is dispatched.
+     */
+    Agreement voteFor(Action action);
 
-    private final boolean approved;
-    private final Set<Class<?>> dependencies;
-
-    public Agreement(final boolean approved, final Class<?>... dependencies) {
-        this.approved = approved;
-        this.dependencies = new HashSet<>();
-        if (dependencies != null) {
-            Collections.addAll(this.dependencies, dependencies);
-        }
-    }
-
-    public boolean isApproved() {
-        return approved;
-    }
-
-    public boolean hasDependencies() {
-        return !dependencies.isEmpty();
-    }
-
-    public Set<Class<?>> getDependencies() {
-        return dependencies;
-    }
+    /**
+     * Called by the dispatcher when the action is dispatched. The passed {@code channel} must be used by the store
+     * to ack/nack the processing of the callback.
+     */
+    void execute(Action action, Dispatcher.Channel channel);
 }

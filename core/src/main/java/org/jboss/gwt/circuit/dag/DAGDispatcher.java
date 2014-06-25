@@ -21,20 +21,20 @@
  */
 package org.jboss.gwt.circuit.dag;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
 import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.Store;
+import org.jboss.gwt.circuit.StoreCallback;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.traverse.TopologicalOrderIterator;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
 
 /**
  * A dispatcher implementation with global locking and dependency resolution between stores based on directed acyclic
@@ -60,38 +60,39 @@ public class DAGDispatcher implements Dispatcher {
         void onUnlock();
     }
 
+
     public final static int BOUNDS_SIZE = 50;
 
     private boolean locked;
     private final Queue<Action> queue;
-    private final Map<Class<? extends Store>, Store.Callback> callbacks;
-    private final DelegatingDiag diag;
+    private final Map<Class<?>, StoreCallback> callbacks;
+    private final CompoundDiagnostics cd;
 
     public DAGDispatcher() {
         locked = false;
-        queue = new BoundedQueue<Action>(BOUNDS_SIZE);
+        queue = new BoundedQueue<>(BOUNDS_SIZE);
         callbacks = new HashMap<>();
-        diag = new DelegatingDiag();
+        cd = new CompoundDiagnostics();
     }
 
     @Override
-    public <S extends Store> void register(final Class<S> store, final Store.Callback callback) {
+    public <S> void register(final Class<S> store, final StoreCallback callback) {
         assert callbacks.get(store) == null : "Store " + store.getName() + " already registered!";
         callbacks.put(store, callback);
     }
 
     @Override
     public void dispatch(final Action action) {
-        diag.onDispatch(action);
+        cd.onDispatch(action);
 
         if (!locked) {
             dispatchInternal(action);
 
         } else {
             boolean accepted = queue.offer(action);
-            if(!accepted)
-            {
-                System.out.println("WARN: Dispatcher is dropping action "+action.getClass().getName()+", due to exceeded buffer");
+            if (!accepted) {
+                System.out.println("WARN: Dispatcher is dropping action " + action.getClass()
+                        .getName() + ", due to exceeded buffer");
             }
         }
     }
@@ -101,32 +102,31 @@ public class DAGDispatcher implements Dispatcher {
         lock();
 
         // collect approvals
-        Map<Class<? extends Store>, Agreement> approvals = prepare(action);
+        Map<Class<?>, Agreement> approvals = prepare(action);
 
         // complete callbacks
-        if(approvals.isEmpty()) {
+        if (approvals.isEmpty()) {
             unlock();
-        }
-        else {
+        } else {
             complete(action, approvals);
         }
     }
 
     private void lock() {
-        diag.onLock();
+        cd.onLock();
         locked = true;
     }
 
     private void unlock() {
-        diag.onUnlock();
+        cd.onUnlock();
         locked = false;
     }
 
-    private Map<Class<? extends Store>, Agreement> prepare(final Action action) {
-        Map<Class<? extends Store>, Agreement> approvals = new HashMap<>();
-        for (Map.Entry<Class<? extends Store>, Store.Callback> entry : callbacks.entrySet()) {
-            Class<? extends Store> store = entry.getKey();
-            Store.Callback callback = entry.getValue();
+    private Map<Class<?>, Agreement> prepare(final Action action) {
+        Map<Class<?>, Agreement> approvals = new HashMap<>();
+        for (Map.Entry<Class<?>, StoreCallback> entry : callbacks.entrySet()) {
+            Class<?> store = entry.getKey();
+            StoreCallback callback = entry.getValue();
 
             Agreement agreement = callback.voteFor(action);
             if (agreement.isApproved()) {
@@ -136,7 +136,7 @@ public class DAGDispatcher implements Dispatcher {
         return approvals;
     }
 
-    private void complete(final Action action, final Map<Class<? extends Store>, Agreement> approvals) {
+    private void complete(final Action action, final Map<Class<?>, Agreement> approvals) {
 
         DirectedGraph<Class<?>, DefaultEdge> dag = createDag(approvals);
         // TODO Cache topological order
@@ -145,27 +145,25 @@ public class DAGDispatcher implements Dispatcher {
         executeInOrder(action, iterator);
     }
 
-    private DirectedGraph<Class<?>, DefaultEdge> createDag(
-            final Map<Class<? extends Store>, Agreement> approvals
-    ) {
+    private DirectedGraph<Class<?>, DefaultEdge> createDag(final Map<Class<?>, Agreement> approvals) {
 
         DirectedGraph<Class<?>, DefaultEdge> dag = new DefaultDirectedGraph<>(new EdgeFactoryImpl());
 
         // Add vertices (stores)
-        for (Map.Entry<Class<? extends Store>, Agreement> entry : approvals.entrySet()) {
-            Class<? extends Store> store = entry.getKey();
+        for (Map.Entry<Class<?>, Agreement> entry : approvals.entrySet()) {
+            Class<?> store = entry.getKey();
             Agreement agreement = entry.getValue();
             dag.addVertex(store);
-            for (Class<? extends Store> depStore : agreement.getDependencies()) {
+            for (Class<?> depStore : agreement.getDependencies()) {
                 dag.addVertex(depStore);
             }
         }
 
         // Add edges (dependencies from one store to other stores)
-        for (Map.Entry<Class<? extends Store>, Agreement> entry : approvals.entrySet()) {
-            Class<? extends Store> store = entry.getKey();
+        for (Map.Entry<Class<?>, Agreement> entry : approvals.entrySet()) {
+            Class<?> store = entry.getKey();
             Agreement agreement = entry.getValue();
-            for (Class<? extends Store> depStore : agreement.getDependencies()) {
+            for (Class<?> depStore : agreement.getDependencies()) {
                 dag.addEdge(depStore, store);
             }
         }
@@ -173,18 +171,14 @@ public class DAGDispatcher implements Dispatcher {
         // cycle detection
         CycleDetector<Class<?>, DefaultEdge> cycleDetection = new CycleDetector<>(dag);
         Set<Class<?>> cycles = cycleDetection.findCycles();
-        if(cycles.size()>0)
-        {
-            StringBuffer sb = new StringBuffer();
-            int i=1;
-            for(Class<?> store : cycles)
-            {
+        if (cycles.size() > 0) {
+            StringBuilder sb = new StringBuilder();
+            int i = 1;
+            for (Class<?> store : cycles) {
                 sb.append(store.getName());
-                if(i<cycles.size())
-                    sb.append(" > ");
+                if (i < cycles.size()) { sb.append(" > "); }
                 i++;
             }
-
             throw new CycleDetected(sb.toString());
         }
 
@@ -202,35 +196,37 @@ public class DAGDispatcher implements Dispatcher {
         }
 
         final Class<?> store = iterator.next();
-        Store.Callback callback = callbacks.get(store);
-        diag.onExecute(store, action);
-        callback.execute(action, new Channel() {
-            @Override
-            public void ack() {
-                diag.onAck(store, action);
-                proceed();
-            }
+        StoreCallback callback = callbacks.get(store);
+        if (callback != null) {
+            cd.onExecute(store, action);
+            callback.execute(action, new Channel() {
+                @Override
+                public void ack() {
+                    cd.onAck(store, action);
+                    proceed();
+                }
 
-            @Override
-            public void nack(final Throwable t) {
-                diag.onNack(store, action, t);
-                proceed();
-            }
+                @Override
+                public void nack(final Throwable t) {
+                    cd.onNack(store, action, t);
+                    proceed();
+                }
 
-            private void proceed() {
-                executeInOrder(action, iterator);
-            }
-        });
+                private void proceed() {
+                    executeInOrder(action, iterator);
+                }
+            });
+        }
     }
 
     @Override
     public void addDiagnostics(final Dispatcher.Diagnostics d) {
-        this.diag.add(d);
+        this.cd.add(d);
     }
 
     @Override
     public void removeDiagnostics(Dispatcher.Diagnostics d) {
-        this.diag.remove(d);
+        this.cd.remove(d);
     }
 }
 

@@ -1,15 +1,11 @@
 package org.jboss.gwt.circuit.test;
 
-import org.jboss.gwt.circuit.Action;
-import org.jboss.gwt.circuit.dag.DAGDispatcher;
-
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * @author Heiko Braun
- * @date 23/06/14
- */
+import org.jboss.gwt.circuit.Action;
+import org.jboss.gwt.circuit.dag.DAGDispatcher;
+
 public class TestDiagnostics implements DAGDispatcher.Diagnostics {
 
     private boolean locked;

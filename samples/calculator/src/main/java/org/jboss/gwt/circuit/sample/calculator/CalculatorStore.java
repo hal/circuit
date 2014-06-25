@@ -25,19 +25,20 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.jboss.gwt.circuit.AbstractStore;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
+import org.jboss.gwt.circuit.ChangeManagement;
 import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.StoreCallback;
 
-public class CalculatorStore extends AbstractStore {
+public class CalculatorStore {
 
     private final Map<Term, Integer> results;
 
-    public CalculatorStore(final Dispatcher dispatcher) {
+    public CalculatorStore(final Dispatcher dispatcher, final ChangeManagement changeManagement) {
         this.results = new LinkedHashMap<>();
 
-        dispatcher.register(CalculatorStore.class, new Callback() {
+        dispatcher.register(CalculatorStore.class, new StoreCallback() {
             @Override
             public Agreement voteFor(final Action action) {
                 if (action instanceof TermAction) {
@@ -51,7 +52,7 @@ public class CalculatorStore extends AbstractStore {
                 Term term = (Term) action.getPayload();
                 results.put(term, calculate(term));
                 channel.ack();
-                fireChanged();
+                changeManagement.fireChanged(CalculatorStore.class);
             }
         });
     }

@@ -29,11 +29,10 @@ import javax.enterprise.context.ApplicationScoped;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
-import com.google.web.bindery.event.shared.EventBus;
+import org.jboss.gwt.circuit.ChangeManagement;
 import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.StoreChangedEvent;
-import org.jboss.gwt.circuit.meta.*;
 import org.jboss.gwt.circuit.meta.Process;
+import org.jboss.gwt.circuit.meta.Store;
 import org.jboss.gwt.circuit.sample.todo.client.TodoServiceAsync;
 import org.jboss.gwt.circuit.sample.todo.client.actions.ListTodos;
 import org.jboss.gwt.circuit.sample.todo.client.actions.RemoveTodo;
@@ -61,13 +60,13 @@ public class TodoStore {
 
     private final List<Todo> todos;
     private final TodoServiceAsync todoService;
-    private final EventBus eventBus;
+    private final ChangeManagement changeManagement;
 
     @Inject
-    public TodoStore(final TodoServiceAsync todoService, EventBus eventBus) {
+    public TodoStore(final TodoServiceAsync todoService, ChangeManagement changeManagement) {
         this.todos = new LinkedList<>();
         this.todoService = todoService;
-        this.eventBus = eventBus;
+        this.changeManagement = changeManagement;
     }
 
     @Process(actionType = ListTodos.class)
@@ -78,7 +77,7 @@ public class TodoStore {
                 todos.clear();
                 todos.addAll(result);
                 channel.ack();
-                eventBus.fireEvent(new StoreChangedEvent());
+                changeManagement.fireChanged(TodoStore.class);
             }
         });
     }
@@ -99,10 +98,6 @@ public class TodoStore {
             @Override
             public void onSuccess(final Void result) {
                 onList(channel);
-            }
-
-            private void fireChanged() {
-                eventBus.fireEvent(new StoreChangedEvent());
             }
         });
     }

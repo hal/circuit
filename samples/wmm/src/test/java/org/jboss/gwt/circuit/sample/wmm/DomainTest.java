@@ -35,9 +35,6 @@ import org.jboss.gwt.circuit.sample.wmm.stores.HostStore;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author Harald Pehl
- */
 public class DomainTest {
 
     private Dispatcher dispatcher;

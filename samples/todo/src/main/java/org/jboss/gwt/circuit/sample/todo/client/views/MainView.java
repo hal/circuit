@@ -21,33 +21,33 @@
  */
 package org.jboss.gwt.circuit.sample.todo.client.views;
 
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.InlineHyperlink;
-import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.EventHandler;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
+import org.jboss.gwt.circuit.ChangeManagement;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.StoreChangedEvent;
 import org.jboss.gwt.circuit.sample.todo.client.actions.SaveTodo;
 import org.jboss.gwt.circuit.sample.todo.client.stores.TodoStore;
 import org.jboss.gwt.circuit.sample.todo.shared.Todo;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-import java.util.List;
-
 @SuppressWarnings("UnusedDeclaration")
 @Templated("View.html#main")
 public class MainView extends Composite {
 
     @Inject TodoStore store;
-    @Inject
-    Dispatcher dispatcher;
-    @Inject EventBus eventBus;
+    @Inject Dispatcher dispatcher;
+    @Inject ChangeManagement changeManagement;
 
     @Inject @DataField FlowPanel todosContainer;
     @Inject Instance<TodoView> todoViewFactory;
@@ -56,7 +56,7 @@ public class MainView extends Composite {
 
     @PostConstruct
     public void init() {
-        eventBus.addHandler(StoreChangedEvent.TYPE, new StoreChangedEvent.StoreChangedHandler() {
+        changeManagement.addStoreChangedHandler(TodoStore.class, new StoreChangedEvent.StoreChangedHandler() {
             @Override
             public void onChange(final StoreChangedEvent event) {
                 showTodos(store.getTodos());

@@ -25,16 +25,16 @@ import java.util.Iterator;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import org.jboss.gwt.circuit.AbstractStore;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
 import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.StoreCallback;
 import org.jboss.gwt.circuit.sample.wmm.actions.DeployAction;
 import org.jboss.gwt.circuit.sample.wmm.actions.Deployment;
 import org.jboss.gwt.circuit.sample.wmm.actions.StopServerAction;
 import org.jboss.gwt.circuit.sample.wmm.actions.UndeployAction;
 
-public class DeploymentStore extends AbstractStore {
+public class DeploymentStore {
 
     // deployment -> server instances
     private final Multimap<String, String> deployments;
@@ -42,7 +42,7 @@ public class DeploymentStore extends AbstractStore {
     public DeploymentStore(final Dispatcher dispatcher) {
         deployments = HashMultimap.create();
 
-        dispatcher.register(DeploymentStore.class, new Callback() {
+        dispatcher.register(DeploymentStore.class, new StoreCallback() {
             @Override
             public Agreement voteFor(final Action action) {
                 Agreement agreement = Agreement.NONE;
@@ -62,11 +62,12 @@ public class DeploymentStore extends AbstractStore {
                             iterator.remove();
                         }
                     }
-                }
-                else if (action instanceof DeployAction) {
+
+                } else if (action instanceof DeployAction) {
                     DeployAction deployAction = (DeployAction) action;
                     Deployment deployment = deployAction.getPayload();
                     deployments.put(deployment.getName(), deployment.getServer());
+
                 } else if (action instanceof UndeployAction) {
                     UndeployAction undeployAction = (UndeployAction) action;
                     Deployment deployment = undeployAction.getPayload();

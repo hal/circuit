@@ -32,6 +32,8 @@ public class StoreChangedEvent extends Event<StoreChangedEvent.StoreChangedHandl
 
         void onChange(StoreChangedEvent event);
     }
+
+
     public static final Type TYPE = new Type<StoreChangedHandler>();
 
     @Override

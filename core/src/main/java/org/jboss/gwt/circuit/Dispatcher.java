@@ -52,7 +52,7 @@ public interface Dispatcher {
     /**
      * Registers a store callback.
      */
-    <S extends Store> void register(Class<S> store, Store.Callback callback);
+    <S> void register(Class<S> store, StoreCallback callback);
 
     /**
      * Dispatches the actions to all registered stores, which voted with an approved agreement. The stores are called

@@ -11,10 +11,10 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 </#if>
 
-import org.jboss.gwt.circuit.AbstractStore;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
 import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.StoreCallback;
 
 /*
  * WARNING! This class is generated. Do not modify.
@@ -23,20 +23,13 @@ import org.jboss.gwt.circuit.Dispatcher;
 @ApplicationScoped
 </#if>
 @Generated("org.jboss.gwt.circuit.processor.StoreProcessor")
-public class ${storeClassName} extends AbstractStore {
-
-    private final ${storeDelegate} delegate;
+public class ${storeClassName} {
 
     <#if cdi>
     @Inject
-    public ${storeClassName}(final ${storeDelegate} delegate, final Dispatcher dispatcher) {
-        this.delegate = delegate;
-    <#else>
-    public ${storeClassName}(final Dispatcher dispatcher) {
-        this.delegate = new ${storeDelegate}();
     </#if>
-
-        dispatcher.register(${storeClassName}.class, new Callback() {
+    public ${storeClassName}(final ${storeDelegate} delegate, final Dispatcher dispatcher) {
+        dispatcher.register(${storeDelegate}.class, new StoreCallback() {
             @Override
             public Agreement voteFor(final Action action) {
                 Agreement agreement = Agreement.NONE;
@@ -67,10 +60,5 @@ public class ${storeClassName} extends AbstractStore {
                 </#list>
             }
         });
-    }
-
-    // TODO: public access needed?
-    public ${storeDelegate} getDelegate() {
-        return delegate;
     }
 }

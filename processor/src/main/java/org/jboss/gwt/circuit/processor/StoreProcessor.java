@@ -21,8 +21,7 @@
  */
 package org.jboss.gwt.circuit.processor;
 
-import static javax.tools.Diagnostic.Kind.ERROR;
-import static javax.tools.Diagnostic.Kind.NOTE;
+import static javax.tools.Diagnostic.Kind.*;
 import static org.jboss.gwt.circuit.processor.GenerationUtil.*;
 
 import java.io.BufferedWriter;
@@ -61,8 +60,8 @@ import javax.tools.StandardLocation;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.meta.*;
 import org.jboss.gwt.circuit.meta.Process;
+import org.jboss.gwt.circuit.meta.Store;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -109,8 +108,17 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
                 final String storeClassName = GenerationUtil.storeImplementation(storeDelegate);
                 messager.printMessage(NOTE, "Discovered annotated store [" + storeElement.getQualifiedName() + "]");
 
+                // In CDI mode check whether the store is a singleton
+                if (cdi && (GenerationUtil.getAnnotation(elementUtils, storeElement,
+                        "javax.enterprise.context.ApplicationScoped") == null || GenerationUtil.getAnnotation(
+                        elementUtils, storeElement, "javax.inject.Singleton") == null)) {
+                    messager.printMessage(WARNING, String.format(
+                            "Store %s is not marked as singleton! This might cause unexpected results.",
+                            storeElement.getQualifiedName()), storeElement);
+                }
+
                 List<ExecutableElement> receiveMethods = new ArrayList<>();
-                if (findValidReceiveMethods(messager, typeUtils, elementUtils, storeElement, receiveMethods)) {
+                if (findValidReceiveMethods(messager, typeUtils, storeElement, receiveMethods)) {
                     Collection<ReceiveInfo> receiveInfos = getReceiveInfos(messager, typeUtils, storeElement,
                             receiveMethods);
                     try {
@@ -140,7 +148,7 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
         return true;
     }
 
-    private boolean findValidReceiveMethods(final Messager messager, final Types typeUtils, final Elements elementUtils,
+    private boolean findValidReceiveMethods(final Messager messager, final Types typeUtils,
             final TypeElement storeElement, List<ExecutableElement> receiveMethods) {
 
         boolean valid = true;
@@ -175,48 +183,41 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
                             .getElementValues().entrySet()) {
                         if ("dependencies".equals(entry.getKey().getSimpleName().toString())) {
                             dependencies = GenerationUtil.extractValue(entry.getValue());
-                        }
-                        else if ("actionType".equals(entry.getKey().getSimpleName().toString())) {
-                            actionType = (String)((Set)GenerationUtil.extractValue(entry.getValue())).iterator().next();
+                        } else if ("actionType".equals(entry.getKey().getSimpleName().toString())) {
+                            actionType = (String) ((Set) GenerationUtil.extractValue(entry.getValue())).iterator()
+                                    .next();
                         }
                     }
                 }
             }
 
-            if(methodElement.getParameters().size()==2) {
-
+            if (methodElement.getParameters().size() == 2) {
                 // first parameter is action actionType, the second one a channel
                 VariableElement payloadParameter = methodElement.getParameters().get(0);
                 TypeElement payloadParameterType = (TypeElement) typeUtils.asElement(payloadParameter.asType());
                 receiveInfos.add(
                         new ReceiveInfo(methodElement.getSimpleName().toString(),
                                 actionType,
-                                payloadParameterType.getQualifiedName().toString()
-                        )
+                                payloadParameterType.getQualifiedName().toString())
                 );
-            }
-            else if(methodElement.getParameters().size()==1)
-            {
+
+            } else if (methodElement.getParameters().size() == 1) {
                 // if a single param is used it need to be a channel
                 VariableElement param = methodElement.getParameters().get(0);
                 TypeElement paramType = (TypeElement) typeUtils.asElement(param.asType());
-                if(!paramType.getQualifiedName().toString().equals(Dispatcher.Channel.class.getCanonicalName()))
-                {
+                if (!paramType.getQualifiedName().toString().equals(Dispatcher.Channel.class.getCanonicalName())) {
                     String error = String.format(
-                            "Illegal type for parameter '%s' on method '%s' in class '%s'. Expected type "+Dispatcher.Channel.class.getCanonicalName(),
+                            "Illegal type for parameter '%s' on method '%s' in class '%s'. Expected type " + Dispatcher.Channel.class
+                                    .getCanonicalName(),
                             param.getSimpleName(), methodElement.getSimpleName(), storeElement.getSimpleName());
                     messager.printMessage(Diagnostic.Kind.ERROR, error);
                     continue;
                 }
-
                 receiveInfos.add(
                         new ReceiveInfo(methodElement.getSimpleName().toString(),
-                                actionType
-                        )
-                );
-            }
-            else
-            {
+                        actionType));
+
+            } else {
                 // anything beyond two parameters on receive methods is considered an error
                 String error = String.format(
                         "Illegal number of argument on method '%s' in class '%s'",
@@ -228,16 +229,14 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
             // --------------------------
 
             ReceiveInfo receiveInfo = receiveInfos.get(receiveInfos.size() - 1);
-            for(String store : dependencies)   {
-                // IMPORTANT: The actual dependency is the adapter class!
-                final String storeAdapter = GenerationUtil.storeImplementation(store);
-                receiveInfo.addDependency(storeAdapter+ ".class");
+            for (String store : dependencies) {
+                // IMPORTANT: The actual dependency is the store adaptee!
+                receiveInfo.addDependency(store + ".class");
             }
 
             // --------------------------
 
             // record dependencies in a different data structures to generate GraphViz...
-
             GraphVizInfo graphVizInfo = graphVizInfos.get(actionType);
             if (graphVizInfo == null) {
                 graphVizInfo = new GraphVizInfo(actionType);
