@@ -163,7 +163,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>process-annotation</id>
+                        <id>complete-annotation</id>
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>compile</goal>

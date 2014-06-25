@@ -37,7 +37,7 @@ import org.jboss.gwt.circuit.sample.todo.resources.TodoResources;
 public class App {
 
     @Inject
-    Dispatcher todoDispatcher;
+    Dispatcher dispatcher;
 
     @Inject TodoResources resources;
     @Inject MainView mainView;
@@ -46,11 +46,11 @@ public class App {
     @AfterInitialization
     public void init() {
         resources.css().ensureInjected();
-        todoDispatcher.addDiagnostics(diagnosticsView);
+        dispatcher.addDiagnostics(diagnosticsView);
 
         RootPanel.get().add(mainView);
         RootPanel.get().add(diagnosticsView);
 
-        todoDispatcher.dispatch(new ListTodos());
+        dispatcher.dispatch(new ListTodos());
     }
 }

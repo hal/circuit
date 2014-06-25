@@ -29,6 +29,7 @@ import org.jboss.gwt.circuit.AbstractStore;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
 import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.Store;
 
 public class CalculatorStore extends AbstractStore {
 
@@ -37,7 +38,7 @@ public class CalculatorStore extends AbstractStore {
     public CalculatorStore(final Dispatcher dispatcher) {
         this.results = new LinkedHashMap<>();
 
-        dispatcher.register(CalculatorStore.class, new Callback() {
+        dispatcher.register(CalculatorStore.class, new Store.Callback() {
             @Override
             public Agreement voteFor(final Action action) {
                 if (action instanceof TermAction) {
@@ -47,11 +48,11 @@ public class CalculatorStore extends AbstractStore {
             }
 
             @Override
-            public void execute(final Action action, final Dispatcher.Channel channel) {
+            public void complete(final Action action, final Dispatcher.Channel channel) {
                 Term term = (Term) action.getPayload();
                 results.put(term, calculate(term));
                 channel.ack();
-                fireChanged();
+                fireChanged(CalculatorStore.class);
             }
         });
     }

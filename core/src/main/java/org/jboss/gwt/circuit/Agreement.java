@@ -26,8 +26,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * An agreement is a way a store can express its support for an action and its dependencies to other stores for that
- * action.
+ * Through an agreement stores express their support for specific action types
+ * dependencies to other stores when processing a particular actions of that type.<p/>
+ * The agreement is part of the voting phase.
+ *
+ * @see org.jboss.gwt.circuit.Store
+ * @see org.jboss.gwt.circuit.Store.Callback
  */
 public class Agreement {
 
@@ -35,10 +39,10 @@ public class Agreement {
     public final static Agreement ANY = new Agreement(true);
 
     private final boolean approved;
-    private final Set<Class<? extends Store>> dependencies;
+    private final Set<Class<?>> dependencies;
 
     @SafeVarargs
-    public Agreement(final boolean approved, final Class<? extends Store>... dependencies) {
+    public Agreement(final boolean approved, final Class<?>... dependencies) {
         this.approved = approved;
         this.dependencies = new HashSet<>();
         if (dependencies != null) {
@@ -54,7 +58,7 @@ public class Agreement {
         return !dependencies.isEmpty();
     }
 
-    public Set<Class<? extends Store>> getDependencies() {
+    public Set<Class<?>> getDependencies() {
         return dependencies;
     }
 }

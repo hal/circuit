@@ -21,38 +21,36 @@
  */
 package org.jboss.gwt.circuit;
 
-import static org.jboss.gwt.circuit.StoreChangedEvent.StoreChangedHandler;
-
-import com.google.web.bindery.event.shared.HandlerRegistration;
-
 /**
- * The store holds state and uses the dispatcher to register callbacks. Views can register change handlers to be
- * informed upon changes of the internal state.
+ * A store holds application state and manages segments of the domain model used by an application.
+ * In to process actions store register callbacks with a {@link Dispatcher}.<p/>
+ *
+ * When actions are dispatched <u>stores run through a voting and a completion phase</u>.
+ * Voting allows to reject actions or declare dependencies on other stores. The actual processing of the action
+ * (and all corresponding state changes) is done in the completion phase.<p/>
+ *
+ * <u>It is mandatory to acknowledge each action through the {@link org.jboss.gwt.circuit.Dispatcher.Channel} after completion</u>.
  */
 public interface Store {
 
     /**
-     * A callback used by the {@link org.jboss.gwt.circuit.Dispatcher} to pass an {@link org.jboss.gwt.circuit.Action} to
-     * the store.
+     * Callbacks are registered with a {@link org.jboss.gwt.circuit.Dispatcher} to pass an {@link org.jboss.gwt.circuit.Action} to
+     * a store.
      */
     public interface Callback {
 
         /**
-         * Called by the dispatcher before the action is dispatched.
+         * Before actually processing an action, each store can vote on specific action types
+         * and declare dependencies on other stores. Disagreement will prevent that the store will
+         * be included in the completion phase.
+         *
          */
         Agreement voteFor(Action action);
 
         /**
-         * Called by the dispatcher when the action is dispatched. The passed {@code channel} must be used by the store
-         * to ack/nack the processing of the callback.
+         * After a successful vote, the dispatcher hands the action to the store for completion.
+         * It's the stores responsibility to acknowledge the action and notify it's change handlers.
          */
-        void execute(Action action, Dispatcher.Channel channel);
+        void complete(Action action, Dispatcher.Channel channel);
     }
-
-    /**
-     * Registers a {@link org.jboss.gwt.circuit.StoreChangedEvent.StoreChangedHandler}.
-     *
-     * @return Use this instance to remove the handler.
-     */
-    HandlerRegistration addChangedHandler(StoreChangedHandler handler);
 }

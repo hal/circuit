@@ -26,12 +26,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import org.jboss.gwt.circuit.AbstractStore;
 import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.StoreChangedEvent;
 import org.jboss.gwt.circuit.meta.*;
 import org.jboss.gwt.circuit.meta.Process;
 import org.jboss.gwt.circuit.sample.todo.client.TodoServiceAsync;
@@ -43,7 +43,7 @@ import org.jboss.gwt.circuit.sample.todo.shared.Todo;
 @Store
 @ApplicationScoped
 @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
-public class TodoStore {
+public class TodoStore extends AbstractStore {
 
     abstract class TodoCallback<T> implements AsyncCallback<T> {
 
@@ -78,7 +78,7 @@ public class TodoStore {
                 todos.clear();
                 todos.addAll(result);
                 channel.ack();
-                eventBus.fireEvent(new StoreChangedEvent());
+                fireChanged(TodoStore.class);
             }
         });
     }
@@ -101,9 +101,6 @@ public class TodoStore {
                 onList(channel);
             }
 
-            private void fireChanged() {
-                eventBus.fireEvent(new StoreChangedEvent());
-            }
         });
     }
 

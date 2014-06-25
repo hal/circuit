@@ -44,7 +44,6 @@ final class GenerationUtil {
 
     private GenerationUtil() {}
 
-    static final String OPT_CDI = "cdi";
     static final String OPT_DISPATCHER_NAME = "dispatcherName";
     static final String OPT_DISPATCHER_PACKAGE = "dispatcherPackage";
     static final String DEFAULT_DISPATCHER_NAME = "ApplicationDispatcher";

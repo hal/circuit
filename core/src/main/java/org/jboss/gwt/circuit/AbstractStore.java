@@ -21,31 +21,20 @@
  */
 package org.jboss.gwt.circuit;
 
-import static org.jboss.gwt.circuit.StoreChangedEvent.StoreChangedHandler;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.google.web.bindery.event.shared.EventBus;
-import com.google.web.bindery.event.shared.HandlerRegistration;
-import com.google.web.bindery.event.shared.SimpleEventBus;
+public abstract class AbstractStore implements PropagatesChange {
 
-/**
- * Abstract store using a {@link com.google.web.bindery.event.shared.SimpleEventBus} to register {@link
- * org.jboss.gwt.circuit.StoreChangedEvent.StoreChangedHandler}s and fire {@link org.jboss.gwt.circuit.StoreChangedEvent}s.
- */
-public abstract class AbstractStore implements Store {
+    private List<Handler> handlers = new ArrayList<>();
 
-    private final EventBus eventBus;
-
-    protected AbstractStore() {
-        this.eventBus = new SimpleEventBus();
+    public void fireChanged(Class<?> store) {
+        for(Handler handler : handlers)
+            handler.onChange(store);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public HandlerRegistration addChangedHandler(final StoreChangedHandler handler) {
-        return eventBus.addHandler(StoreChangedEvent.TYPE, handler);
-    }
-
-    protected void fireChanged() {
-        eventBus.fireEvent(new StoreChangedEvent());
+    public void addChangeHandler(Handler handler) {
+        handlers.add(handler);
     }
 }

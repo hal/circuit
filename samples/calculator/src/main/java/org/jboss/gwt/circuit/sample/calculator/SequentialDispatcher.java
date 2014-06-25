@@ -36,7 +36,7 @@ public class SequentialDispatcher implements Dispatcher {
     public SequentialDispatcher() {callbacks = new HashMap<>();}
 
     @Override
-    public <S extends Store> void register(final Class<S> store, final Store.Callback callback) {
+    public void register(final Class<?> store, final Store.Callback callback) {
         callbacks.put(store, callback);
     }
 
@@ -46,7 +46,7 @@ public class SequentialDispatcher implements Dispatcher {
 
         for (Store.Callback callback : callbacks.values()) {
             if (callback.voteFor(action).isApproved()) {
-                callback.execute(action, NoopChannel.INSTANCE);
+                callback.complete(action, NoopChannel.INSTANCE);
             } else {
                 System.out.printf("Ignoring unsupported %s\n", action);
             }

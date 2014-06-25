@@ -28,6 +28,7 @@ import org.jboss.gwt.circuit.AbstractStore;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
 import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.Store;
 import org.jboss.gwt.circuit.sample.wmm.actions.StartServerAction;
 import org.jboss.gwt.circuit.sample.wmm.actions.StopServerAction;
 
@@ -37,7 +38,7 @@ public class HostStore extends AbstractStore {
 
     public HostStore(final Dispatcher dispatcher) {
 
-        dispatcher.register(HostStore.class, new Callback() {
+        dispatcher.register(HostStore.class, new Store.Callback() {
             @Override
             public Agreement voteFor(final Action action) {
                 Agreement agreement = Agreement.NONE;
@@ -50,7 +51,7 @@ public class HostStore extends AbstractStore {
             }
 
             @Override
-            public void execute(final Action action, final Dispatcher.Channel channel) {
+            public void complete(final Action action, final Dispatcher.Channel channel) {
                 if (action instanceof StartServerAction) {
                     StartServerAction start = (StartServerAction) action;
                     runningServers.add(start.getPayload());

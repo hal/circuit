@@ -21,7 +21,9 @@
  */
 package org.jboss.gwt.circuit.sample.calculator.views;
 
-import static org.jboss.gwt.circuit.sample.calculator.Term.Op;
+import org.jboss.gwt.circuit.PropagatesChange;
+import org.jboss.gwt.circuit.sample.calculator.CalculatorStore;
+import org.jboss.gwt.circuit.sample.calculator.Term;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,16 +32,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.jboss.gwt.circuit.StoreChangedEvent;
-import org.jboss.gwt.circuit.sample.calculator.CalculatorStore;
-import org.jboss.gwt.circuit.sample.calculator.Term;
+import static org.jboss.gwt.circuit.sample.calculator.Term.Op;
 
 public class StatsView implements View {
 
     public StatsView(final CalculatorStore store) {
-        store.addChangedHandler(new StoreChangedEvent.StoreChangedHandler() {
+        store.addChangeHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChange(final StoreChangedEvent event) {
+            public void onChange(Class<?> source) {
                 Map<Op, List<Term>> termsByOp = new HashMap<>();
                 Set<Term> terms = store.getResults().keySet();
                 for (Term term : terms) {
@@ -53,7 +53,7 @@ public class StatsView implements View {
 
                 StringBuilder message = new StringBuilder();
                 for (Iterator<Map.Entry<Op, List<Term>>> iterator = termsByOp.entrySet().iterator();
-                        iterator.hasNext(); ) {
+                     iterator.hasNext(); ) {
                     Map.Entry<Op, List<Term>> entry = iterator.next();
                     message.append(entry.getKey().name()).append("(").append(entry.getValue().size()).append(")");
                     if (iterator.hasNext()) {

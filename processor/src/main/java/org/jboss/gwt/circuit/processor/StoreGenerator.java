@@ -29,7 +29,7 @@ import java.util.Set;
 class StoreGenerator extends AbstractGenerator {
 
     StringBuffer generate(final String packageName, final String storeClassName, String storeDelegate,
-            Collection<ReceiveInfo> receiveInfos, final Boolean cdi)
+            Collection<ReceiveInfo> receiveInfos)
             throws GenerationException {
 
         Map<String, Object> context = new HashMap<>();
@@ -37,7 +37,6 @@ class StoreGenerator extends AbstractGenerator {
         context.put("storeClassName", storeClassName);
         context.put("storeDelegate", storeDelegate);
         context.put("receiveInfos", receiveInfos);
-        context.put("cdi", cdi);
         return generate(context, "Store.ftl");
     }
 }

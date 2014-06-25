@@ -68,7 +68,6 @@ import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
-@SupportedOptions({"cdi"})
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 @SupportedAnnotationTypes("org.jboss.gwt.circuit.meta.Store")
 public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
@@ -97,7 +96,6 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
             final Types typeUtils = processingEnv.getTypeUtils();
             final Elements elementUtils = processingEnv.getElementUtils();
             final Map<String, String> options = processingEnv.getOptions();
-            final Boolean cdi = Boolean.valueOf(options.get(OPT_CDI));
 
             // store annotations
             for (Element e : roundEnv.getElementsAnnotatedWith(Store.class)) {
@@ -116,8 +114,7 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
                     try {
                         messager.printMessage(NOTE, "Generating code for [" + storeClassName + "]");
                         StoreGenerator generator = new StoreGenerator();
-                        final StringBuffer code = generator.generate(packageName, storeClassName, storeDelegate,
-                                receiveInfos, cdi);
+                        final StringBuffer code = generator.generate(packageName, storeClassName, storeDelegate,receiveInfos);
                         writeCode(packageName, storeClassName, code);
 
                         messager.printMessage(NOTE,

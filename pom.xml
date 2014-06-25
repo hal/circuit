@@ -75,14 +75,13 @@
     <properties>
         <maven.compiler.target>1.7</maven.compiler.target>
         <maven.compiler.source>1.7</maven.compiler.source>
-        <enterprise.cdi.version>1.1</enterprise.cdi.version>
+        <enterprise.cdi.version>1.2</enterprise.cdi.version>
         <errai.version>3.0.0.Final</errai.version>
         <freemarker.version>2.3.20</freemarker.version>
         <gwt.version>2.6.1</gwt.version>
 
         <!-- See https://issues.jboss.org/browse/ERRAI-760 -->
         <guava.version>17.0</guava.version>
-        <javax.inject.version>1</javax.inject.version>
         <jgrapht.version>0.9.1-hal</jgrapht.version>
         <junit.version>4.11</junit.version>
     </properties>
@@ -104,11 +103,6 @@
             </dependency>
             <dependency>
                 <groupId>org.jboss.gwt.circuit</groupId>
-                <artifactId>circuit-dag</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.gwt.circuit</groupId>
                 <artifactId>circuit-meta</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -116,6 +110,13 @@
                 <groupId>org.jboss.gwt.circuit</groupId>
                 <artifactId>circuit-processor</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+
+            <!-- Supporting API's -->
+            <dependency>
+                <groupId>javax.enterprise</groupId>
+                <artifactId>cdi-api</artifactId>
+                <version>${enterprise.cdi.version}</version>
             </dependency>
 
             <!-- JGraphT -->
@@ -140,16 +141,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <dependency>
-                <groupId>javax.inject</groupId>
-                <artifactId>javax.inject</artifactId>
-                <version>${javax.inject.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.enterprise</groupId>
-                <artifactId>cdi-api</artifactId>
-                <version>${enterprise.cdi.version}</version>
-            </dependency>
+
 
             <!-- GWT & related -->
             <dependency>

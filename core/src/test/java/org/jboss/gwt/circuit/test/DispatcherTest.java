@@ -58,7 +58,6 @@ public class DispatcherTest {
     @Test
     public void dependencies() {
         FooStore foo = new FooStore(dispatcher) {
-
             @Override
             protected Agreement vote(Action action) {
                 return new Agreement(true, BarStore.class);  // declare dependency

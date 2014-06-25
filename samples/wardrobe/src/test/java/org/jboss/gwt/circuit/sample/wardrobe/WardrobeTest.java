@@ -30,12 +30,19 @@ import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.dag.DAGDispatcher;
 import org.jboss.gwt.circuit.sample.wardrobe.actions.Dress;
 import org.jboss.gwt.circuit.sample.wardrobe.actions.Undress;
+import org.jboss.gwt.circuit.sample.wardrobe.stores.CoatStore;
 import org.jboss.gwt.circuit.sample.wardrobe.stores.CoatStoreAdapter;
+import org.jboss.gwt.circuit.sample.wardrobe.stores.PulloverStore;
 import org.jboss.gwt.circuit.sample.wardrobe.stores.PulloverStoreAdapter;
+import org.jboss.gwt.circuit.sample.wardrobe.stores.ShoesStore;
 import org.jboss.gwt.circuit.sample.wardrobe.stores.ShoesStoreAdapter;
+import org.jboss.gwt.circuit.sample.wardrobe.stores.SocksStore;
 import org.jboss.gwt.circuit.sample.wardrobe.stores.SocksStoreAdapter;
+import org.jboss.gwt.circuit.sample.wardrobe.stores.TrousersStore;
 import org.jboss.gwt.circuit.sample.wardrobe.stores.TrousersStoreAdapter;
+import org.jboss.gwt.circuit.sample.wardrobe.stores.UndershirtStore;
 import org.jboss.gwt.circuit.sample.wardrobe.stores.UndershirtStoreAdapter;
+import org.jboss.gwt.circuit.sample.wardrobe.stores.UnderwearStore;
 import org.jboss.gwt.circuit.sample.wardrobe.stores.UnderwearStoreAdapter;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,13 +59,13 @@ public class WardrobeTest {
         orderRecorder = new OrderRecorder();
         dispatcher.addDiagnostics(orderRecorder);
 
-        new CoatStoreAdapter(dispatcher);
-        new PulloverStoreAdapter(dispatcher);
-        new ShoesStoreAdapter(dispatcher);
-        new SocksStoreAdapter(dispatcher);
-        new TrousersStoreAdapter(dispatcher);
-        new UndershirtStoreAdapter(dispatcher);
-        new UnderwearStoreAdapter(dispatcher);
+        new CoatStoreAdapter(new CoatStore(),dispatcher);
+        new PulloverStoreAdapter(new PulloverStore(),dispatcher);
+        new ShoesStoreAdapter(new ShoesStore(), dispatcher);
+        new SocksStoreAdapter(new SocksStore(), dispatcher);
+        new TrousersStoreAdapter(new TrousersStore(), dispatcher);
+        new UndershirtStoreAdapter(new UndershirtStore(), dispatcher);
+        new UnderwearStoreAdapter(new UnderwearStore(), dispatcher);
     }
 
     @Test

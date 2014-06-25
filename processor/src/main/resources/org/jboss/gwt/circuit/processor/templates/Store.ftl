@@ -6,12 +6,10 @@
 package ${packageName};
 
 import javax.annotation.Generated;
-<#if cdi>
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-</#if>
 
-import org.jboss.gwt.circuit.AbstractStore;
+import org.jboss.gwt.circuit.Store;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
 import org.jboss.gwt.circuit.Dispatcher;
@@ -19,24 +17,17 @@ import org.jboss.gwt.circuit.Dispatcher;
 /*
  * WARNING! This class is generated. Do not modify.
  */
-<#if cdi>
 @ApplicationScoped
-</#if>
 @Generated("org.jboss.gwt.circuit.processor.StoreProcessor")
-public class ${storeClassName} extends AbstractStore {
+public class ${storeClassName} {
 
     private final ${storeDelegate} delegate;
 
-    <#if cdi>
     @Inject
     public ${storeClassName}(final ${storeDelegate} delegate, final Dispatcher dispatcher) {
         this.delegate = delegate;
-    <#else>
-    public ${storeClassName}(final Dispatcher dispatcher) {
-        this.delegate = new ${storeDelegate}();
-    </#if>
 
-        dispatcher.register(${storeClassName}.class, new Callback() {
+        dispatcher.register(${storeClassName}.class, new Store.Callback() {
             @Override
             public Agreement voteFor(final Action action) {
                 Agreement agreement = Agreement.NONE;
@@ -53,7 +44,7 @@ public class ${storeClassName} extends AbstractStore {
             }
 
             @Override
-            public void execute(final Action action, final Dispatcher.Channel channel) {
+            public void complete(final Action action, final Dispatcher.Channel channel) {
                 <#list receiveInfos as receiveInfo>
                 if (action instanceof ${receiveInfo.actionType}) {
 

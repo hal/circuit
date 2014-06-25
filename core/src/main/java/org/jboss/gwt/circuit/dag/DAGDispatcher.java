@@ -64,7 +64,7 @@ public class DAGDispatcher implements Dispatcher {
 
     private boolean locked;
     private final Queue<Action> queue;
-    private final Map<Class<? extends Store>, Store.Callback> callbacks;
+    private final Map<Class<?>, Store.Callback> callbacks;
     private final DelegatingDiag diag;
 
     public DAGDispatcher() {
@@ -75,7 +75,7 @@ public class DAGDispatcher implements Dispatcher {
     }
 
     @Override
-    public <S extends Store> void register(final Class<S> store, final Store.Callback callback) {
+    public void register(final Class<?> store, final Store.Callback callback) {
         assert callbacks.get(store) == null : "Store " + store.getName() + " already registered!";
         callbacks.put(store, callback);
     }
@@ -101,7 +101,7 @@ public class DAGDispatcher implements Dispatcher {
         lock();
 
         // collect approvals
-        Map<Class<? extends Store>, Agreement> approvals = prepare(action);
+        Map<Class<?>, Agreement> approvals = prepare(action);
 
         // complete callbacks
         if(approvals.isEmpty()) {
@@ -122,10 +122,10 @@ public class DAGDispatcher implements Dispatcher {
         locked = false;
     }
 
-    private Map<Class<? extends Store>, Agreement> prepare(final Action action) {
-        Map<Class<? extends Store>, Agreement> approvals = new HashMap<>();
-        for (Map.Entry<Class<? extends Store>, Store.Callback> entry : callbacks.entrySet()) {
-            Class<? extends Store> store = entry.getKey();
+    private Map<Class<?>, Agreement> prepare(final Action action) {
+        Map<Class<?>, Agreement> approvals = new HashMap<>();
+        for (Map.Entry<Class<?>, Store.Callback> entry : callbacks.entrySet()) {
+            Class<?> store = entry.getKey();
             Store.Callback callback = entry.getValue();
 
             Agreement agreement = callback.voteFor(action);
@@ -136,7 +136,7 @@ public class DAGDispatcher implements Dispatcher {
         return approvals;
     }
 
-    private void complete(final Action action, final Map<Class<? extends Store>, Agreement> approvals) {
+    private void complete(final Action action, final Map<Class<?>, Agreement> approvals) {
 
         DirectedGraph<Class<?>, DefaultEdge> dag = createDag(approvals);
         // TODO Cache topological order
@@ -146,26 +146,26 @@ public class DAGDispatcher implements Dispatcher {
     }
 
     private DirectedGraph<Class<?>, DefaultEdge> createDag(
-            final Map<Class<? extends Store>, Agreement> approvals
+            final Map<Class<?>, Agreement> approvals
     ) {
 
         DirectedGraph<Class<?>, DefaultEdge> dag = new DefaultDirectedGraph<>(new EdgeFactoryImpl());
 
         // Add vertices (stores)
-        for (Map.Entry<Class<? extends Store>, Agreement> entry : approvals.entrySet()) {
-            Class<? extends Store> store = entry.getKey();
+        for (Map.Entry<Class<?>, Agreement> entry : approvals.entrySet()) {
+            Class<?> store = entry.getKey();
             Agreement agreement = entry.getValue();
             dag.addVertex(store);
-            for (Class<? extends Store> depStore : agreement.getDependencies()) {
+            for (Class<?> depStore : agreement.getDependencies()) {
                 dag.addVertex(depStore);
             }
         }
 
         // Add edges (dependencies from one store to other stores)
-        for (Map.Entry<Class<? extends Store>, Agreement> entry : approvals.entrySet()) {
-            Class<? extends Store> store = entry.getKey();
+        for (Map.Entry<Class<?>, Agreement> entry : approvals.entrySet()) {
+            Class<?> store = entry.getKey();
             Agreement agreement = entry.getValue();
-            for (Class<? extends Store> depStore : agreement.getDependencies()) {
+            for (Class<?> depStore : agreement.getDependencies()) {
                 dag.addEdge(depStore, store);
             }
         }
@@ -204,7 +204,7 @@ public class DAGDispatcher implements Dispatcher {
         final Class<?> store = iterator.next();
         Store.Callback callback = callbacks.get(store);
         diag.onExecute(store, action);
-        callback.execute(action, new Channel() {
+        callback.complete(action, new Channel() {
             @Override
             public void ack() {
                 diag.onAck(store, action);

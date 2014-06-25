@@ -70,9 +70,9 @@
                 <version>3.1.0-SNAPSHOT</version>
                 <executions>
                     <execution>
-                        <id>process</id>
+                        <id>complete</id>
                         <goals>
-                            <goal>process</goal>
+                            <goal>complete</goal>
                         </goals>
                         <phase>generate-sources</phase>
                         <configuration>
@@ -118,7 +118,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>process-annotation</id>
+                        <id>complete-annotation</id>
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>compile</goal>
@@ -127,7 +127,6 @@
                             <proc>only</proc>
                             <failOnError>false</failOnError>
                             <compilerArguments>
-                                <Acdi>false</Acdi>
                                 <AdispatcherName>WardrobeDispatcher</AdispatcherName>
                                 <AdispatcherPackage>org.jboss.gwt.circuit.sample.wardrobe</AdispatcherPackage>
                             </compilerArguments>

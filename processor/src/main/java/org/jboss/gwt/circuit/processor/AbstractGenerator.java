@@ -49,7 +49,7 @@ abstract class AbstractGenerator {
         final BufferedWriter bw = new BufferedWriter(sw);
         try {
             final Template template = config.getTemplate(templateName);
-            // template.process(contextSupplier.get(), bw);
+            // template.complete(contextSupplier.get(), bw);
             template.process(context, bw);
         } catch (IOException | TemplateException ioe) {
             throw new GenerationException(ioe);

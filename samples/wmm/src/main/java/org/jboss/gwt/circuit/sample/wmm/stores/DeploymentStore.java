@@ -29,6 +29,7 @@ import org.jboss.gwt.circuit.AbstractStore;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
 import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.Store;
 import org.jboss.gwt.circuit.sample.wmm.actions.DeployAction;
 import org.jboss.gwt.circuit.sample.wmm.actions.Deployment;
 import org.jboss.gwt.circuit.sample.wmm.actions.StopServerAction;
@@ -42,7 +43,7 @@ public class DeploymentStore extends AbstractStore {
     public DeploymentStore(final Dispatcher dispatcher) {
         deployments = HashMultimap.create();
 
-        dispatcher.register(DeploymentStore.class, new Callback() {
+        dispatcher.register(DeploymentStore.class, new Store.Callback() {
             @Override
             public Agreement voteFor(final Action action) {
                 Agreement agreement = Agreement.NONE;
@@ -53,7 +54,7 @@ public class DeploymentStore extends AbstractStore {
             }
 
             @Override
-            public void execute(final Action action, final Dispatcher.Channel channel) {
+            public void complete(final Action action, final Dispatcher.Channel channel) {
                 if (action instanceof StopServerAction) {
                     String serverToStop = ((StopServerAction) action).getPayload();
                     for (Iterator<String> iterator = deployments.values().iterator(); iterator.hasNext(); ) {
