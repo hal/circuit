@@ -56,7 +56,7 @@ public class MainView extends Composite {
 
     @PostConstruct
     public void init() {
-        changeManagement.addStoreChangedHandler(TodoStore.class, new StoreChangedEvent.StoreChangedHandler() {
+        changeManagement.addChangedHandler(TodoStore.class, new StoreChangedEvent.StoreChangedHandler() {
             @Override
             public void onChange(final StoreChangedEvent event) {
                 showTodos(store.getTodos());

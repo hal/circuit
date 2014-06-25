@@ -28,7 +28,7 @@ import com.google.web.bindery.event.shared.HandlerRegistration;
 import com.google.web.bindery.event.shared.SimpleEventBus;
 
 /**
- * Central instance to handle {@link org.jboss.gwt.circuit.StoreChangedEvent}s.
+ * Central instance to handle change in stores.
  */
 public class ChangeManagement {
 
@@ -43,7 +43,7 @@ public class ChangeManagement {
 
     public ChangeManagement(final EventBus eventBus) {this.eventBus = eventBus;}
 
-    public <S> HandlerRegistration addStoreChangedHandler(Class<S> store, StoreChangedHandler handler) {
+    public <S> HandlerRegistration addChangedHandler(Class<S> store, StoreChangedHandler handler) {
         return eventBus.addHandlerToSource(StoreChangedEvent.TYPE, store, handler);
     }
 

@@ -38,7 +38,7 @@ import org.jboss.gwt.circuit.sample.calculator.Term;
 public class StatsView implements View {
 
     public StatsView(final CalculatorStore store, final ChangeManagement changeManagement) {
-        changeManagement.addStoreChangedHandler(CalculatorStore.class, new StoreChangedEvent.StoreChangedHandler() {
+        changeManagement.addChangedHandler(CalculatorStore.class, new StoreChangedEvent.StoreChangedHandler() {
             @Override
             public void onChange(final StoreChangedEvent event) {
                 Map<Op, List<Term>> termsByOp = new HashMap<>();
