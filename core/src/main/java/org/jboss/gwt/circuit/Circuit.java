@@ -26,8 +26,7 @@ import org.jboss.gwt.circuit.dag.DAGDispatcher;
 
 /**
  * Entrypoint to the Circuit framework.
- *
- * TODO Add / register stores
+ * TODO How to add / register stores and callbacks?
  */
 public class Circuit {
 
@@ -56,12 +55,14 @@ public class Circuit {
         }
     }
 
+
     /**
      * @return A builder that can be used to create a Circuit instance
      */
     public static Builder builder() {
         return new Builder();
     }
+
 
     private Dispatcher dispatcher;
     private ChangeManagement changeManagement;
