@@ -21,16 +21,19 @@
  */
 package org.jboss.gwt.circuit.sample.todo.client;
 
-import javax.inject.Inject;
-
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.TabLayoutPanel;
+import com.google.gwt.user.client.ui.TabPanel;
 import org.jboss.errai.ioc.client.api.AfterInitialization;
 import org.jboss.errai.ioc.client.api.EntryPoint;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.sample.todo.client.actions.ListTodos;
-import org.jboss.gwt.circuit.sample.todo.client.views.DiagnosticsView;
-import org.jboss.gwt.circuit.sample.todo.client.views.MainView;
+import org.jboss.gwt.circuit.sample.todo.client.actions.LoadUsers;
+import org.jboss.gwt.circuit.sample.todo.client.views.TodoView;
 import org.jboss.gwt.circuit.sample.todo.resources.TodoResources;
+
+import javax.inject.Inject;
 
 @EntryPoint
 @SuppressWarnings("UnusedDeclaration")
@@ -40,17 +43,27 @@ public class App {
     Dispatcher dispatcher;
 
     @Inject TodoResources resources;
-    @Inject MainView mainView;
-    @Inject DiagnosticsView diagnosticsView;
+    @Inject
+    TodoView todoView;
 
     @AfterInitialization
     public void init() {
         resources.css().ensureInjected();
-        dispatcher.addDiagnostics(diagnosticsView);
+        //dispatcher.addDiagnostics(diagnosticsView);
 
-        RootPanel.get().add(mainView);
-        RootPanel.get().add(diagnosticsView);
 
+        TabPanel tabs = new TabPanel();
+        tabs.getElement().setId("app-container");
+        tabs.getElement().setAttribute("style", "margin:30px;width:100%; height:100%");
+
+        tabs.add(todoView, "Todo List");
+
+        tabs.selectTab(0);
+
+        RootPanel.get().add(tabs);
+
+        // application init
+        dispatcher.dispatch(new LoadUsers());
         dispatcher.dispatch(new ListTodos());
     }
 }

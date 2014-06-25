@@ -21,6 +21,7 @@
  */
 package org.jboss.gwt.circuit.sample.todo.client.stores;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,12 +39,15 @@ import org.jboss.gwt.circuit.sample.todo.client.TodoServiceAsync;
 import org.jboss.gwt.circuit.sample.todo.client.actions.ListTodos;
 import org.jboss.gwt.circuit.sample.todo.client.actions.RemoveTodo;
 import org.jboss.gwt.circuit.sample.todo.client.actions.SaveTodo;
+import org.jboss.gwt.circuit.sample.todo.client.actions.SelectUser;
 import org.jboss.gwt.circuit.sample.todo.shared.Todo;
 
 @Store
 @ApplicationScoped
 @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
 public class TodoStore extends AbstractStore {
+
+    private String filter;
 
     abstract class TodoCallback<T> implements AsyncCallback<T> {
 
@@ -68,6 +72,17 @@ public class TodoStore extends AbstractStore {
         this.todos = new LinkedList<>();
         this.todoService = todoService;
         this.eventBus = eventBus;
+    }
+
+    @Process(actionType = SelectUser.class, dependencies = {UserStore.class})
+    public void onSelectUser(String user, final Dispatcher.Channel channel) {
+
+        if(user.equals(Todo.USER_ANY))
+            this.filter = null;
+        else
+            this.filter = user;
+        channel.ack();
+        fireChanged(TodoStore.class);
     }
 
     @Process(actionType = ListTodos.class)
@@ -105,6 +120,16 @@ public class TodoStore extends AbstractStore {
     }
 
     public List<Todo> getTodos() {
-        return todos;
+
+        List<Todo> filtered = new ArrayList<>();
+        // apply filter
+        for(Todo todo : this.todos)
+        {
+            if(filter==null || filter.equals(todo.getUser()))
+                filtered.add(todo);
+
+        }
+
+        return filtered;
     }
 }

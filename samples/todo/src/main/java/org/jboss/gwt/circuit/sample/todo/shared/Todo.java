@@ -27,15 +27,31 @@ public class Todo implements Serializable {
     private String id;
     private String name;
     private boolean done;
+    private String user;
 
-    public Todo() {
-        this("n/a");
+    public final static String USER_ANY = "Any";
+
+    public Todo(String name) {
+        this(name, USER_ANY);
     }
 
-    public Todo(final String name) {
+    public Todo() {
+        this("n/a", USER_ANY);
+    }
+
+    public Todo(final String name, String user) {
         this.id = UUID.uuid();
         this.name = name;
         this.done = false;
+        this.user = user;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
     }
 
     @Override

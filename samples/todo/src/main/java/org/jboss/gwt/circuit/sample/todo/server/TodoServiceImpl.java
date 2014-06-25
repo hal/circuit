@@ -45,7 +45,7 @@ public class TodoServiceImpl extends RemoteServiceServlet implements TodoService
 
     private void addInitialTodos() {
         Todo[] todos = new Todo[]{
-                new Todo("Buy milk"), new Todo("Invent the next big thing"), new Todo("Relax!")
+                new Todo("Buy milk", "Peter"), new Todo("Invent the next big thing"), new Todo("Relax!","Mary")
         };
         for (Todo todo : todos) {
             store.put(todo.getId(), todo);
