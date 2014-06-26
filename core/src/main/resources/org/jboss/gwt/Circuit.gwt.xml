@@ -22,8 +22,6 @@
   -->
 
 <module>
-    <inherits name="com.google.web.bindery.event.Event"/>
     <inherits name="org.JGraphT"/>
-
     <source path="circuit"/>
 </module>
