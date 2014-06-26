@@ -34,6 +34,7 @@ import org.jboss.gwt.circuit.sample.todo.client.actions.ListTodos;
 import org.jboss.gwt.circuit.sample.todo.client.actions.LoadUsers;
 import org.jboss.gwt.circuit.sample.todo.client.views.DiagnosticsView;
 import org.jboss.gwt.circuit.sample.todo.client.views.TodoView;
+import org.jboss.gwt.circuit.sample.todo.client.views.UserView;
 import org.jboss.gwt.circuit.sample.todo.resources.TodoResources;
 
 import javax.inject.Inject;
@@ -52,6 +53,9 @@ public class App {
     TodoView todoView;
 
     @Inject
+    UserView userView;
+
+    @Inject
     DiagnosticsView diagnosticsView;
 
     @AfterInitialization
@@ -67,7 +71,7 @@ public class App {
         tabs.getElement().setAttribute("style", "margin:30px;width:100%; height:100%");
 
         tabs.add(todoView, "Todo List");
-        tabs.add(new HTML("Coming soon ..."), "User Management");
+        tabs.add(userView, "User Management");
 
         tabs.selectTab(0);
 

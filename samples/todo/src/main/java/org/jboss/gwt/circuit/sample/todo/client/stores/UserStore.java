@@ -47,12 +47,14 @@ public class UserStore extends AbstractStore {
     private String selectedUser;
 
     @Inject
+    private Dispatcher dispatcher;
+
     public UserStore() {
         this.users = new LinkedList<>();
     }
 
     @Process(actionType = LoadUsers.class)
-       public void onLoad(final Dispatcher.Channel channel) {
+    public void onLoad(final Dispatcher.Channel channel) {
 
         this.users.add(Todo.USER_ANY);
         this.users.add("Peter");
@@ -86,8 +88,11 @@ public class UserStore extends AbstractStore {
             return;
 
         this.users.remove(user);
+
+        // update selection if necessary
         if(user.equals(selectedUser))
-            selectedUser = null;
+            dispatcher.dispatch(new SelectUser(Todo.USER_ANY));
+
         channel.ack();
         fireChanged(UserStore.class);
     }

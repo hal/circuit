@@ -23,6 +23,7 @@ package org.jboss.gwt.circuit.sample.todo.server;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
@@ -35,11 +36,11 @@ public class TodoServiceImpl extends RemoteServiceServlet implements TodoService
 
     private static final int TIMEOUT = 1000;
     private final Random random;
-    private final Map<String, Todo> store;
+    private final Map<String, Todo> todos;
 
     public TodoServiceImpl() {
         random = new Random();
-        store = new LinkedHashMap<>();
+        todos = new LinkedHashMap<>();
         addInitialTodos();
     }
 
@@ -48,32 +49,46 @@ public class TodoServiceImpl extends RemoteServiceServlet implements TodoService
                 new Todo("Buy milk", "Peter"), new Todo("Invent the next big thing"), new Todo("Relax!","Mary")
         };
         for (Todo todo : todos) {
-            store.put(todo.getId(), todo);
+            this.todos.put(todo.getId(), todo);
         }
     }
 
     @Override
     public Collection<Todo> list() {
         oneMomentPlease();
-        return new ArrayList<>(store.values());
+        return new ArrayList<>(todos.values());
     }
 
     @Override
     public void save(final Todo todo) {
         oneMomentPlease();
-        Todo existingTodo = store.get(todo.getId());
+        Todo existingTodo = todos.get(todo.getId());
         if (existingTodo != null) {
             existingTodo.setName(todo.getName());
             existingTodo.setDone(todo.isDone());
         } else {
-            store.put(todo.getId(), todo);
+            todos.put(todo.getId(), todo);
         }
     }
 
     @Override
     public void delete(final Todo todo) {
         oneMomentPlease();
-        store.remove(todo.getId());
+        todos.remove(todo.getId());
+    }
+
+    @Override
+    public void removeForUser(String user) {
+        Map<String, Todo> filtered = new HashMap<>();
+
+        for(String key : this.todos.keySet())
+        {
+            Todo todo = this.todos.get(key);
+            if(!user.equals(todo.getUser()))
+                filtered.put(key, todo);
+        }
+        this.todos.clear();
+        this.todos.putAll(filtered);
     }
 
     private void oneMomentPlease() {

@@ -3,6 +3,7 @@ package org.jboss.gwt.circuit.sample.todo.client;
 import java.util.Collection;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.jboss.gwt.circuit.sample.todo.client.stores.TodoStore;
 import org.jboss.gwt.circuit.sample.todo.shared.Todo;
 
 public interface TodoServiceAsync {
@@ -12,4 +13,6 @@ public interface TodoServiceAsync {
     void save(Todo todo, final AsyncCallback<Void> async);
 
     void delete(Todo todo, final AsyncCallback<Void> async);
+
+    void removeForUser(String user, AsyncCallback<Void> async);
 }

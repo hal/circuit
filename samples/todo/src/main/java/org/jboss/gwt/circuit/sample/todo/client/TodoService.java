@@ -23,6 +23,7 @@ package org.jboss.gwt.circuit.sample.todo.client;
 
 import java.util.Collection;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import org.jboss.gwt.circuit.sample.todo.shared.Todo;
@@ -35,4 +36,6 @@ public interface TodoService extends RemoteService {
     void save(Todo todo);
 
     void delete(Todo todo);
+
+    void removeForUser(String user);
 }

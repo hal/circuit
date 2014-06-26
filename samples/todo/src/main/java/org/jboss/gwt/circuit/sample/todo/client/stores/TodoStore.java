@@ -38,6 +38,7 @@ import org.jboss.gwt.circuit.meta.Process;
 import org.jboss.gwt.circuit.sample.todo.client.TodoServiceAsync;
 import org.jboss.gwt.circuit.sample.todo.client.actions.ListTodos;
 import org.jboss.gwt.circuit.sample.todo.client.actions.RemoveTodo;
+import org.jboss.gwt.circuit.sample.todo.client.actions.RemoveUser;
 import org.jboss.gwt.circuit.sample.todo.client.actions.ResolveTodo;
 import org.jboss.gwt.circuit.sample.todo.client.actions.SaveTodo;
 import org.jboss.gwt.circuit.sample.todo.client.actions.SelectTodo;
@@ -90,6 +91,17 @@ public class TodoStore extends AbstractStore {
 
         channel.ack();
         fireChanged(TodoStore.class);
+    }
+
+    @Process(actionType = RemoveUser.class, dependencies = {UserStore.class})
+    public void onRemoveUser(String user, final Dispatcher.Channel channel) {
+
+        todoService.removeForUser(user, new TodoCallback<Void>(channel) {
+            @Override
+            public void onSuccess(Void v) {
+                onList(channel);
+            }
+        });
     }
 
     @Process(actionType = ListTodos.class)

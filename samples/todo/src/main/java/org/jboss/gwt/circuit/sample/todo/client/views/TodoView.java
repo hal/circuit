@@ -31,6 +31,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
@@ -42,6 +43,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.PropagatesChange;
+import org.jboss.gwt.circuit.sample.todo.client.actions.AddUser;
 import org.jboss.gwt.circuit.sample.todo.client.actions.RemoveTodo;
 import org.jboss.gwt.circuit.sample.todo.client.actions.ResolveTodo;
 import org.jboss.gwt.circuit.sample.todo.client.actions.SaveTodo;
@@ -121,8 +123,6 @@ public class TodoView extends Composite {
         dataProvider = new ListDataProvider<Todo>();
         dataProvider.addDataDisplay(table);
 
-        ;
-
         Column<Todo, SafeHtml> nameColumn = new Column<Todo, SafeHtml>(new SafeHtmlCell()) {
             @Override
             public SafeHtml getValue(Todo object) {
@@ -142,18 +142,30 @@ public class TodoView extends Composite {
                 return object.getUser();
             }
         };
-        table.addColumn(userColumn, "User");
+        table.addColumn(userColumn, "Assignment");
 
         layout.add(table);
 
         Button addButton = new Button("Add", new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-                dispatcher.dispatch(
-                        new SaveTodo(
-                                new Todo("New todo @ " + System.currentTimeMillis())
-                        )
-                );
+
+                Dialog.askFor("Please provide a description:", new AsyncCallback<String>() {
+                    @Override
+                    public void onFailure(Throwable throwable) {
+
+                    }
+
+                    @Override
+                    public void onSuccess(String s) {
+                        dispatcher.dispatch(
+                                new SaveTodo(
+                                        new Todo(s)
+                                )
+                        );
+                    }
+                });
+
             }
         });
 
