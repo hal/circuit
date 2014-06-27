@@ -22,6 +22,8 @@
   -->
 
 <module>
+    <inherits name="com.google.gwt.core.Core"/>
     <inherits name="org.JGraphT"/>
+
     <source path="circuit"/>
 </module>
