@@ -24,10 +24,7 @@ package org.jboss.gwt.circuit.sample.todo.client.stores;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.gwt.circuit.Dispatcher;
 
-/**
-* @author Harald Pehl
-*/
-abstract class TodoCallback<T> implements AsyncCallback<T> {
+public abstract class TodoCallback<T> implements AsyncCallback<T> {
 
     private final Dispatcher.Channel channel;
 

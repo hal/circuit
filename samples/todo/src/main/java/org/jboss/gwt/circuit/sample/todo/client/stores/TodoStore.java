@@ -29,7 +29,6 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.gwt.circuit.ChangeSupport;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.meta.Process;
@@ -49,30 +48,17 @@ import org.jboss.gwt.circuit.sample.todo.shared.Todo;
 @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
 public class TodoStore extends ChangeSupport {
 
-    abstract class TodoCallback<T> implements AsyncCallback<T> {
-
-        private final Dispatcher.Channel channel;
-
-        public TodoCallback(final Dispatcher.Channel channel) {
-            this.channel = channel;
-        }
-
-        @Override
-        public void onFailure(final Throwable caught) {
-            channel.nack(caught);
-        }
-    }
-
-
     private Todo selectedTodo;
-    private String selectedUser;
+//    private String selectedUser;
     private final List<Todo> todos;
     private final TodoServiceAsync todoService;
+    private final UserStore userStore;
 
     @Inject
-    public TodoStore(final TodoServiceAsync todoService) {
+    public TodoStore(final TodoServiceAsync todoService, UserStore userStore) {
         this.todos = new LinkedList<>();
         this.todoService = todoService;
+        this.userStore = userStore;
     }
 
 
@@ -80,9 +66,6 @@ public class TodoStore extends ChangeSupport {
 
     @Process(actionType = SelectUser.class, dependencies = {UserStore.class})
     public void onSelectUser(String user, final Dispatcher.Channel channel) {
-
-        if (user.equals(Todo.USER_ANY)) { this.selectedUser = null; } else { this.selectedUser = user; }
-
         // reset selection
         selectedTodo = null;
 
@@ -137,7 +120,7 @@ public class TodoStore extends ChangeSupport {
     @Process(actionType = SaveTodo.class)
     public void onStore(final Todo todo, final Dispatcher.Channel channel) {
 
-        String assignee = (selectedUser != null) ? selectedUser : Todo.USER_ANY;
+        String assignee = userStore.getSelectedUser() != null ? userStore.getSelectedUser() : Todo.USER_ANY;
         todo.setUser(assignee);
 
         todoService.save(todo, new TodoCallback<Void>(channel) {
@@ -170,6 +153,7 @@ public class TodoStore extends ChangeSupport {
 
         List<Todo> filtered = new ArrayList<>();
         // apply selectedUser
+        String selectedUser = userStore.getSelectedUser();
         for (Todo todo : this.todos) {
             if (selectedUser == null || selectedUser.equals(todo.getUser())) { filtered.add(todo); }
 
