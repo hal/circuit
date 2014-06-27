@@ -36,7 +36,7 @@ public class UnderwearStore {
         channel.ack();
     }
 
-    @org.jboss.gwt.circuit.meta.Process(actionType = Undress.class, dependencies = TrousersStore.class)
+    @Process(actionType = Undress.class, dependencies = TrousersStore.class)
     public void undress(Dispatcher.Channel channel) {
         channel.ack();
     }

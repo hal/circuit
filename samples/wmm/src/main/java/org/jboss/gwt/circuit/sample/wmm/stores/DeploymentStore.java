@@ -25,17 +25,17 @@ import java.util.Iterator;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import org.jboss.gwt.circuit.AbstractStore;
+import org.jboss.gwt.circuit.ChangeSupport;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
 import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.Store;
+import org.jboss.gwt.circuit.StoreCallback;
 import org.jboss.gwt.circuit.sample.wmm.actions.DeployAction;
 import org.jboss.gwt.circuit.sample.wmm.actions.Deployment;
 import org.jboss.gwt.circuit.sample.wmm.actions.StopServerAction;
 import org.jboss.gwt.circuit.sample.wmm.actions.UndeployAction;
 
-public class DeploymentStore extends AbstractStore {
+public class DeploymentStore extends ChangeSupport {
 
     // deployment -> server instances
     private final Multimap<String, String> deployments;
@@ -43,7 +43,7 @@ public class DeploymentStore extends AbstractStore {
     public DeploymentStore(final Dispatcher dispatcher) {
         deployments = HashMultimap.create();
 
-        dispatcher.register(DeploymentStore.class, new Store.Callback() {
+        dispatcher.register(DeploymentStore.class, new StoreCallback() {
             @Override
             public Agreement voteFor(final Action action) {
                 Agreement agreement = Agreement.NONE;

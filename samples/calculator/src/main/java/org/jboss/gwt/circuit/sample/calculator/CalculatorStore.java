@@ -25,20 +25,20 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.jboss.gwt.circuit.AbstractStore;
+import org.jboss.gwt.circuit.ChangeSupport;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
 import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.Store;
+import org.jboss.gwt.circuit.StoreCallback;
 
-public class CalculatorStore extends AbstractStore {
+public class CalculatorStore extends ChangeSupport {
 
     private final Map<Term, Integer> results;
 
     public CalculatorStore(final Dispatcher dispatcher) {
         this.results = new LinkedHashMap<>();
 
-        dispatcher.register(CalculatorStore.class, new Store.Callback() {
+        dispatcher.register(CalculatorStore.class, new StoreCallback() {
             @Override
             public Agreement voteFor(final Action action) {
                 if (action instanceof TermAction) {

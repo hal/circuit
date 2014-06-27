@@ -31,7 +31,7 @@ import javax.inject.Inject;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
-import org.jboss.gwt.circuit.AbstractStore;
+import org.jboss.gwt.circuit.ChangeSupport;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.meta.*;
 import org.jboss.gwt.circuit.meta.Process;
@@ -48,7 +48,7 @@ import org.jboss.gwt.circuit.sample.todo.shared.Todo;
 @Store
 @ApplicationScoped
 @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
-public class TodoStore extends AbstractStore {
+public class TodoStore extends ChangeSupport {
 
     private String selectedUser;
     private Todo selectedTodo;
@@ -155,7 +155,7 @@ public class TodoStore extends AbstractStore {
             @Override
             public void onSuccess(final Void result) {
 
-                if(todo.equals(selectedTodo))
+                if (todo.equals(selectedTodo))
                     selectedTodo = null;
 
                 onList(channel);

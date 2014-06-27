@@ -21,6 +21,11 @@
  */
 package org.jboss.gwt.circuit.sample.todo.client.views;
 
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
 import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -43,7 +48,6 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.PropagatesChange;
-import org.jboss.gwt.circuit.sample.todo.client.actions.AddUser;
 import org.jboss.gwt.circuit.sample.todo.client.actions.RemoveTodo;
 import org.jboss.gwt.circuit.sample.todo.client.actions.ResolveTodo;
 import org.jboss.gwt.circuit.sample.todo.client.actions.SaveTodo;
@@ -52,10 +56,6 @@ import org.jboss.gwt.circuit.sample.todo.client.actions.SelectUser;
 import org.jboss.gwt.circuit.sample.todo.client.stores.TodoStore;
 import org.jboss.gwt.circuit.sample.todo.client.stores.UserStore;
 import org.jboss.gwt.circuit.sample.todo.shared.Todo;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import java.util.List;
 
 @SuppressWarnings("UnusedDeclaration")
 public class TodoView extends Composite {
@@ -153,7 +153,6 @@ public class TodoView extends Composite {
                 Dialog.askFor("Please provide a description:", new AsyncCallback<String>() {
                     @Override
                     public void onFailure(Throwable throwable) {
-
                     }
 
                     @Override
@@ -165,7 +164,6 @@ public class TodoView extends Composite {
                         );
                     }
                 });
-
             }
         });
 
@@ -245,5 +243,4 @@ public class TodoView extends Composite {
         dataProvider.getList().addAll(todos);
         dataProvider.flush();
     }
-
 }

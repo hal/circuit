@@ -26,17 +26,17 @@ import java.util.Map;
 
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.Store;
+import org.jboss.gwt.circuit.StoreCallback;
 import org.jboss.gwt.circuit.util.NoopChannel;
 
 public class SequentialDispatcher implements Dispatcher {
 
-    private final Map<Class<?>, Store.Callback> callbacks;
+    private final Map<Class<?>, StoreCallback> callbacks;
 
     public SequentialDispatcher() {callbacks = new HashMap<>();}
 
     @Override
-    public void register(final Class<?> store, final Store.Callback callback) {
+    public <S> void register(final Class<S> store, final StoreCallback callback) {
         callbacks.put(store, callback);
     }
 
@@ -44,7 +44,7 @@ public class SequentialDispatcher implements Dispatcher {
     public void dispatch(final Action action) {
         System.out.printf("~-~-~-~-~ Processing %s\n", action);
 
-        for (Store.Callback callback : callbacks.values()) {
+        for (StoreCallback callback : callbacks.values()) {
             if (callback.voteFor(action).isApproved()) {
                 callback.complete(action, NoopChannel.INSTANCE);
             } else {

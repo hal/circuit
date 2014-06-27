@@ -1,16 +1,15 @@
 package org.jboss.gwt.circuit.dag;
 
-import org.jboss.gwt.circuit.Action;
-import org.jboss.gwt.circuit.Dispatcher;
-
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jboss.gwt.circuit.Action;
+import org.jboss.gwt.circuit.Dispatcher;
+
 /**
  * @author Heiko Braun
- * @date 23/06/14
  */
-public class DelegatingDiag implements DAGDispatcher.Diagnostics {
+public class CompoundDiagnostics implements DAGDispatcher.Diagnostics {
 
     private final List<DAGDispatcher.Diagnostics> diagnostics = new LinkedList<>();
 

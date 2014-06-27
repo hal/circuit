@@ -23,7 +23,7 @@ package org.jboss.gwt.circuit.processor;
 
 import static javax.tools.Diagnostic.Kind.ERROR;
 import static javax.tools.Diagnostic.Kind.NOTE;
-import static org.jboss.gwt.circuit.processor.GenerationUtil.*;
+import static org.jboss.gwt.circuit.processor.GenerationUtil.ANY_PARAMS;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -40,7 +40,6 @@ import java.util.Set;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedOptions;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
@@ -52,7 +51,6 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeKind;
-import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
@@ -61,8 +59,8 @@ import javax.tools.StandardLocation;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.meta.*;
 import org.jboss.gwt.circuit.meta.Process;
+import org.jboss.gwt.circuit.meta.Store;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -94,8 +92,6 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
         final Messager messager = processingEnv.getMessager();
         if (!roundEnv.processingOver()) {
             final Types typeUtils = processingEnv.getTypeUtils();
-            final Elements elementUtils = processingEnv.getElementUtils();
-            final Map<String, String> options = processingEnv.getOptions();
 
             // store annotations
             for (Element e : roundEnv.getElementsAnnotatedWith(Store.class)) {
@@ -108,7 +104,7 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
                 messager.printMessage(NOTE, "Discovered annotated store [" + storeElement.getQualifiedName() + "]");
 
                 List<ExecutableElement> receiveMethods = new ArrayList<>();
-                if (findValidReceiveMethods(messager, typeUtils, elementUtils, storeElement, receiveMethods)) {
+                if (findValidReceiveMethods(messager, typeUtils, storeElement, receiveMethods)) {
                     Collection<ReceiveInfo> receiveInfos = getReceiveInfos(messager, typeUtils, storeElement,
                             receiveMethods);
                     try {
@@ -137,13 +133,13 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
         return true;
     }
 
-    private boolean findValidReceiveMethods(final Messager messager, final Types typeUtils, final Elements elementUtils,
+    private boolean findValidReceiveMethods(final Messager messager, final Types typeUtils,
             final TypeElement storeElement, List<ExecutableElement> receiveMethods) {
 
         boolean valid = true;
         StringBuilder errorMessage = new StringBuilder();
         NoType voidType = typeUtils.getNoType(TypeKind.VOID);
-        List<ExecutableElement> allReceiveMethods = getAnnotatedMethods(storeElement, processingEnv,
+        List<ExecutableElement> allReceiveMethods = GenerationUtil.getAnnotatedMethods(storeElement, processingEnv,
                 Process.class.getName(), voidType, ANY_PARAMS, errorMessage);
         if (allReceiveMethods.isEmpty()) {
             messager.printMessage(ERROR, String.format(
@@ -223,21 +219,19 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
             }
 
             // --------------------------
-
+            // collect infos for the code generation
             ReceiveInfo receiveInfo = receiveInfos.get(receiveInfos.size() - 1);
-            for(String store : dependencies)   {
-                // IMPORTANT: The actual dependency is the adapter class!
-                final String storeAdapter = GenerationUtil.storeImplementation(store);
-                receiveInfo.addDependency(storeAdapter+ ".class");
+            for (String store : dependencies) {
+                // IMPORTANT: The actual dependency is the store adaptee!
+                receiveInfo.addDependency(store + ".class");
             }
 
             // --------------------------
-
             // record dependencies in a different data structures to generate GraphViz...
-
             GraphVizInfo graphVizInfo = graphVizInfos.get(actionType);
             if (graphVizInfo == null) {
-                graphVizInfo = new GraphVizInfo(actionType);
+                String shortActionType = actionType.substring(actionType.lastIndexOf('.') + 1);
+                graphVizInfo = new GraphVizInfo(shortActionType);
                 graphVizInfos.put(actionType, graphVizInfo);
             }
             graphVizInfo.addStore(storeDelegate);

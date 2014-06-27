@@ -24,21 +24,21 @@ package org.jboss.gwt.circuit.sample.wmm.stores;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jboss.gwt.circuit.AbstractStore;
+import org.jboss.gwt.circuit.ChangeSupport;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
 import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.Store;
+import org.jboss.gwt.circuit.StoreCallback;
 import org.jboss.gwt.circuit.sample.wmm.actions.StartServerAction;
 import org.jboss.gwt.circuit.sample.wmm.actions.StopServerAction;
 
-public class HostStore extends AbstractStore {
+public class HostStore extends ChangeSupport {
 
     private final Set<String> runningServers = new HashSet<>();
 
     public HostStore(final Dispatcher dispatcher) {
 
-        dispatcher.register(HostStore.class, new Store.Callback() {
+        dispatcher.register(HostStore.class, new StoreCallback() {
             @Override
             public Agreement voteFor(final Action action) {
                 Agreement agreement = Agreement.NONE;

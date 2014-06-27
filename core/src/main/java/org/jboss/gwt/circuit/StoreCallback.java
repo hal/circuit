@@ -19,25 +19,25 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.circuit.sample.wardrobe.stores;
+package org.jboss.gwt.circuit;
 
-import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.meta.*;
-import org.jboss.gwt.circuit.meta.Process;
-import org.jboss.gwt.circuit.sample.wardrobe.actions.Dress;
-import org.jboss.gwt.circuit.sample.wardrobe.actions.Undress;
+/**
+ * Callbacks are registered with a {@link Dispatcher} to pass an {@link Action} to
+ * a store.
+ */
+public interface StoreCallback {
 
-@Store
-@SuppressWarnings("UnusedParameters")
-public class PulloverStore {
+    /**
+     * Before actually processing an action, each store can vote on specific action types
+     * and declare dependencies on other stores. Disagreement will prevent that the store will
+     * be included in the completion phase.
+     *
+     */
+    Agreement voteFor(Action action);
 
-    @Process(actionType = Dress.class, dependencies = UndershirtStore.class)
-    public void dress(Dispatcher.Channel channel) {
-        channel.ack();
-    }
-
-    @Process(actionType = Undress.class, dependencies = CoatStore.class)
-    public void undress(Dispatcher.Channel channel) {
-        channel.ack();
-    }
+    /**
+     * After a successful vote, the dispatcher hands the action to the store for completion.
+     * It's the stores responsibility to acknowledge the action and notify it's change handlers.
+     */
+    void complete(Action action, Dispatcher.Channel channel);
 }

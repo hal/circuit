@@ -1,9 +1,5 @@
 package org.jboss.gwt.circuit;
 
-/**
- * @author Heiko Braun
- * @date 25/06/14
- */
 public interface PropagatesChange {
 
     /**

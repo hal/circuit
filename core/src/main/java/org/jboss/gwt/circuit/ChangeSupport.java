@@ -24,11 +24,11 @@ package org.jboss.gwt.circuit;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractStore implements PropagatesChange {
+public abstract class ChangeSupport implements PropagatesChange {
 
     private List<Handler> handlers = new ArrayList<>();
 
-    public void fireChanged(Class<?> store) {
+    public <S> void fireChanged(Class<S> store) {
         for(Handler handler : handlers)
             handler.onChange(store);
     }

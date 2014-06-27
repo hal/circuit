@@ -35,13 +35,11 @@ import org.jboss.gwt.circuit.sample.calculator.TermAction;
 
 public class InputView implements View {
 
-    private final int numberOfActions;
     private final Dispatcher dispatcher;
     private List<Action> actions;
 
     public InputView(final Dispatcher dispatcher, int numberOfActions) {
         this.dispatcher = dispatcher;
-        this.numberOfActions = numberOfActions;
         this.actions = actionStream(numberOfActions);
     }
 

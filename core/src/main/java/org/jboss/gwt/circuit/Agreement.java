@@ -30,8 +30,7 @@ import java.util.Set;
  * dependencies to other stores when processing a particular actions of that type.<p/>
  * The agreement is part of the voting phase.
  *
- * @see org.jboss.gwt.circuit.Store
- * @see org.jboss.gwt.circuit.Store.Callback
+ * @see StoreCallback
  */
 public class Agreement {
 

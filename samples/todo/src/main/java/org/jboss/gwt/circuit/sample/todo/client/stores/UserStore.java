@@ -22,7 +22,14 @@ package org.jboss.gwt.circuit.sample.todo.client.stores;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-import org.jboss.gwt.circuit.AbstractStore;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.jboss.gwt.circuit.ChangeSupport;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.meta.Process;
 import org.jboss.gwt.circuit.meta.Store;
@@ -32,16 +39,10 @@ import org.jboss.gwt.circuit.sample.todo.client.actions.RemoveUser;
 import org.jboss.gwt.circuit.sample.todo.client.actions.SelectUser;
 import org.jboss.gwt.circuit.sample.todo.shared.Todo;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
 @Store
 @ApplicationScoped
 @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
-public class UserStore extends AbstractStore {
+public class UserStore extends ChangeSupport {
 
     private final List<String> users;
     private String selectedUser;

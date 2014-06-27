@@ -1,5 +1,9 @@
 package org.jboss.gwt.circuit.sample.todo.client.views;
 
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.CellTable;
@@ -20,10 +24,6 @@ import org.jboss.gwt.circuit.sample.todo.client.actions.RemoveUser;
 import org.jboss.gwt.circuit.sample.todo.client.actions.SelectUser;
 import org.jboss.gwt.circuit.sample.todo.client.stores.UserStore;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 @ApplicationScoped
 public class UserView extends Composite {
 
@@ -42,11 +42,11 @@ public class UserView extends Composite {
         VerticalPanel layout = new VerticalPanel();
         layout.getElement().setAttribute("style", "padding:20px;width:100%");
 
-        table = new CellTable<String>();
+        table = new CellTable<>();
         table.getElement().setAttribute("style", "width:90%");
         table.setEmptyTableWidget(new HTML("No Todo items found!"));
 
-        dataProvider = new ListDataProvider<String>();
+        dataProvider = new ListDataProvider<>();
         dataProvider.addDataDisplay(table);
 
         TextColumn<String> userColumn = new TextColumn<String>() {
@@ -113,7 +113,6 @@ public class UserView extends Composite {
                     }
                 }
         );
-    
     }
 
     private void updateUserList() {

@@ -77,11 +77,6 @@
                         <phase>generate-sources</phase>
                         <configuration>
                             <defaultOutputDirectory>${project.build.directory}/generated-sources/annotations</defaultOutputDirectory>
-                            <options>
-                                <cdi>false</cdi>
-                                <dispatcherName>WardrobeDispatcher</dispatcherName>
-                                <dispatcherPackage>org.jboss.gwt.circuit.sample.wardrobe</dispatcherPackage>
-                            </options>
                         </configuration>
                     </execution>
                 </executions>
@@ -126,10 +121,6 @@
                         <configuration>
                             <proc>only</proc>
                             <failOnError>false</failOnError>
-                            <compilerArguments>
-                                <AdispatcherName>WardrobeDispatcher</AdispatcherName>
-                                <AdispatcherPackage>org.jboss.gwt.circuit.sample.wardrobe</AdispatcherPackage>
-                            </compilerArguments>
                         </configuration>
                     </execution>
                     <execution>

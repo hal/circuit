@@ -59,8 +59,8 @@ public class WardrobeTest {
         orderRecorder = new OrderRecorder();
         dispatcher.addDiagnostics(orderRecorder);
 
-        new CoatStoreAdapter(new CoatStore(),dispatcher);
-        new PulloverStoreAdapter(new PulloverStore(),dispatcher);
+        new CoatStoreAdapter(new CoatStore(), dispatcher);
+        new PulloverStoreAdapter(new PulloverStore(), dispatcher);
         new ShoesStoreAdapter(new ShoesStore(), dispatcher);
         new SocksStoreAdapter(new SocksStore(), dispatcher);
         new TrousersStoreAdapter(new TrousersStore(), dispatcher);
@@ -77,21 +77,21 @@ public class WardrobeTest {
         assertEquals(7, order.size());
 
         // verify dependencies: Coat
-        assertTrue(order.indexOf(CoatStoreAdapter.class) > order.indexOf(PulloverStoreAdapter.class));
-        assertTrue(order.indexOf(CoatStoreAdapter.class) > order.indexOf(TrousersStoreAdapter.class));
-        assertTrue(order.indexOf(CoatStoreAdapter.class) > order.indexOf(UndershirtStoreAdapter.class));
-        assertTrue(order.indexOf(CoatStoreAdapter.class) > order.indexOf(UnderwearStoreAdapter.class));
+        assertTrue(order.indexOf(CoatStore.class) > order.indexOf(PulloverStore.class));
+        assertTrue(order.indexOf(CoatStore.class) > order.indexOf(TrousersStore.class));
+        assertTrue(order.indexOf(CoatStore.class) > order.indexOf(UndershirtStore.class));
+        assertTrue(order.indexOf(CoatStore.class) > order.indexOf(UnderwearStore.class));
 
         // verify dependencies: Pullover
-        assertTrue(order.indexOf(PulloverStoreAdapter.class) > order.indexOf(UnderwearStoreAdapter.class));
+        assertTrue(order.indexOf(PulloverStore.class) > order.indexOf(UnderwearStore.class));
 
         // verify dependencies: Shoes
-        assertTrue(order.indexOf(ShoesStoreAdapter.class) > order.indexOf(TrousersStoreAdapter.class));
-        assertTrue(order.indexOf(ShoesStoreAdapter.class) > order.indexOf(SocksStoreAdapter.class));
-        assertTrue(order.indexOf(ShoesStoreAdapter.class) > order.indexOf(UnderwearStoreAdapter.class));
+        assertTrue(order.indexOf(ShoesStore.class) > order.indexOf(TrousersStore.class));
+        assertTrue(order.indexOf(ShoesStore.class) > order.indexOf(SocksStore.class));
+        assertTrue(order.indexOf(ShoesStore.class) > order.indexOf(UnderwearStore.class));
 
         // verify dependencies: Trousers
-        assertTrue(order.indexOf(TrousersStoreAdapter.class) > order.indexOf(UnderwearStoreAdapter.class));
+        assertTrue(order.indexOf(TrousersStore.class) > order.indexOf(UnderwearStore.class));
     }
 
     @Test
@@ -103,22 +103,22 @@ public class WardrobeTest {
         assertEquals(7, order.size());
 
         // verify dependencies: Pullover
-        assertTrue(order.indexOf(PulloverStoreAdapter.class) > order.indexOf(CoatStoreAdapter.class));
+        assertTrue(order.indexOf(PulloverStore.class) > order.indexOf(CoatStore.class));
 
         // verify dependencies: Socks
-        assertTrue(order.indexOf(SocksStoreAdapter.class) > order.indexOf(ShoesStoreAdapter.class));
+        assertTrue(order.indexOf(SocksStore.class) > order.indexOf(ShoesStore.class));
 
         // verify dependencies: Trousers
-        assertTrue(order.indexOf(TrousersStoreAdapter.class) > order.indexOf(CoatStoreAdapter.class));
-        assertTrue(order.indexOf(TrousersStoreAdapter.class) > order.indexOf(ShoesStoreAdapter.class));
+        assertTrue(order.indexOf(TrousersStore.class) > order.indexOf(CoatStore.class));
+        assertTrue(order.indexOf(TrousersStore.class) > order.indexOf(ShoesStore.class));
 
         // verify dependencies: Undershirt
-        assertTrue(order.indexOf(UndershirtStoreAdapter.class) > order.indexOf(PulloverStoreAdapter.class));
-        assertTrue(order.indexOf(UndershirtStoreAdapter.class) > order.indexOf(CoatStoreAdapter.class));
+        assertTrue(order.indexOf(UndershirtStore.class) > order.indexOf(PulloverStore.class));
+        assertTrue(order.indexOf(UndershirtStore.class) > order.indexOf(CoatStore.class));
 
         // verify dependencies: Underwear
-        assertTrue(order.indexOf(UnderwearStoreAdapter.class) > order.indexOf(TrousersStoreAdapter.class));
-        assertTrue(order.indexOf(UnderwearStoreAdapter.class) > order.indexOf(CoatStoreAdapter.class));
-        assertTrue(order.indexOf(UnderwearStoreAdapter.class) > order.indexOf(ShoesStoreAdapter.class));
+        assertTrue(order.indexOf(UnderwearStore.class) > order.indexOf(TrousersStore.class));
+        assertTrue(order.indexOf(UnderwearStore.class) > order.indexOf(CoatStore.class));
+        assertTrue(order.indexOf(UnderwearStore.class) > order.indexOf(ShoesStore.class));
     }
 }
