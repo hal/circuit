@@ -1,5 +1,3 @@
-package org.jboss.gwt.circuit.sample.todo.client.stores;
-
 /*
  * JBoss, Home of Professional Open Source.
  * Copyright 2010, Red Hat, Inc., and individual contributors
@@ -21,6 +19,7 @@ package org.jboss.gwt.circuit.sample.todo.client.stores;
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+package org.jboss.gwt.circuit.sample.todo.client.stores;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -66,7 +65,6 @@ public class UserStore extends ChangeSupport {
         fireChanged(UserStore.class);
     }
 
-
     @Process(actionType = SelectUser.class)
     public void onSelect(String user, final Dispatcher.Channel channel) {
         this.selectedUser = user;
@@ -76,8 +74,7 @@ public class UserStore extends ChangeSupport {
 
     @Process(actionType = AddUser.class)
     public void onAdd(String user, final Dispatcher.Channel channel) {
-        if(!users.contains(user))
-            this.users.add(user);
+        if (!users.contains(user)) { this.users.add(user); }
         channel.ack();
         fireChanged(UserStore.class);
     }
@@ -85,14 +82,12 @@ public class UserStore extends ChangeSupport {
     @Process(actionType = RemoveUser.class)
     public void onRemove(String user, final Dispatcher.Channel channel) {
 
-        if(Todo.USER_ANY.equals(user))
-            return;
+        if (Todo.USER_ANY.equals(user)) { return; }
 
         this.users.remove(user);
 
         // update selection if necessary
-        if(user.equals(selectedUser))
-            dispatcher.dispatch(new SelectUser(Todo.USER_ANY));
+        if (user.equals(selectedUser)) { dispatcher.dispatch(new SelectUser(Todo.USER_ANY)); }
 
         channel.ack();
         fireChanged(UserStore.class);

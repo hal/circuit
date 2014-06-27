@@ -30,11 +30,10 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.gwt.circuit.ChangeSupport;
 import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.meta.*;
 import org.jboss.gwt.circuit.meta.Process;
+import org.jboss.gwt.circuit.meta.Store;
 import org.jboss.gwt.circuit.sample.todo.client.TodoServiceAsync;
 import org.jboss.gwt.circuit.sample.todo.client.actions.ListTodos;
 import org.jboss.gwt.circuit.sample.todo.client.actions.RemoveTodo;
@@ -50,9 +49,6 @@ import org.jboss.gwt.circuit.sample.todo.shared.Todo;
 @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
 public class TodoStore extends ChangeSupport {
 
-    private String selectedUser;
-    private Todo selectedTodo;
-
     abstract class TodoCallback<T> implements AsyncCallback<T> {
 
         private final Dispatcher.Channel channel;
@@ -67,27 +63,28 @@ public class TodoStore extends ChangeSupport {
         }
     }
 
+
+    private Todo selectedTodo;
+    private String selectedUser;
     private final List<Todo> todos;
     private final TodoServiceAsync todoService;
-    private final EventBus eventBus;
 
     @Inject
-    public TodoStore(final TodoServiceAsync todoService, EventBus eventBus) {
+    public TodoStore(final TodoServiceAsync todoService) {
         this.todos = new LinkedList<>();
         this.todoService = todoService;
-        this.eventBus = eventBus;
     }
+
+
+    // ------------------------------------------------------ user actions
 
     @Process(actionType = SelectUser.class, dependencies = {UserStore.class})
     public void onSelectUser(String user, final Dispatcher.Channel channel) {
 
-        if(user.equals(Todo.USER_ANY))
-            this.selectedUser = null;
-        else
-            this.selectedUser = user;
+        if (user.equals(Todo.USER_ANY)) { this.selectedUser = null; } else { this.selectedUser = user; }
 
         // reset selection
-        selectedTodo=null;
+        selectedTodo = null;
 
         channel.ack();
         fireChanged(TodoStore.class);
@@ -103,6 +100,9 @@ public class TodoStore extends ChangeSupport {
             }
         });
     }
+
+
+    // ------------------------------------------------------ _todo_ actions
 
     @Process(actionType = ListTodos.class)
     public void onList(final Dispatcher.Channel channel) {
@@ -137,7 +137,7 @@ public class TodoStore extends ChangeSupport {
     @Process(actionType = SaveTodo.class)
     public void onStore(final Todo todo, final Dispatcher.Channel channel) {
 
-        String assignee = (selectedUser!=null) ? selectedUser : Todo.USER_ANY;
+        String assignee = (selectedUser != null) ? selectedUser : Todo.USER_ANY;
         todo.setUser(assignee);
 
         todoService.save(todo, new TodoCallback<Void>(channel) {
@@ -155,8 +155,7 @@ public class TodoStore extends ChangeSupport {
             @Override
             public void onSuccess(final Void result) {
 
-                if (todo.equals(selectedTodo))
-                    selectedTodo = null;
+                if (todo.equals(selectedTodo)) { selectedTodo = null; }
 
                 onList(channel);
             }
@@ -164,14 +163,15 @@ public class TodoStore extends ChangeSupport {
         });
     }
 
+
+    // ------------------------------------------------------ state
+
     public List<Todo> getTodos() {
 
         List<Todo> filtered = new ArrayList<>();
         // apply selectedUser
-        for(Todo todo : this.todos)
-        {
-            if(selectedUser ==null || selectedUser.equals(todo.getUser()))
-                filtered.add(todo);
+        for (Todo todo : this.todos) {
+            if (selectedUser == null || selectedUser.equals(todo.getUser())) { filtered.add(todo); }
 
         }
 
