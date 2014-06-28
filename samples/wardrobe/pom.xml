@@ -43,10 +43,6 @@
     <dependencies>
         <dependency>
             <groupId>org.jboss.gwt.circuit</groupId>
-            <artifactId>circuit-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.gwt.circuit</groupId>
             <artifactId>circuit-meta</artifactId>
         </dependency>
         <dependency>
@@ -58,21 +54,14 @@
 
     <build>
         <plugins>
-            <!--
-                This is an alternate configuration for APT processing. It uses a patched [1] maven-processor-plugin
-                which maps the APT level javax.tools.Diagnostic.Kind.NOTE correctly to Maven's INFO log level.
-                [1] https://code.google.com/r/haraldpehl-maven-annotation-plugin/
-             -->
-            <!--
             <plugin>
                 <groupId>org.bsc.maven</groupId>
                 <artifactId>maven-processor-plugin</artifactId>
-                <version>3.1.0-SNAPSHOT</version>
                 <executions>
                     <execution>
-                        <id>complete</id>
+                        <id>process</id>
                         <goals>
-                            <goal>complete</goal>
+                            <goal>process</goal>
                         </goals>
                         <phase>generate-sources</phase>
                         <configuration>
@@ -87,54 +76,6 @@
                 <configuration>
                     <compilerArgument>-proc:none</compilerArgument>
                 </configuration>
-            </plugin>
-            -->
-
-            <!-- The next plugins work together to enable APT support -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>add-source</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>target/generated-sources/annotations</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>complete-annotation</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                        <configuration>
-                            <proc>only</proc>
-                            <failOnError>false</failOnError>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <!-- Don't change this ID (it overrides the default ID) -->
-                        <id>default-compile</id>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                        <phase>compile</phase>
-                        <configuration>
-                            <proc>none</proc>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

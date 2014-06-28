@@ -46,10 +46,6 @@
     <dependencies>
         <dependency>
             <groupId>org.jboss.gwt.circuit</groupId>
-            <artifactId>circuit-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.gwt.circuit</groupId>
             <artifactId>circuit-meta</artifactId>
         </dependency>
         <dependency>
@@ -107,7 +103,6 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>target/generated-sources/annotations</source>
                                 <!-- Enable refresh for GWT development mode -->
                                 <source>${basedir}/../../core/src/main/java</source>
                                 <source>${basedir}/../../core/src/main/resources</source>
@@ -142,31 +137,27 @@
 
             <!-- The next plugins work together to enable APT support -->
             <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
+                <groupId>org.bsc.maven</groupId>
+                <artifactId>maven-processor-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>complete-annotation</id>
+                        <id>process</id>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
                         <phase>generate-sources</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
                         <configuration>
-                            <proc>only</proc>
-                            <failOnError>false</failOnError>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <!-- Don't change this ID (it overrides the default ID) -->
-                        <id>default-compile</id>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                        <phase>compile</phase>
-                        <configuration>
-                            <proc>none</proc>
+                            <defaultOutputDirectory>${project.build.directory}/generated-sources/annotations</defaultOutputDirectory>
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerArgument>-proc:none</compilerArgument>
+                </configuration>
             </plugin>
 
             <plugin>
