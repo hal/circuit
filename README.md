@@ -5,7 +5,7 @@ Implementation of the Flux architecture as described at http://facebook.github.i
 
 ## Components and Data Flow
 
-<p>
+```
                                              Process(Action)
                       +-----------------+
                       |   Dispatcher    | +--------------+
@@ -31,4 +31,4 @@ Implementation of the Flux architecture as described at http://facebook.github.i
                        |                |
                        +----------------+
 
-</p>
+```
