@@ -63,3 +63,34 @@ Presenters listen to Store Change Events and in turn read data from Stores and u
 
 Presenters do only have read-only access to Stores and the data they maintain. Any modification to the data or state of an application has to be driven by Actions. 
 
+## Processing Semantics
+
+One of the core problems Circuit addresses are cascading effects of event based applications. 
+
+In a typical GUI application an event triggers some business logic, model update or state change, most often as a result of user interaction. Events can trigger other events, which leads to unpredictable data flow, hard to diagnose problems and unclear application semantics.
+
+The guiding principal in Circuit (and Flux) is provide a framework with deterministic behaviour that allows you to hook into the data flow at any point and know exactly what steps will  executed next.
+
+The uni-directional data flow described above already provides a good baseline, but Circuit adds some specific semantics to the contract between the core components, which will be described in the next sections.
+
+### Action Sequences
+
+Any Action flows through the Dispatcher and the dispatcher coordinates how the Stores process the actions. In Circuit we use a sequencing dispatcher, that ensures only one Action will be processed at a time. 
+
+If two Actions are dispatched simultaneously the later one will be queued. All Stores that are registered for a particular Action type will process the Action and once the group completes the next Action will be taken of the queue.
+
+This way Actions don't create race conditions when updating the state or data of an application.
+
+### Store Interdependencies
+
+Typically a single Store maintains a particular segment of the data or domain model in an application and the relevant state associated with it. Most often Stores don't exist in isolation, but depend on other model parts to perform their work.
+
+Circuit allows you to express dependencies between Stores on the level of an Action type. 
+
+The Circuit Dispatcher processes Actions in two phases: a preparation and a completion phase. 
+
+During the preparation phase Stores signal interest in a particular Action and the dependencies they might have on other Stores for a particular Action type. 
+
+The Dispatcher creates a dependency graph for each action type and ensures that the Stores will be invoked in an ordered way during the completion phase. 
+
+When completing an Action, each Store can rely on the State of other Stores according to the dependencies it declared in the first phase.
