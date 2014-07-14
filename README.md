@@ -98,6 +98,9 @@ Presenters do only have read-only access to Stores and the data they maintain. A
 
 ```java
 class TodoPresenter() {
+	
+	TodoStore todoStore;
+
 	public TodoPresenter() {
 		todoStore.addChangeHandler(
 			new PropagatesChange.Handler() {
@@ -138,9 +141,8 @@ Circuit allows you to express dependencies between Stores on the level of an Act
 public class TodoStore {
     @Process(actionType = RemoveUser.class, dependencies = {UserStore.class})
     public void onRemoveUser(String user, final Dispatcher.Channel channel) {
-
-				// remove todos for this user, before removing the user
-        [...]
+			// remove todos for this user, before removing the user
+			[...]
     }
 }
 ```
