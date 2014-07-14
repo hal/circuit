@@ -31,7 +31,6 @@ public interface StoreCallback {
      * Before actually processing an action, each store can vote on specific action types
      * and declare dependencies on other stores. Disagreement will prevent that the store will
      * be included in the completion phase.
-     *
      */
     Agreement voteFor(Action action);
 
