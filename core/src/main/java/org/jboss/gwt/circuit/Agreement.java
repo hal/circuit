@@ -40,7 +40,6 @@ public class Agreement {
     private final boolean approved;
     private final Set<Class<?>> dependencies;
 
-    @SafeVarargs
     public Agreement(final boolean approved, final Class<?>... dependencies) {
         this.approved = approved;
         this.dependencies = new HashSet<>();
