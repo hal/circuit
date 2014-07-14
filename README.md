@@ -44,7 +44,7 @@ Actions represent behaviour, data and state within an application. They signal s
 Actions are most often initiated from user interaction, but they are not limited to that. It's also possible that the underlying framework or the service backend creates and dispatches actions.
 
 ### Dispatcher
-The dispatcher acts as a central hub for processing actions. Any action passes through the dispatcher and the dispatcher delegates to Stores, that do ultimately process the Action.
+The dispatcher acts as a central hub for processing actions. Any action passes through the dispatcher and the dispatcher delegates it to the Stores, that do ultimately process the Action.
 
 The Dispatchers main responsibility is to coordinate the processing of Actions across Stores. 
 
@@ -53,7 +53,7 @@ Stores keep the application state and act as proxies to the data model used by a
 
 Stores are registered with the Dispatcher for Actions they are interested in. They can directly rely on the data passed with an Action, or listen for state changes in other parts of the data model.
 
-Stores can emit Change Events to interested parties that rely on  the data or state managed by a particular Store.
+Stores do emit Change Events to interested parties that rely on the data or state managed by a particular Store.
 
 ### Presenter (as in MVP)
 
@@ -69,7 +69,7 @@ One of the core problems Circuit addresses are cascading effects of event based 
 
 In a typical GUI application an event triggers some business logic, model update or state change, most often as a result of user interaction. Events can trigger other events, which leads to unpredictable data flow, hard to diagnose problems and unclear application semantics.
 
-The guiding principal in Circuit (and Flux) is provide a framework with deterministic behaviour that allows you to hook into the data flow at any point and know exactly what steps will  executed next.
+The guiding principal in Circuit (and Flux) is provide a framework with deterministic behaviour that allows you to hook into the data flow at any point and know exactly what steps will executed next.
 
 The uni-directional data flow described above already provides a good baseline, but Circuit adds some specific semantics to the contract between the core components, which will be described in the next sections.
 
@@ -83,7 +83,7 @@ This way Actions don't create race conditions when updating the state or data of
 
 ### Store Interdependencies
 
-Typically a single Store maintains a particular segment of the data or domain model in an application and the relevant state associated with it. Very often Stores don't exist in isolation, but depend on other model parts to perform their work.
+Typically a single Store maintains a particular segment of the data or domain model in an application and the relevant state associated with it. On most applications Stores don't exist in isolation, but depend on other model parts to perform their work.
 
 Circuit allows you to express dependencies between Stores on the level of an Action type. 
 
@@ -91,17 +91,17 @@ Circuit allows you to express dependencies between Stores on the level of an Act
 
 The Circuit Dispatcher processes Actions in two phases: a preparation and a completion phase. 
 
-During the preparation phase Stores signal interest in a particular Action and the dependencies they might have on other Stores for a particular Action type. 
+During the preparation phase Stores signal interest in a particular Action type and any dependencies they have on other Stores for a particular Action type. 
 
 The Dispatcher creates a dependency graph for each action type and invoke the Stores in an ordered way, one at a time.
 
-This way Stores can safely rely on the State of other Stores according during the processing of an Action.
+This way Stores can safely rely on the State of other Stores during the processing of an Action.
 
 Upon completion a Store emits Change Events to signal interested parties that the data or state of the application has changed. Since Stores process the Action in an ordered way, the change notifications follow that pattern.
 
 #### Action Acknowledgement
 
-Most often Stores rely on asynchronous invocations to backend services, that's why Circuit was build to provide support for asynchronous flow control during the completion phase. 
+Many Store implementations rely on asynchronous invocations to the service backend. Circuit was build to provide support for asynchronous flow control in Stores.
 
 When Stores complete the processing of an Action, they acknowledge the Action they processed. This signals the Dispatcher that the next Store can start processing the Action.
 
