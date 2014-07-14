@@ -45,10 +45,27 @@ Actions represent behaviour, data and state within an application. They signal s
 
 Actions are most often initiated from user interaction, but they are not limited to that. It's also possible that the underlying framework or the service backend creates and dispatches actions.
 
+```java
+@ActionType
+public class SaveTodo implements org.jboss.gwt.circuit.Action<Todo> {
+ 	private final Todo todo;
+	[...]
+}
+```
+
 ### Dispatcher
 The dispatcher acts as a central hub for processing actions. Any action passes through the dispatcher and the dispatcher delegates it to the Stores, that do ultimately process the Action.
 
 The Dispatchers main responsibility is to coordinate the processing of Actions across Stores. 
+
+```java
+public interface Dispatcher {
+
+    <S> void register(Class<S> store, StoreCallback callback);
+
+    void dispatch(Action action);
+}
+```
 
 ### Stores
 Stores keep the application state and act as proxies to the data model used by an application. Most often stores interact with service backends to read and modify a persistent data model, which they in turn expose in a read-only fashion to the actual view (or presenter-view tuples in MVP).
@@ -57,6 +74,16 @@ Stores are registered with the Dispatcher for Actions they are interested in. Th
 
 Stores do emit Change Events to interested parties that rely on the data or state managed by a particular Store.
 
+```java
+public class TodoStore {
+	@Process(actionType = SaveTodo.class)
+	public void onSave(final Todo todo, final Dispatcher.Channel channel) {
+
+				// when a user is removed we removes his todo's 
+    }
+}
+```
+
 ### Presenter (as in MVP)
 
 The Presenter (or presenter-view tuple as in MVP) creates and dispatches Actions. This happens on behalf of a user interaction, due to framework events or another signal from the service backend. 
@@ -64,6 +91,18 @@ The Presenter (or presenter-view tuple as in MVP) creates and dispatches Actions
 Presenters listen to Store Change Events and in turn read data from Stores and update the views accordingly.
 
 Presenters do only have read-only access to Stores and the data they maintain. Any modification to the data or state of an application has to be driven by Actions. 
+
+```java
+class TodoPresenter() {
+todoStore.addChangeHandler(
+	new PropagatesChange.Handler() {
+  	@Override
+    public void onChange(Class<?> source) {
+    	updateView(todoStore.getTodos());                     
+ 		}
+  });
+}
+```
 
 ## Processing Semantics
 
@@ -89,6 +128,17 @@ Typically a single Store maintains a particular segment of the data or domain mo
 
 Circuit allows you to express dependencies between Stores on the level of an Action type. 
 
+```java
+public class TodoStore {
+    @Process(actionType = RemoveUser.class, dependencies = {UserStore.class})
+    public void onRemoveUser(String user, final Dispatcher.Channel channel) {
+
+				// remove todos for this user, before removing the user
+        [...]
+    }
+}
+```
+
 ### Preparation and Completion phase
 
 The Circuit Dispatcher processes Actions in two phases: a preparation and a completion phase. 
@@ -106,6 +156,23 @@ Upon completion a Store emits Change Events to signal interested parties that th
 Many Store implementations rely on asynchronous invocations to the service backend. Circuit was build to provide support for asynchronous flow control in Stores.
 
 When Stores complete the processing of an Action, they acknowledge the Action they processed. This signals the Dispatcher that the next Store can start processing the Action.
+
+```java
+public class TodoStore {
+	@Process(actionType = SaveTodo.class)
+	public void onSave(final Todo todo, final Dispatcher.Channel channel) {
+
+		// async invocation
+    todoService.save(todo, new TodoCallback<Void>(channel) {
+            @Override
+            public void onSuccess(final Void result) {
+							channel.ack();
+							emitChange();
+            }
+        });
+    }
+}
+```
 
 
 
