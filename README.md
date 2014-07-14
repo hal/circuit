@@ -10,7 +10,7 @@ For a general introduction and problem statement we'd recommend to look at the F
 
 ### Data Flow Model
 
-View components (presenters in this case) dispatch actions through central dispatcher. The dispatcher coordinates the processing of actions across stores. Stores process the data or state change associated with an action and emit change events once they are done. Interested parties (presenters) read the of the store and update the views accordingly.
+View components (presenters in this case) dispatch actions through central dispatcher. The dispatcher coordinates the processing of actions across stores. Stores process the data or state change associated with an action and emit change events once they are done. Interested parties (presenters) read the data of the store and update the views accordingly.
 
 ```
                                              Process(Action)
