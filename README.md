@@ -76,6 +76,10 @@ Stores do emit Change Events to interested parties that rely on the data or stat
 
 ```java
 public class TodoStore {
+
+	private Todo selectedTodo;
+	private final List<Todo> todos;
+
 	@Process(actionType = SaveTodo.class)
 	public void onSave(final Todo todo, final Dispatcher.Channel channel) {
 
@@ -94,13 +98,15 @@ Presenters do only have read-only access to Stores and the data they maintain. A
 
 ```java
 class TodoPresenter() {
-todoStore.addChangeHandler(
-	new PropagatesChange.Handler() {
-  	@Override
-    public void onChange(Class<?> source) {
-    	updateView(todoStore.getTodos());                     
- 		}
-  });
+	public TodoPresenter() {
+		todoStore.addChangeHandler(
+			new PropagatesChange.Handler() {
+  			@Override
+    		public void onChange(Class<?> source) {
+    			updateView(todoStore.getTodos());                     
+ 				}
+  		});
+	}
 }
 ```
 
