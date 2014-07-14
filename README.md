@@ -83,7 +83,7 @@ public class TodoStore {
 	@Process(actionType = SaveTodo.class)
 	public void onSave(final Todo todo, final Dispatcher.Channel channel) {
 
-				// when a user is removed we removes his todo's 
+				// persist the todo (backend call)
     }
 }
 ```
@@ -106,6 +106,7 @@ class TodoPresenter() {
 			new PropagatesChange.Handler() {
   			@Override
     		public void onChange(Class<?> source) {
+					// when the model changed, update the view
     			updateView(todoStore.getTodos());                     
  				}
   		});
@@ -141,7 +142,7 @@ Circuit allows you to express dependencies between Stores on the level of an Act
 public class TodoStore {
     @Process(actionType = RemoveUser.class, dependencies = {UserStore.class})
     public void onRemoveUser(String user, final Dispatcher.Channel channel) {
-			// remove todos for this user, before removing the user
+			// when a user is removed we removes his todo's 
 			[...]
     }
 }
@@ -174,6 +175,7 @@ public class TodoStore {
     todoService.save(todo, new TodoCallback<Void>(channel) {
             @Override
             public void onSuccess(final Void result) {
+							// acknowledgement and change event
 							channel.ack();
 							emitChange();
             }
