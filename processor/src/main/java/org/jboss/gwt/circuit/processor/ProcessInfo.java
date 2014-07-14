@@ -25,21 +25,21 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-public class ReceiveInfo {
+public class ProcessInfo {
 
     private final String method;
     private String payload;
     private final String actionType;
     private Set<String> dependencies;
 
-    public ReceiveInfo(final String method, String actionType, final String payload) {
+    public ProcessInfo(final String method, String actionType, final String payload) {
         this.method = method;
         this.payload = payload;
         this.actionType = actionType;
         this.dependencies = new HashSet<>();
     }
 
-    public ReceiveInfo(String method, String actionType) {
+    public ProcessInfo(String method, String actionType) {
         this.method = method;
         this.actionType = actionType;
         this.dependencies = new HashSet<>();
@@ -84,9 +84,9 @@ public class ReceiveInfo {
     @Override
     public boolean equals(final Object o) {
         if (this == o) { return true; }
-        if (!(o instanceof ReceiveInfo)) { return false; }
+        if (!(o instanceof ProcessInfo)) { return false; }
 
-        ReceiveInfo that = (ReceiveInfo) o;
+        ProcessInfo that = (ProcessInfo) o;
 
         if (!method.equals(that.method)) { return false; }
         if (!payload.equals(that.payload)) { return false; }

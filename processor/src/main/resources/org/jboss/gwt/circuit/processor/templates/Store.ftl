@@ -1,7 +1,7 @@
 <#-- @ftlvariable name="packageName" type="java.lang.String" -->
 <#-- @ftlvariable name="storeClassName" type="java.lang.String" -->
 <#-- @ftlvariable name="storeDelegate" type="java.lang.String" -->
-<#-- @ftlvariable name="receiveInfos" type="java.util.List<org.jboss.gwt.circuit.processor.ReceiveInfo>" -->
+<#-- @ftlvariable name="processInfos" type="java.util.List<org.jboss.gwt.circuit.processor.ProcessInfo>" -->
 <#-- @ftlvariable name="cdi" type="java.lang.Boolean" -->
 package ${packageName};
 
@@ -27,10 +27,10 @@ public class ${storeClassName} {
             @Override
             public Agreement voteFor(final Action action) {
                 Agreement agreement = Agreement.NONE;
-                <#list receiveInfos as receiveInfo>
-                if (action instanceof ${receiveInfo.actionType}) {
-                <#if receiveInfo.hasDependencies()>
-                    agreement = new Agreement(true, ${receiveInfo.dependencies});
+                <#list processInfos as processInfo>
+                if (action instanceof ${processInfo.actionType}) {
+                <#if processInfo.hasDependencies()>
+                    agreement = new Agreement(true, ${processInfo.dependencies});
                 <#else>
                     agreement = new Agreement(true);
                 </#if>
@@ -43,12 +43,12 @@ public class ${storeClassName} {
             public void complete(final Action action, final Dispatcher.Channel channel) {
                 boolean matched = false;
 
-                <#list receiveInfos as receiveInfo>
-                if (action instanceof ${receiveInfo.actionType}) {
-                    <#if receiveInfo.isSingleArg()>
-                        delegate.${receiveInfo.method}(channel);
+                <#list processInfos as processInfo>
+                if (action instanceof ${processInfo.actionType}) {
+                    <#if processInfo.isSingleArg()>
+                        delegate.${processInfo.method}(channel);
                     <#else>
-                        delegate.${receiveInfo.method}(((${receiveInfo.actionType})action).getPayload(), channel);
+                        delegate.${processInfo.method}(((${processInfo.actionType})action).getPayload(), channel);
                     </#if>
                     matched = true;
                 }

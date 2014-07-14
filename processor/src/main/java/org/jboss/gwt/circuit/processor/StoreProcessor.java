@@ -103,14 +103,15 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
                 final String storeClassName = GenerationUtil.storeImplementation(storeDelegate);
                 messager.printMessage(NOTE, "Discovered annotated store [" + storeElement.getQualifiedName() + "]");
 
-                List<ExecutableElement> receiveMethods = new ArrayList<>();
-                if (findValidReceiveMethods(messager, typeUtils, storeElement, receiveMethods)) {
-                    Collection<ReceiveInfo> receiveInfos = getReceiveInfos(messager, typeUtils, storeElement,
-                            receiveMethods);
+                List<ExecutableElement> processMethods = new ArrayList<>();
+                if (findValidProcessMethods(messager, typeUtils, storeElement, processMethods)) {
+                    Collection<ProcessInfo> processInfos = getProcessInfos(messager, typeUtils, storeElement,
+                            processMethods);
                     try {
                         messager.printMessage(NOTE, "Generating code for [" + storeClassName + "]");
                         StoreGenerator generator = new StoreGenerator();
-                        final StringBuffer code = generator.generate(packageName, storeClassName, storeDelegate,receiveInfos);
+                        final StringBuffer code = generator.generate(packageName, storeClassName, storeDelegate,
+                                processInfos);
                         writeCode(packageName, storeClassName, code);
 
                         messager.printMessage(NOTE,
@@ -133,32 +134,32 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
         return true;
     }
 
-    private boolean findValidReceiveMethods(final Messager messager, final Types typeUtils,
-            final TypeElement storeElement, List<ExecutableElement> receiveMethods) {
+    private boolean findValidProcessMethods(final Messager messager, final Types typeUtils,
+            final TypeElement storeElement, List<ExecutableElement> processMethods) {
 
         boolean valid = true;
         StringBuilder errorMessage = new StringBuilder();
         NoType voidType = typeUtils.getNoType(TypeKind.VOID);
-        List<ExecutableElement> allReceiveMethods = GenerationUtil.getAnnotatedMethods(storeElement, processingEnv,
+        List<ExecutableElement> allProcessMethods = GenerationUtil.getAnnotatedMethods(storeElement, processingEnv,
                 Process.class.getName(), voidType, ANY_PARAMS, errorMessage);
-        if (allReceiveMethods.isEmpty()) {
+        if (allProcessMethods.isEmpty()) {
             messager.printMessage(ERROR, String.format(
-                    "No receive methods found in [%s]. Please use @%s to mark one or several methods as receive methods.",
+                    "No process methods found in [%s]. Please use @%s to mark one or several methods as process methods.",
                     storeElement.getQualifiedName(), Process.class.getName()));
             valid = false;
         }
-        for (ExecutableElement receiveMethod : allReceiveMethods) {
-            receiveMethods.add(receiveMethod);
+        for (ExecutableElement processMethod : allProcessMethods) {
+            processMethods.add(processMethod);
         }
         return valid;
     }
 
-    private Collection<ReceiveInfo> getReceiveInfos(final Messager messager, final Types typeUtils,
-            final TypeElement storeElement, final List<ExecutableElement> receiveMethods) throws GenerationException {
+    private Collection<ProcessInfo> getProcessInfos(final Messager messager, final Types typeUtils,
+            final TypeElement storeElement, final List<ExecutableElement> processMethods) throws GenerationException {
 
-        final List<ReceiveInfo> receiveInfos = new LinkedList<>();
+        final List<ProcessInfo> processInfos = new LinkedList<>();
         final String storeDelegate = storeElement.getSimpleName().toString();
-        for (ExecutableElement methodElement : receiveMethods) {
+        for (ExecutableElement methodElement : processMethods) {
 
             String actionType = Void.class.getCanonicalName();
             Collection<String> dependencies = Collections.emptySet();
@@ -168,48 +169,37 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
                             .getElementValues().entrySet()) {
                         if ("dependencies".equals(entry.getKey().getSimpleName().toString())) {
                             dependencies = GenerationUtil.extractValue(entry.getValue());
-                        }
-                        else if ("actionType".equals(entry.getKey().getSimpleName().toString())) {
-                            actionType = (String)((Set)GenerationUtil.extractValue(entry.getValue())).iterator().next();
+                        } else if ("actionType".equals(entry.getKey().getSimpleName().toString())) {
+                            actionType = (String) ((Set) GenerationUtil.extractValue(entry.getValue())).iterator()
+                                    .next();
                         }
                     }
                 }
             }
 
-            if(methodElement.getParameters().size()==2) {
-
+            if (methodElement.getParameters().size() == 2) {
                 // first parameter is action actionType, the second one a channel
                 VariableElement payloadParameter = methodElement.getParameters().get(0);
                 TypeElement payloadParameterType = (TypeElement) typeUtils.asElement(payloadParameter.asType());
-                receiveInfos.add(
-                        new ReceiveInfo(methodElement.getSimpleName().toString(),
-                                actionType,
-                                payloadParameterType.getQualifiedName().toString()
-                        )
-                );
-            }
-            else if(methodElement.getParameters().size()==1)
-            {
+                processInfos.add(
+                        new ProcessInfo(methodElement.getSimpleName().toString(), actionType,
+                                payloadParameterType.getQualifiedName().toString()));
+
+            } else if (methodElement.getParameters().size() == 1) {
                 // if a single param is used it need to be a channel
                 VariableElement param = methodElement.getParameters().get(0);
                 TypeElement paramType = (TypeElement) typeUtils.asElement(param.asType());
-                if(!paramType.getQualifiedName().toString().equals(Dispatcher.Channel.class.getCanonicalName()))
-                {
+                if (!paramType.getQualifiedName().toString().equals(Dispatcher.Channel.class.getCanonicalName())) {
                     String error = String.format(
-                            "Illegal type for parameter '%s' on method '%s' in class '%s'. Expected type "+Dispatcher.Channel.class.getCanonicalName(),
-                            param.getSimpleName(), methodElement.getSimpleName(), storeElement.getSimpleName());
+                            "Illegal type for parameter '%s' on method '%s' in class '%s'. Expected type '%s'",
+                            param.getSimpleName(), methodElement.getSimpleName(), storeElement.getSimpleName(),
+                            Dispatcher.Channel.class.getCanonicalName());
                     messager.printMessage(Diagnostic.Kind.ERROR, error);
                     continue;
                 }
+                processInfos.add(new ProcessInfo(methodElement.getSimpleName().toString(), actionType));
 
-                receiveInfos.add(
-                        new ReceiveInfo(methodElement.getSimpleName().toString(),
-                                actionType
-                        )
-                );
-            }
-            else
-            {
+            } else {
                 // anything beyond two parameters on receive methods is considered an error
                 String error = String.format(
                         "Illegal number of argument on method '%s' in class '%s'",
@@ -220,10 +210,10 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
 
             // --------------------------
             // collect infos for the code generation
-            ReceiveInfo receiveInfo = receiveInfos.get(receiveInfos.size() - 1);
+            ProcessInfo processInfo = processInfos.get(processInfos.size() - 1);
             for (String store : dependencies) {
                 // IMPORTANT: The actual dependency is the store adaptee!
-                receiveInfo.addDependency(store + ".class");
+                processInfo.addDependency(store + ".class");
             }
 
             // --------------------------
@@ -253,7 +243,7 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
             dag.putAll(storeDelegate, simpleDependencies);
         }
 
-        return receiveInfos;
+        return processInfos;
     }
 
     private String writeGraphViz(final Messager messager) throws GenerationException, IOException {

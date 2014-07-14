@@ -24,19 +24,18 @@ package org.jboss.gwt.circuit.processor;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 class StoreGenerator extends AbstractGenerator {
 
     StringBuffer generate(final String packageName, final String storeClassName, String storeDelegate,
-            Collection<ReceiveInfo> receiveInfos)
+            Collection<ProcessInfo> processInfos)
             throws GenerationException {
 
         Map<String, Object> context = new HashMap<>();
         context.put("packageName", packageName);
         context.put("storeClassName", storeClassName);
         context.put("storeDelegate", storeDelegate);
-        context.put("receiveInfos", receiveInfos);
+        context.put("processInfos", processInfos);
         return generate(context, "Store.ftl");
     }
 }
