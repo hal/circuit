@@ -21,18 +21,8 @@
  */
 package org.jboss.gwt.circuit.sample.wardrobe.actions;
 
-import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.meta.ActionType;
+import org.jboss.gwt.circuit.util.EmptyAction;
 
 @ActionType
-public class Undress implements Action<Void> {
-
-    public Undress() {
-
-    }
-
-    @Override
-    public Void getPayload() {
-        return null;
-    }
-}
+public class Undress extends EmptyAction {}
