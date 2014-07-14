@@ -186,17 +186,17 @@ public class TodoStore {
 
 ## Programming Model
 
-Circuit provides a minimalistic API with a handful of interfaces and some reasonable default implementations. When it comes to implementation, Circuit tries to be as less intrusive as possible. The following section describes the  API for the basic building blocks.
+Circuit provides a minimalistic API with a handful of interfaces and some reasonable default implementations. When it comes to implementation, Circuit tries to be as less intrusive as possible. The following section describes the API for the basic building blocks.
 
 ### API
 
 #### Action
 
-An action is a class which implements `org.jboss.gwt.circuit.Action<P>`, where `P` acts as the payload of the action. The payload is in most cases some kind of POJO which is processed by stores. However there might be cases where an action is more some kind of command without a payload at all.
+An action is defined by a class which implements the interface `org.jboss.gwt.circuit.Action<P>`, where `P` acts as the payload of the action. The payload is in most cases some kind of POJO which is processed by stores. However there might be cases where an action is more some kind of command without a payload at all.
 
 #### Store
 
-Stores do not need to implement a special interface. However they need to register with the Dispatcher for actions they are interested in. This registration is done by implementing the interface `org.jboss.gwt.circuit.StoreCallback`. This interface reflects the two phases (prepare and complete) as described above:
+Stores do not need to implement a special interface. However they need to register with the Dispatcher for actions they are interested in. This registration is done by implementing the interface `org.jboss.gwt.circuit.StoreCallback`. The methods on this interface reflects the two phases (prepare and complete) as described above:
 
 - `Agreement voteFor(Action action)` to express support for an action and optional dependencies to other stores and 
 - `void complete(Action action, Dispatcher.Channel channel)` which is called when an action is dispatched to the store.
@@ -216,7 +216,7 @@ To see an example on how to use the API in more detail, take a look at the [calc
 
 As an alternative to using the API directly and implementing all the bits and pieces manually, Circuit comes with a set of annotations and an APT processor which generates most of the boilerplate code for you. The annotations step in when it comes to write the code for callback registration and declare store dependencies. 
 
-Your entrance ticket is the `@Store` annotation which you must place on your store implementation:
+The entrance ticket is the `@Store` annotation which must be placed on the store implementation:
 
 ```java
 @Store
@@ -225,7 +225,7 @@ public class ShoesStore {
 }
 ```
 
-A store implementation marked with `@Store` should contain one or more methods marked with `@Process`. This annotation tells Circuit what action type (and thus what payload) the method processes. Furthermore dependencies to other stores can be expressed using `@Process`: 
+A store implementation marked with `@Store` should contain one or more methods marked with `@Process`. This annotation tells Circuit what action type (and thus what payload) the method can process. Furthermore dependencies to other stores can be expressed using `@Process`: 
 
 ```java
 @Store
@@ -250,7 +250,7 @@ To see the annotations in action take a look at the [wardrobe](samples/wardrobe)
 
 #### Goodies
 
-When using the annotation based approach, Circuit checks as an additional benefit whether you have defined circular dependencies. Circular dependencies occur when two stores depend on each other for the same action type:
+When using the annotation based approach, Circuit checks as an additional benefit whether you've defined circular dependencies. Circular dependencies occur when two stores depend on each other for the same action type:
 
 ```java
 @Store 
