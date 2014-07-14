@@ -83,14 +83,27 @@ This way Actions don't create race conditions when updating the state or data of
 
 ### Store Interdependencies
 
-Typically a single Store maintains a particular segment of the data or domain model in an application and the relevant state associated with it. Most often Stores don't exist in isolation, but depend on other model parts to perform their work.
+Typically a single Store maintains a particular segment of the data or domain model in an application and the relevant state associated with it. Very often Stores don't exist in isolation, but depend on other model parts to perform their work.
 
 Circuit allows you to express dependencies between Stores on the level of an Action type. 
+
+### Preparation and Completion phase
 
 The Circuit Dispatcher processes Actions in two phases: a preparation and a completion phase. 
 
 During the preparation phase Stores signal interest in a particular Action and the dependencies they might have on other Stores for a particular Action type. 
 
-The Dispatcher creates a dependency graph for each action type and ensures that the Stores will be invoked in an ordered way during the completion phase. 
+The Dispatcher creates a dependency graph for each action type and invoke the Stores in an ordered way, one at a time.
 
-When completing an Action, each Store can rely on the State of other Stores according to the dependencies it declared in the first phase.
+This way Stores can safely rely on the State of other Stores according during the processing of an Action.
+
+Upon completion a Store emits Change Events to signal interested parties that the data or state of the application has changed. Since Stores process the Action in an ordered way, the change notifications follow that pattern.
+
+#### Action Acknowledgement
+
+Most often Stores rely on asynchronous invocations to backend services, that's why Circuit was build to provide support for asynchronous flow control during the completion phase. 
+
+When Stores complete the processing of an Action, they acknowledge the Action they processed. This signals the Dispatcher that the next Store can start processing the Action.
+
+
+
