@@ -246,7 +246,44 @@ The signature for methods annotated with `@Process` must adhere the following ru
 	- If there's only one parameter it must be of type `Dispatcher.Channel`. 
 	- Otherwise the first parameter has to be the type of the actions payload and the second parameter has to be the channel. 
 	
-To see the annotations in action take a look at the [wardrobe](samples/wardrobe) and [todo](samples/todo) samples. 
+To see the annotations in action take a look at the [wardrobe](samples/wardrobe) and [todo](samples/todo) samples.
+ 
+#### What's Generated?
+
+For each class annotated with `@Store` a store adapter will be generated. The adapter takes the store adaptee and the dispatcher as constructor parameters and will take care of registering the store callback against the dispatcher . Thus the adapter satisfies the two phase contract (vote and complete). The following code snippet shows the generated store adapter for `ShoesStore`:
+
+```java
+/*
+ * WARNING! This class is generated. Do not modify.
+ */
+@ApplicationScoped
+@Generated("org.jboss.gwt.circuit.processor.StoreProcessor")
+public class ShoesStoreAdapter {
+
+    @Inject
+    public ShoesStoreAdapter(final ShoesStore delegate, final Dispatcher dispatcher) {
+        dispatcher.register(ShoesStore.class, new StoreCallback() {
+            @Override
+            public Agreement voteFor(final Action action) {
+                Agreement agreement = Agreement.NONE;
+                if (action instanceof Dress) {
+                    agreement = new Agreement(true, TrousersStore.class, SocksStore.class);
+                }
+                [...]
+                return agreement;
+            }
+
+            @Override
+            public void complete(final Action action, final Dispatcher.Channel channel) {
+                if (action instanceof org.jboss.gwt.circuit.sample.wardrobe.actions.Dress) {
+                    delegate.dress(channel);
+                }
+                [...]
+            }
+        });
+    }
+}
+```
 
 #### Goodies
 
@@ -272,7 +309,7 @@ public class StoreB {
 }
 ```
 
-For this setup Circular would issue an error during in the code generation phase. 
+For this setup Circular would issue an error during the code generation phase. 
 
 Furthermore Circular generates a [GraphViz](http://www.graphviz.org/) graph which shows the dependencies between the stores for each action type. Below you can see the graph for the [wardrobe](samples/wardrobe) example:
 
