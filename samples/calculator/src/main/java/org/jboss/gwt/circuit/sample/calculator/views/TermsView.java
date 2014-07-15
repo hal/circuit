@@ -29,7 +29,7 @@ public class TermsView implements View {
     public TermsView(final CalculatorStore store) {
         store.addChangeHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChange(Class<?> source) {
+            public void onChange(final Class<?> source, final Class<?> actionType) {
                 System.out.printf("Number of terms:    %d\n", store.getResults().size());
             }
         });

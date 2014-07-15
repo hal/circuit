@@ -107,7 +107,7 @@ public class UserView extends Composite {
         userStore.addChangeHandler(
                 new PropagatesChange.Handler() {
                     @Override
-                    public void onChange(Class<?> source) {
+                    public void onChange(final Class<?> source, final Class<?> actionType) {
                         updateUserList();
                         removeButton.setEnabled(userStore.getSelectedUser()!=null);
                     }

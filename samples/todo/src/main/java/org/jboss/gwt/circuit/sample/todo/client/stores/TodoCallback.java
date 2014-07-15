@@ -22,13 +22,13 @@
 package org.jboss.gwt.circuit.sample.todo.client.stores;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.meta.BackChannel;
 
 public abstract class TodoCallback<T> implements AsyncCallback<T> {
 
-    private final Dispatcher.Channel channel;
+    private final BackChannel channel;
 
-    public TodoCallback(final Dispatcher.Channel channel) {
+    public TodoCallback(final BackChannel channel) {
         this.channel = channel;
     }
 

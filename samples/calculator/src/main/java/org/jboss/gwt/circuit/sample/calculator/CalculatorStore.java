@@ -52,7 +52,7 @@ public class CalculatorStore extends ChangeSupport {
                 Term term = (Term) action.getPayload();
                 results.put(term, calculate(term));
                 channel.ack();
-                fireChanged(CalculatorStore.class);
+                fireChanged(CalculatorStore.class, action.getClass());
             }
         });
     }

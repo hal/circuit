@@ -1,8 +1,8 @@
 <#-- @ftlvariable name="packageName" type="java.lang.String" -->
 <#-- @ftlvariable name="storeClassName" type="java.lang.String" -->
 <#-- @ftlvariable name="storeDelegate" type="java.lang.String" -->
+<#-- @ftlvariable name="changeSupport" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="processInfos" type="java.util.List<org.jboss.gwt.circuit.processor.ProcessInfo>" -->
-<#-- @ftlvariable name="cdi" type="java.lang.Boolean" -->
 package ${packageName};
 
 import javax.annotation.Generated;
@@ -11,8 +11,10 @@ import javax.inject.Inject;
 
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
+import org.jboss.gwt.circuit.ChangeSupport;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.StoreCallback;
+import org.jboss.gwt.circuit.meta.BackChannel;
 
 /*
  * WARNING! This class is generated. Do not modify.
@@ -21,40 +23,54 @@ import org.jboss.gwt.circuit.StoreCallback;
 @Generated("org.jboss.gwt.circuit.processor.StoreProcessor")
 public class ${storeClassName} {
 
+    private final ${storeDelegate} delegate;
+
     @Inject
     public ${storeClassName}(final ${storeDelegate} delegate, final Dispatcher dispatcher) {
+        this.delegate = delegate;
+
         dispatcher.register(${storeDelegate}.class, new StoreCallback() {
             @Override
             public Agreement voteFor(final Action action) {
-                Agreement agreement = Agreement.NONE;
                 <#list processInfos as processInfo>
+                <#if processInfo_index == 0>
                 if (action instanceof ${processInfo.actionType}) {
-                <#if processInfo.hasDependencies()>
-                    agreement = new Agreement(true, ${processInfo.dependencies});
                 <#else>
-                    agreement = new Agreement(true);
+                else if (action instanceof ${processInfo.actionType}) {
+                </#if>
+                <#if processInfo.hasDependencies()>
+                    return new Agreement(true, ${processInfo.dependencies});
+                <#else>
+                    return new Agreement(true);
                 </#if>
                 }
                 </#list>
-                return agreement;
+                else {
+                    return Agreement.NONE;
+                }
             }
 
             @Override
             public void complete(final Action action, final Dispatcher.Channel channel) {
-                boolean matched = false;
-
                 <#list processInfos as processInfo>
+                <#if processInfo_index == 0>
                 if (action instanceof ${processInfo.actionType}) {
-                    <#if processInfo.isSingleArg()>
-                        delegate.${processInfo.method}(channel);
+                <#else>
+                else if (action instanceof ${processInfo.actionType}) {
+                </#if>
+                    <#if changeSupport>
+                    BackChannel backChannel = new BackChannel(${storeDelegate}.class, ${processInfo.actionType}.class, channel, delegate);
                     <#else>
-                        delegate.${processInfo.method}(((${processInfo.actionType})action).getPayload(), channel);
+                    BackChannel backChannel = new BackChannel(${storeDelegate}.class, ${processInfo.actionType}.class, channel, null);
                     </#if>
-                    matched = true;
+                    <#if processInfo.singleArg>
+                    delegate.${processInfo.method}(backChannel);
+                    <#else>
+                    delegate.${processInfo.method}(((${processInfo.actionType})action).getPayload(), backChannel);
+                    </#if>
                 }
                 </#list>
-
-                if (!matched) {
+                else {
                     System.out.println("WARN: Unmatched action " + action.getClass().getName() + " in store " + delegate.getClass());
                     channel.ack();
                 }

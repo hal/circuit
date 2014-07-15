@@ -21,9 +21,7 @@
  */
 package org.jboss.gwt.circuit.sample.calculator.views;
 
-import org.jboss.gwt.circuit.PropagatesChange;
-import org.jboss.gwt.circuit.sample.calculator.CalculatorStore;
-import org.jboss.gwt.circuit.sample.calculator.Term;
+import static org.jboss.gwt.circuit.sample.calculator.Term.Op;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,14 +30,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.jboss.gwt.circuit.sample.calculator.Term.Op;
+import org.jboss.gwt.circuit.PropagatesChange;
+import org.jboss.gwt.circuit.sample.calculator.CalculatorStore;
+import org.jboss.gwt.circuit.sample.calculator.Term;
 
 public class StatsView implements View {
 
     public StatsView(final CalculatorStore store) {
         store.addChangeHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChange(Class<?> source) {
+            public void onChange(final Class<?> source, final Class<?> actionType) {
                 Map<Op, List<Term>> termsByOp = new HashMap<>();
                 Set<Term> terms = store.getResults().keySet();
                 for (Term term : terms) {

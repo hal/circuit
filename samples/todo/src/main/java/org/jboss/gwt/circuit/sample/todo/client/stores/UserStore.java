@@ -30,6 +30,7 @@ import javax.inject.Inject;
 
 import org.jboss.gwt.circuit.ChangeSupport;
 import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.meta.BackChannel;
 import org.jboss.gwt.circuit.meta.Process;
 import org.jboss.gwt.circuit.meta.Store;
 import org.jboss.gwt.circuit.sample.todo.client.actions.AddUser;
@@ -54,7 +55,7 @@ public class UserStore extends ChangeSupport {
     }
 
     @Process(actionType = LoadUsers.class)
-    public void onLoad(final Dispatcher.Channel channel) {
+    public void onLoad(final BackChannel channel) {
 
         this.users.add(Todo.USER_ANY);
         this.users.add("Peter");
@@ -62,25 +63,25 @@ public class UserStore extends ChangeSupport {
         this.users.add("Mary");
 
         channel.ack();
-        fireChanged(UserStore.class);
+        channel.fireChanged();
     }
 
     @Process(actionType = SelectUser.class)
-    public void onSelect(String user, final Dispatcher.Channel channel) {
+    public void onSelect(String user, final BackChannel channel) {
         this.selectedUser = user;
         channel.ack();
-        fireChanged(UserStore.class);
+        channel.fireChanged();
     }
 
     @Process(actionType = AddUser.class)
-    public void onAdd(String user, final Dispatcher.Channel channel) {
+    public void onAdd(String user, final BackChannel channel) {
         if (!users.contains(user)) { this.users.add(user); }
         channel.ack();
-        fireChanged(UserStore.class);
+        channel.fireChanged();
     }
 
     @Process(actionType = RemoveUser.class)
-    public void onRemove(String user, final Dispatcher.Channel channel) {
+    public void onRemove(String user, final BackChannel channel) {
 
         if (Todo.USER_ANY.equals(user)) { return; }
 
@@ -90,7 +91,7 @@ public class UserStore extends ChangeSupport {
         if (user.equals(selectedUser)) { dispatcher.dispatch(new SelectUser(Todo.USER_ANY)); }
 
         channel.ack();
-        fireChanged(UserStore.class);
+        channel.fireChanged();
     }
 
     public String getSelectedUser() {

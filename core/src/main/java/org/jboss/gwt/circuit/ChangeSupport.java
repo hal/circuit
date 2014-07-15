@@ -28,9 +28,8 @@ public abstract class ChangeSupport implements PropagatesChange {
 
     private List<Handler> handlers = new ArrayList<>();
 
-    public <S> void fireChanged(Class<S> store) {
-        for(Handler handler : handlers)
-            handler.onChange(store);
+    public void fireChanged(Class<?> store, Class<?> action) {
+        for (Handler handler : handlers) { handler.onChange(store, action); }
     }
 
     @Override

@@ -30,7 +30,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.jboss.gwt.circuit.ChangeSupport;
-import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.meta.BackChannel;
 import org.jboss.gwt.circuit.meta.Process;
 import org.jboss.gwt.circuit.meta.Store;
 import org.jboss.gwt.circuit.sample.todo.client.TodoServiceAsync;
@@ -49,7 +49,6 @@ import org.jboss.gwt.circuit.sample.todo.shared.Todo;
 public class TodoStore extends ChangeSupport {
 
     private Todo selectedTodo;
-//    private String selectedUser;
     private final List<Todo> todos;
     private final TodoServiceAsync todoService;
     private final UserStore userStore;
@@ -64,17 +63,17 @@ public class TodoStore extends ChangeSupport {
 
     // ------------------------------------------------------ user actions
 
-    @Process(actionType = SelectUser.class, dependencies = {UserStore.class})
-    public void onSelectUser(String user, final Dispatcher.Channel channel) {
+    @Process(actionType = SelectUser.class, dependencies = UserStore.class)
+    public void onSelectUser(String user, final BackChannel channel) {
         // reset selection
         selectedTodo = null;
 
         channel.ack();
-        fireChanged(TodoStore.class);
+        channel.fireChanged();
     }
 
-    @Process(actionType = RemoveUser.class, dependencies = {UserStore.class})
-    public void onRemoveUser(String user, final Dispatcher.Channel channel) {
+    @Process(actionType = RemoveUser.class, dependencies = UserStore.class)
+    public void onRemoveUser(String user, final BackChannel channel) {
 
         todoService.removeForUser(user, new TodoCallback<Void>(channel) {
             @Override
@@ -88,20 +87,21 @@ public class TodoStore extends ChangeSupport {
     // ------------------------------------------------------ _todo_ actions
 
     @Process(actionType = ListTodos.class)
-    public void onList(final Dispatcher.Channel channel) {
+    public void onList(final BackChannel channel) {
         todoService.list(new TodoCallback<Collection<Todo>>(channel) {
             @Override
             public void onSuccess(final Collection<Todo> result) {
                 todos.clear();
                 todos.addAll(result);
+
                 channel.ack();
-                fireChanged(TodoStore.class);
+                channel.fireChanged();
             }
         });
     }
 
     @Process(actionType = ResolveTodo.class)
-    public void onResolve(Todo todo, final Dispatcher.Channel channel) {
+    public void onResolve(Todo todo, final BackChannel channel) {
         todoService.save(todo, new TodoCallback<Void>(channel) {
             @Override
             public void onSuccess(final Void result) {
@@ -111,14 +111,15 @@ public class TodoStore extends ChangeSupport {
     }
 
     @Process(actionType = SelectTodo.class)
-    public void onSelect(final Todo todo, final Dispatcher.Channel channel) {
+    public void onSelect(final Todo todo, final BackChannel channel) {
         this.selectedTodo = todo;
+
         channel.ack();
-        fireChanged(TodoStore.class);
+        channel.fireChanged();
     }
 
     @Process(actionType = SaveTodo.class)
-    public void onStore(final Todo todo, final Dispatcher.Channel channel) {
+    public void onStore(final Todo todo, final BackChannel channel) {
 
         String assignee = userStore.getSelectedUser() != null ? userStore.getSelectedUser() : Todo.USER_ANY;
         todo.setUser(assignee);
@@ -132,17 +133,14 @@ public class TodoStore extends ChangeSupport {
     }
 
     @Process(actionType = RemoveTodo.class)
-    public void onRemove(final Todo todo, final Dispatcher.Channel channel) {
+    public void onRemove(final Todo todo, final BackChannel channel) {
 
         todoService.delete(todo, new TodoCallback<Void>(channel) {
             @Override
             public void onSuccess(final Void result) {
-
                 if (todo.equals(selectedTodo)) { selectedTodo = null; }
-
                 onList(channel);
             }
-
         });
     }
 

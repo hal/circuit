@@ -60,12 +60,16 @@ final class GenerationUtil {
      */
     static final String[] ANY_PARAMS = new String[0];
 
-    static String actionImplementation(String payload) {
-        return payload + "Action";
-    }
-
     static String storeImplementation(String delegate) {
         return delegate + "Adapter";
+    }
+
+    static boolean isInstanceOf(final TypeElement clazz, final String className) {
+        boolean match = clazz.getQualifiedName().toString().equals(className);
+        if (!match) {
+            TypeMirror superclass = clazz.getSuperclass();
+        }
+        return false;
     }
 
     /**
