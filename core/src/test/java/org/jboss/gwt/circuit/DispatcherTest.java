@@ -158,7 +158,7 @@ public class DispatcherTest {
         assertEquals(FooStore.class, stores.get(0));
         assertEquals(BarStore.class, stores.get(1));
 
-        // The change handler must be called once with the given store / action tuple
+        // The change handler must be called once for the tuple (BarStore.class, FooBarAction.class)
         assertEquals(1, storeActionTuples.size());
         assertEquals(new StoreActionTuple(BarStore.class, FooBarAction.class), storeActionTuples.get(0));
     }
