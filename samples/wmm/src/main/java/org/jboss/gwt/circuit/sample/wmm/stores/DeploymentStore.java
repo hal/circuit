@@ -25,7 +25,6 @@ import java.util.Iterator;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import org.jboss.gwt.circuit.ChangeSupport;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
 import org.jboss.gwt.circuit.Dispatcher;
@@ -35,7 +34,7 @@ import org.jboss.gwt.circuit.sample.wmm.actions.Deployment;
 import org.jboss.gwt.circuit.sample.wmm.actions.StopServerAction;
 import org.jboss.gwt.circuit.sample.wmm.actions.UndeployAction;
 
-public class DeploymentStore extends ChangeSupport {
+public class DeploymentStore {
 
     // deployment -> server instances
     private final Multimap<String, String> deployments;

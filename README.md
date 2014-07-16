@@ -243,8 +243,8 @@ The signature for methods annotated with `@Process` must adhere the following ru
 
 - The return type must be `void`
 - The method can have up to two parameters:
-	- If there's only one parameter it must be of type `org.jboss.gwt.circuit.meta.BackChannel`. 
-	- Otherwise the first parameter has to be the type of the actions payload and the second parameter has to be the back channel. 
+	- If there's only one parameter it must be of type `org.jboss.gwt.circuit.Dispatcher.Channel`. 
+	- Otherwise the first parameter has to be the type of the actions payload and the second parameter has to be the channel. 
 	
 To see the annotations in action take a look at the [wardrobe](samples/wardrobe) and [todo](samples/todo) samples.
  
@@ -276,8 +276,7 @@ public class ShoesStoreAdapter {
             @Override
             public void complete(final Action action, final Dispatcher.Channel channel) {
                 if (action instanceof org.jboss.gwt.circuit.sample.wardrobe.actions.Dress) {
-                    BackChannel backChannel = ...
-                    delegate.dress(backChannel);
+                    delegate.dress(channel);
                 }
                 [...]
             }

@@ -1,7 +1,6 @@
 <#-- @ftlvariable name="packageName" type="java.lang.String" -->
 <#-- @ftlvariable name="storeClassName" type="java.lang.String" -->
 <#-- @ftlvariable name="storeDelegate" type="java.lang.String" -->
-<#-- @ftlvariable name="changeSupport" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="processInfos" type="java.util.List<org.jboss.gwt.circuit.processor.ProcessInfo>" -->
 package ${packageName};
 
@@ -11,10 +10,8 @@ import javax.inject.Inject;
 
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
-import org.jboss.gwt.circuit.ChangeSupport;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.StoreCallback;
-import org.jboss.gwt.circuit.meta.BackChannel;
 
 /*
  * WARNING! This class is generated. Do not modify.
@@ -58,15 +55,10 @@ public class ${storeClassName} {
                 <#else>
                 else if (action instanceof ${processInfo.actionType}) {
                 </#if>
-                    <#if changeSupport>
-                    BackChannel backChannel = new BackChannel(${storeDelegate}.class, ${processInfo.actionType}.class, channel, delegate);
-                    <#else>
-                    BackChannel backChannel = new BackChannel(${storeDelegate}.class, ${processInfo.actionType}.class, channel, null);
-                    </#if>
                     <#if processInfo.singleArg>
-                    delegate.${processInfo.method}(backChannel);
+                    delegate.${processInfo.method}(channel);
                     <#else>
-                    delegate.${processInfo.method}(((${processInfo.actionType})action).getPayload(), backChannel);
+                    delegate.${processInfo.method}(((${processInfo.actionType})action).getPayload(), channel);
                     </#if>
                 }
                 </#list>

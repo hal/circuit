@@ -24,7 +24,6 @@ package org.jboss.gwt.circuit.sample.wmm.stores;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jboss.gwt.circuit.ChangeSupport;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
 import org.jboss.gwt.circuit.Dispatcher;
@@ -32,7 +31,7 @@ import org.jboss.gwt.circuit.StoreCallback;
 import org.jboss.gwt.circuit.sample.wmm.actions.StartServerAction;
 import org.jboss.gwt.circuit.sample.wmm.actions.StopServerAction;
 
-public class HostStore extends ChangeSupport {
+public class HostStore {
 
     private final Set<String> runningServers = new HashSet<>();
 

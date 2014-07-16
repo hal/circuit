@@ -46,8 +46,9 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import org.jboss.gwt.circuit.ChangeManagement;
+import org.jboss.gwt.circuit.ChangedEvent;
 import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.PropagatesChange;
 import org.jboss.gwt.circuit.sample.todo.client.actions.RemoveTodo;
 import org.jboss.gwt.circuit.sample.todo.client.actions.ResolveTodo;
 import org.jboss.gwt.circuit.sample.todo.client.actions.SaveTodo;
@@ -60,18 +61,11 @@ import org.jboss.gwt.circuit.sample.todo.shared.Todo;
 @SuppressWarnings("UnusedDeclaration")
 public class TodoView extends Composite {
 
-
-    @Inject
-    TodoStore todoStore;
-
-    @Inject
-    UserStore userStore;
-
-    @Inject
-    TodoStore store;
-
-    @Inject
-    Dispatcher dispatcher;
+    @Inject TodoStore todoStore;
+    @Inject UserStore userStore;
+    @Inject TodoStore store;
+    @Inject Dispatcher dispatcher;
+    @Inject ChangeManagement changeManagement;
 
     // --------------------------------------
 
@@ -126,9 +120,9 @@ public class TodoView extends Composite {
         Column<Todo, SafeHtml> nameColumn = new Column<Todo, SafeHtml>(new SafeHtmlCell()) {
             @Override
             public SafeHtml getValue(Todo object) {
-                String css = object.isDone() ? "todo-done":"none";
+                String css = object.isDone() ? "todo-done" : "none";
                 SafeHtmlBuilder html = new SafeHtmlBuilder();
-                html.appendHtmlConstant("<div class="+css+">");
+                html.appendHtmlConstant("<div class=" + css + ">");
                 html.appendEscaped(object.getName());
                 html.appendHtmlConstant("</div>");
                 return html.toSafeHtml();
@@ -199,26 +193,21 @@ public class TodoView extends Composite {
     @PostConstruct
     public void init() {
 
-        todoStore.addChangeHandler(
-                new PropagatesChange.Handler() {
-                    @Override
-                    public void onChange(final Class<?> source, final Class<?> actionType) {
-                        showTodos(todoStore.getTodos());
-                        removeButton.setEnabled(todoStore.getSelectedTodo()!=null);
-                        doneButton.setEnabled(todoStore.getSelectedTodo()!=null);
-                    }
-                }
-        );
+        changeManagement.addHandler(TodoStore.class, new ChangeManagement.Handler() {
+            @Override
+            public void onChange(final ChangedEvent changedEvent) {
+                showTodos(todoStore.getTodos());
+                removeButton.setEnabled(todoStore.getSelectedTodo() != null);
+                doneButton.setEnabled(todoStore.getSelectedTodo() != null);
+            }
+        });
 
-        userStore.addChangeHandler(
-                new PropagatesChange.Handler() {
-                    @Override
-                    public void onChange(final Class<?> source, final Class<?> actionType) {
-                        updateUserList();
-                    }
-                }
-        );
-
+        changeManagement.addHandler(UserStore.class, new ChangeManagement.Handler() {
+            @Override
+            public void onChange(final ChangedEvent event) {
+                updateUserList();
+            }
+        });
     }
 
     private void updateUserList() {
@@ -228,14 +217,12 @@ public class TodoView extends Composite {
         String selection = userStore.getSelectedUser();
 
         int idx = -1;
-        for(String user : model) {
+        for (String user : model) {
             users.addItem(user);
-            if(user.equals(selection))
-                idx=users.getItemCount()-1;
+            if (user.equals(selection)) { idx = users.getItemCount() - 1; }
         }
 
-        if(idx!=-1)
-            users.setSelectedIndex(idx);
+        if (idx != -1) { users.setSelectedIndex(idx); }
     }
 
     void showTodos(final List<Todo> todos) {

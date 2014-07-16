@@ -1,4 +1,4 @@
-package org.jboss.gwt.circuit.test;
+package org.jboss.gwt.circuit;
 
 import org.jboss.gwt.circuit.Action;
 

@@ -19,25 +19,27 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.circuit.sample.wardrobe.stores;
+package org.jboss.gwt.circuit;
 
-import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.meta.Process;
-import org.jboss.gwt.circuit.meta.Store;
-import org.jboss.gwt.circuit.sample.wardrobe.actions.Dress;
-import org.jboss.gwt.circuit.sample.wardrobe.actions.Undress;
+public class ChangedEvent extends StoreActionTuple {
 
-@Store
-@SuppressWarnings("UnusedParameters")
-public class ShoesStore {
-
-    @Process(actionType = Dress.class, dependencies = {TrousersStore.class, SocksStore.class})
-    public void dress(Dispatcher.Channel channel) {
-        channel.ack();
+    ChangedEvent(final Class<?> store) {
+        super(store);
     }
 
-    @Process(actionType = Undress.class)
-    public void undress(Dispatcher.Channel channel) {
-        channel.ack();
+    ChangedEvent(final Class<?> store, final Class<?> actionType) {
+        super(store, actionType);
+    }
+
+    public Class<?> getStore() {
+        return store;
+    }
+
+    public Class<?> getActionType() {
+        return actionType;
+    }
+
+    public boolean isBoundToActionType() {
+        return !actionType.equals(NO_ACTION);
     }
 }

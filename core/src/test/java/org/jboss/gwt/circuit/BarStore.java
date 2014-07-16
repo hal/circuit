@@ -1,22 +1,13 @@
-package org.jboss.gwt.circuit.test;
-
-import org.jboss.gwt.circuit.Action;
-import org.jboss.gwt.circuit.Agreement;
-import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.StoreCallback;
+package org.jboss.gwt.circuit;
 
 /**
  * @author Heiko Braun
  * @date 23/06/14
  */
-public class FooStore {
+public class BarStore {
 
-    private Dispatcher dispatcher;
-
-    public FooStore(Dispatcher dispatcher) {
-        this.dispatcher = dispatcher;
-
-        this.dispatcher.register(FooStore.class, new StoreCallback() {
+    public BarStore(Dispatcher dispatcher) {
+        dispatcher.register(BarStore.class, new StoreCallback() {
             @Override
             public Agreement voteFor(Action action) {
                 return vote(action);
@@ -36,5 +27,4 @@ public class FooStore {
     protected void process(Action action, Dispatcher.Channel channel) {
         channel.ack();
     }
-
 }

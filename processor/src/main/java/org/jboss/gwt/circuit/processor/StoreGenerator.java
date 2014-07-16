@@ -28,14 +28,13 @@ import java.util.Map;
 class StoreGenerator extends AbstractGenerator {
 
     StringBuffer generate(final String packageName, final String storeClassName, String storeDelegate,
-            final boolean changeSupport, Collection<ProcessInfo> processInfos)
+            Collection<ProcessInfo> processInfos)
             throws GenerationException {
 
         Map<String, Object> context = new HashMap<>();
         context.put("packageName", packageName);
         context.put("storeClassName", storeClassName);
         context.put("storeDelegate", storeDelegate);
-        context.put("changeSupport", changeSupport);
         context.put("processInfos", processInfos);
         return generate(context, "Store.ftl");
     }

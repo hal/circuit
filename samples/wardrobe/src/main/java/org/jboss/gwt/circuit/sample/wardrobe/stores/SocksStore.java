@@ -21,7 +21,7 @@
  */
 package org.jboss.gwt.circuit.sample.wardrobe.stores;
 
-import org.jboss.gwt.circuit.meta.BackChannel;
+import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.meta.Process;
 import org.jboss.gwt.circuit.meta.Store;
 import org.jboss.gwt.circuit.sample.wardrobe.actions.Dress;
@@ -32,12 +32,12 @@ import org.jboss.gwt.circuit.sample.wardrobe.actions.Undress;
 public class SocksStore {
 
     @Process(actionType = Dress.class)
-    public void dress(BackChannel channel) {
+    public void dress(Dispatcher.Channel channel) {
         channel.ack();
     }
 
     @Process(actionType = Undress.class, dependencies = ShoesStore.class)
-    public void undress(BackChannel channel) {
+    public void undress(Dispatcher.Channel channel) {
         channel.ack();
     }
 }

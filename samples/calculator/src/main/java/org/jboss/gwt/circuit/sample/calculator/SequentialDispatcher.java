@@ -42,6 +42,11 @@ public class SequentialDispatcher implements Dispatcher {
 
     @Override
     public void dispatch(final Action action) {
+        dispatch(action, false);
+    }
+
+    @Override
+    public void dispatch(final Action action, final boolean fireChanged) {
         System.out.printf("~-~-~-~-~ Processing %s\n", action);
 
         for (StoreCallback callback : callbacks.values()) {

@@ -51,7 +51,6 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeKind;
-import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
@@ -59,8 +58,7 @@ import javax.tools.StandardLocation;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import org.jboss.gwt.circuit.ChangeSupport;
-import org.jboss.gwt.circuit.meta.BackChannel;
+import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.meta.Process;
 import org.jboss.gwt.circuit.meta.Store;
 import org.jgrapht.DirectedGraph;
@@ -94,7 +92,6 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
         final Messager messager = processingEnv.getMessager();
         if (!roundEnv.processingOver()) {
             final Types typeUtils = processingEnv.getTypeUtils();
-            final Elements elementUtils = processingEnv.getElementUtils();
 
             // store annotations
             for (Element e : roundEnv.getElementsAnnotatedWith(Store.class)) {
@@ -103,8 +100,6 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
 
                 final String packageName = packageElement.getQualifiedName().toString();
                 final String storeDelegate = storeElement.getSimpleName().toString();
-                final boolean changeSupport = typeUtils.isAssignable(storeElement.asType(),
-                        elementUtils.getTypeElement(ChangeSupport.class.getName()).asType());
                 final String storeClassName = GenerationUtil.storeImplementation(storeDelegate);
                 messager.printMessage(NOTE,
                         String.format("Discovered annotated store [%s]", storeElement.getQualifiedName()));
@@ -117,7 +112,7 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
                         messager.printMessage(NOTE, String.format("Generating code for [%s]", storeClassName));
                         StoreGenerator generator = new StoreGenerator();
                         final StringBuffer code = generator.generate(packageName, storeClassName, storeDelegate,
-                                changeSupport, processInfos);
+                                processInfos);
                         writeCode(packageName, storeClassName, code);
 
                         messager.printMessage(NOTE,
@@ -198,11 +193,11 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
                 // if a single param is used it need to be the back channel
                 VariableElement param = methodElement.getParameters().get(0);
                 TypeElement paramType = (TypeElement) typeUtils.asElement(param.asType());
-                if (!paramType.getQualifiedName().toString().equals(BackChannel.class.getCanonicalName())) {
+                if (!paramType.getQualifiedName().toString().equals(Dispatcher.Channel.class.getCanonicalName())) {
                     String error = String.format(
                             "Illegal type for parameter '%s' on method '%s' in class '%s'. Expected type '%s'",
                             param.getSimpleName(), methodElement.getSimpleName(), storeElement.getSimpleName(),
-                            BackChannel.class.getCanonicalName());
+                            Dispatcher.Channel.class.getCanonicalName());
                     messager.printMessage(Diagnostic.Kind.ERROR, error);
                     continue;
                 }

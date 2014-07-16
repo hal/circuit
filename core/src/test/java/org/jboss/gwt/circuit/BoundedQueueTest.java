@@ -21,19 +21,27 @@
  */
 package org.jboss.gwt.circuit;
 
-import java.util.ArrayList;
-import java.util.List;
+import static org.junit.Assert.*;
 
-public abstract class ChangeSupport implements PropagatesChange {
+import org.jboss.gwt.circuit.dag.BoundedQueue;
+import org.junit.Test;
 
-    private List<Handler> handlers = new ArrayList<>();
+public class BoundedQueueTest {
 
-    public void fireChanged(Class<?> store, Class<?> action) {
-        for (Handler handler : handlers) { handler.onChange(store, action); }
-    }
+    @Test
+    public void boundedQueue() {
+        BoundedQueue<Integer> queue = new BoundedQueue<>(3);
+        queue.offer(1);
+        queue.offer(2);
+        queue.offer(3);
+        boolean enqueued = queue.offer(4);
 
-    @Override
-    public void addChangeHandler(Handler handler) {
-        handlers.add(handler);
+        assertEquals(3, queue.size());
+        assertFalse("fourth item should not have been enqueued", enqueued);
+        assertTrue(1 == queue.poll());
+        assertTrue(2 == queue.poll());
+        assertTrue(3 == queue.poll());
+        assertTrue("queue should be empty", queue.isEmpty());
+        assertTrue(queue.poll() == null);
     }
 }

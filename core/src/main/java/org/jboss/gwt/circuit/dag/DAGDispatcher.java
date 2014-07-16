@@ -21,13 +21,19 @@
  */
 package org.jboss.gwt.circuit.dag;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
+import org.jboss.gwt.circuit.ChangeManagement;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.StoreCallback;
 import org.jgrapht.DirectedGraph;
@@ -43,6 +49,7 @@ import org.jgrapht.traverse.TopologicalOrderIterator;
  * @see <a href="http://en.wikipedia.org/wiki/Directed_acyclic_graph">http://en.wikipedia.org/wiki/Directed_acyclic_graph</a>
  * @see <a href="http://en.wikipedia.org/wiki/Topological_ordering">http://en.wikipedia.org/wiki/Topological_ordering</a>
  */
+@ApplicationScoped
 public class DAGDispatcher implements Dispatcher {
 
     public interface Diagnostics extends Dispatcher.Diagnostics {
@@ -66,13 +73,16 @@ public class DAGDispatcher implements Dispatcher {
     private boolean locked;
     private final Queue<Action> queue;
     private final Map<Class<?>, StoreCallback> callbacks;
-    private final CompoundDiagnostics cd;
+    private final CompoundDiagnostics diagnostics;
+    private final ChangeManagement changeManagement;
 
-    public DAGDispatcher() {
-        locked = false;
-        queue = new BoundedQueue<>(BOUNDS_SIZE);
-        callbacks = new HashMap<>();
-        cd = new CompoundDiagnostics();
+    @Inject
+    public DAGDispatcher(ChangeManagement changeManagement) {
+        this.locked = false;
+        this.queue = new BoundedQueue<>(BOUNDS_SIZE);
+        this.callbacks = new HashMap<>();
+        this.diagnostics = new CompoundDiagnostics();
+        this.changeManagement = changeManagement;
     }
 
     @Override
@@ -81,12 +91,21 @@ public class DAGDispatcher implements Dispatcher {
         callbacks.put(store, callback);
     }
 
+    /**
+     * This method will fire changed events, that is this method is the same as calling <code>dispatch(action,
+     * true)</code>.
+     */
     @Override
     public void dispatch(final Action action) {
-        cd.onDispatch(action);
+        dispatch(action, true);
+    }
+
+    @Override
+    public void dispatch(final Action action, final boolean fireChanged) {
+        diagnostics.onDispatch(action);
 
         if (!locked) {
-            dispatchInternal(action);
+            dispatchInternal(action, fireChanged);
 
         } else {
             boolean accepted = queue.offer(action);
@@ -97,7 +116,7 @@ public class DAGDispatcher implements Dispatcher {
         }
     }
 
-    private void dispatchInternal(Action action) {
+    private void dispatchInternal(Action action, final boolean fireChanged) {
         // lock globally
         lock();
 
@@ -108,17 +127,17 @@ public class DAGDispatcher implements Dispatcher {
         if (approvals.isEmpty()) {
             unlock();
         } else {
-            complete(action, approvals);
+            complete(action, approvals, fireChanged);
         }
     }
 
     private void lock() {
-        cd.onLock();
+        diagnostics.onLock();
         locked = true;
     }
 
     private void unlock() {
-        cd.onUnlock();
+        diagnostics.onUnlock();
         locked = false;
     }
 
@@ -136,18 +155,16 @@ public class DAGDispatcher implements Dispatcher {
         return approvals;
     }
 
-    private void complete(final Action action, final Map<Class<?>, Agreement> approvals) {
+    private void complete(final Action action, final Map<Class<?>, Agreement> approvals, final boolean fireChanged) {
 
         DirectedGraph<Class<?>, DefaultEdge> dag = createDag(approvals);
         // TODO Cache topological order
         TopologicalOrderIterator<Class<?>, DefaultEdge> iterator = new TopologicalOrderIterator<>(dag);
 
-        executeInOrder(action, iterator);
+        executeInOrder(action, iterator, fireChanged, new ArrayList<Class<?>>());
     }
 
-    private DirectedGraph<Class<?>, DefaultEdge> createDag(
-            final Map<Class<?>, Agreement> approvals
-    ) {
+    private DirectedGraph<Class<?>, DefaultEdge> createDag(final Map<Class<?>, Agreement> approvals) {
 
         DirectedGraph<Class<?>, DefaultEdge> dag = new DefaultDirectedGraph<>(new EdgeFactoryImpl());
 
@@ -188,46 +205,57 @@ public class DAGDispatcher implements Dispatcher {
         return dag;
     }
 
-    private void executeInOrder(final Action action, final TopologicalOrderIterator<Class<?>, DefaultEdge> iterator) {
+    private void executeInOrder(final Action action, final TopologicalOrderIterator<Class<?>, DefaultEdge> iterator,
+            final boolean fireChanged, final List<Class<?>> storeExecutionOrder) {
 
         if (!iterator.hasNext()) {
+            if (fireChanged) {
+                fireChanged(storeExecutionOrder, action);
+            }
             unlock();
             if (!queue.isEmpty()) {
-                dispatchInternal(queue.poll());
+                dispatchInternal(queue.poll(), fireChanged);
             }
             return;
         }
 
         final Class<?> store = iterator.next();
+        storeExecutionOrder.add(store);
         StoreCallback callback = callbacks.get(store);
-        cd.onExecute(store, action);
+        diagnostics.onExecute(store, action);
         callback.complete(action, new Channel() {
             @Override
             public void ack() {
-                cd.onAck(store, action);
+                diagnostics.onAck(store, action);
                 proceed();
             }
 
             @Override
             public void nack(final Throwable t) {
-                cd.onNack(store, action, t);
+                diagnostics.onNack(store, action, t);
                 proceed();
             }
 
             private void proceed() {
-                executeInOrder(action, iterator);
+                executeInOrder(action, iterator, fireChanged, storeExecutionOrder);
             }
         });
     }
 
+    private void fireChanged(List<Class<?>> stores, Action action) {
+        for (Class<?> store : stores) {
+            changeManagement.fireChanged(store, action.getClass());
+        }
+    }
+
     @Override
     public void addDiagnostics(final Dispatcher.Diagnostics d) {
-        this.cd.add(d);
+        this.diagnostics.add(d);
     }
 
     @Override
     public void removeDiagnostics(Dispatcher.Diagnostics d) {
-        this.cd.remove(d);
+        this.diagnostics.remove(d);
     }
 }
 
