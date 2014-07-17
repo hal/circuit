@@ -102,7 +102,7 @@ class TodoPresenter() {
 		todoStore.addChangeHandler(
 		    new PropagatesChange.Handler() {
   				@Override
-    			public void onChange(Class<?> actionType) {
+    			public void onChanged(Class<?> actionType) {
 					// when the model changed, update the view
     				updateView(todoStore.getTodos());                     
  				}
