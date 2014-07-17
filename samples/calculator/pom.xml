@@ -27,13 +27,23 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.jboss.gwt.flux</groupId>
-        <artifactId>flux-samples-parent</artifactId>
-        <version>0.0.2</version>
+        <groupId>org.jboss.gwt.circuit</groupId>
+        <artifactId>circuit-samples-parent</artifactId>
+        <version>0.0.3</version>
     </parent>
 
-    <artifactId>flux-calculator-sample</artifactId>
-    <name>Flux :: Samples :: Calculator</name>
-    <description>Command line application using Flux</description>
+    <artifactId>circuit-calculator-sample</artifactId>
+    <name>circuit :: Samples :: Calculator</name>
+    <description>
+        Console based circuit sample simulating a calculator. Uses a simple sequential dispatcher implementation without
+        locking and dependency resolution.
+    </description>
     <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+    </dependencies>
 </project>

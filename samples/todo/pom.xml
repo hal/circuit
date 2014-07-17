@@ -27,14 +27,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.jboss.gwt.flux</groupId>
-        <artifactId>flux-samples-parent</artifactId>
-        <version>0.0.2</version>
+        <groupId>org.jboss.gwt.circuit</groupId>
+        <artifactId>circuit-samples-parent</artifactId>
+        <version>0.0.3</version>
     </parent>
 
-    <artifactId>flux-todo-sample</artifactId>
-    <name>Flux :: Samples :: Todo</name>
-    <description>GWT sample application using Flux</description>
+    <artifactId>circuit-todo-sample</artifactId>
+    <name>circuit :: Samples :: Todo</name>
+    <description>
+        GWT based circuit sample of a todo manager. Uses the DAG dispatcher and the meta annotations.
+    </description>
     <packaging>war</packaging>
 
     <properties>
@@ -42,6 +44,15 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.jboss.gwt.circuit</groupId>
+            <artifactId>circuit-meta</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.gwt.circuit</groupId>
+            <artifactId>circuit-processor</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.jboss.errai</groupId>
             <artifactId>errai-cdi-client</artifactId>
@@ -56,24 +67,6 @@
                     <artifactId>guava-gwt</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.errai</groupId>
-            <artifactId>errai-data-binding</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava-gwt</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.errai</groupId>
-            <artifactId>errai-ui</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -91,6 +84,7 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -110,13 +104,60 @@
                         <configuration>
                             <sources>
                                 <!-- Enable refresh for GWT development mode -->
-                                <source>${project.build.directory}/generated-sources/gwt</source>
                                 <source>${basedir}/../../core/src/main/java</source>
                                 <source>${basedir}/../../core/src/main/resources</source>
+                                <source>${basedir}/../../meta/src/main/java</source>
+                                <source>${basedir}/../../meta/src/main/resources</source>
                             </sources>
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-generated-sources</id>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>target/generated-sources/annotations</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- The next plugins work together to enable APT support -->
+            <plugin>
+                <groupId>org.bsc.maven</groupId>
+                <artifactId>maven-processor-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>process</id>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <defaultOutputDirectory>${project.build.directory}/generated-sources/annotations</defaultOutputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerArgument>-proc:none</compilerArgument>
+                </configuration>
             </plugin>
 
             <plugin>
@@ -126,7 +167,6 @@
                     <execution>
                         <goals>
                             <goal>compile</goal>
-                            <goal>generateAsync</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -136,7 +176,9 @@
                     <runTarget>index.html</runTarget>
                     <hostedWebapp>${webAppDirectory}</hostedWebapp>
                     <compileSourcesArtifacts>
-                        <artifact>org.jboss.gwt.flux:flux</artifact>
+                        <artifact>org.jgrapht:jgrapht-core</artifact>
+                        <artifact>org.jboss.gwt.circuit:circuit-core</artifact>
+                        <artifact>org.jboss.gwt.circuit:circuit-meta</artifact>
                     </compileSourcesArtifacts>
                     <extraJvmArgs>-Xmx1g -Xms756m -XX:CompileThreshold=1000 -Dlog4j.ignoreTCL=true</extraJvmArgs>
                 </configuration>

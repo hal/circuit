@@ -27,25 +27,27 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.jboss.gwt.flux</groupId>
-        <artifactId>flux-parent</artifactId>
-        <version>0.0.2</version>
+        <groupId>org.jboss.gwt.circuit</groupId>
+        <artifactId>circuit-parent</artifactId>
+        <version>0.0.3</version>
     </parent>
 
-    <artifactId>flux-samples-parent</artifactId>
-    <name>Flux :: Samples</name>
+    <artifactId>circuit-samples-parent</artifactId>
+    <name>circuit :: Samples</name>
     <description>Standalone and GWT Samples</description>
     <packaging>pom</packaging>
 
     <modules>
-        <module>calculator</module>
         <module>todo</module>
+        <module>calculator</module>
+        <module>wardrobe</module>
+        <module>wmm</module>
     </modules>
 
     <dependencies>
         <dependency>
-            <groupId>org.jboss.gwt.flux</groupId>
-            <artifactId>flux</artifactId>
+            <groupId>org.jboss.gwt.circuit</groupId>
+            <artifactId>circuit-core</artifactId>
         </dependency>
     </dependencies>
 </project>

@@ -27,40 +27,38 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.jboss.gwt.flux</groupId>
-        <artifactId>flux-parent</artifactId>
-        <version>0.0.2</version>
+        <groupId>org.jboss.gwt.circuit</groupId>
+        <artifactId>circuit-parent</artifactId>
+        <version>0.0.3</version>
     </parent>
 
-    <artifactId>flux</artifactId>
-    <name>Flux :: Core</name>
-    <description>
-        GWT implementation of the Flux patterns. See http://facebook.github.io/react/docs/flux-overview.html
-    </description>
-    <packaging>jar</packaging>
+    <artifactId>circuit-core</artifactId>
+    <name>circuit :: Core</name>
+    <description>Core circuit API</description>
+
 
     <dependencies>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava-gwt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jgrapht</groupId>
+            <artifactId>jgrapht-core</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-user</artifactId>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>jar-no-fork</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>

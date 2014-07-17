@@ -39,7 +39,7 @@
 
     <servlet>
         <servlet-name>todoServlet</servlet-name>
-        <servlet-class>org.jboss.gwt.flux.sample.todo.server.TodoServiceImpl</servlet-class>
+        <servlet-class>org.jboss.gwt.circuit.sample.todo.server.TodoServiceImpl</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>todoServlet</servlet-name>
