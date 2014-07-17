@@ -1,16 +1,25 @@
 package org.jboss.gwt.circuit;
 
+import com.google.web.bindery.event.shared.HandlerRegistration;
+
+/**
+ * Interface meant to be implemented by stores in order to participate in change events.
+ */
 public interface PropagatesChange {
 
-    /**
-     * Stores emit change events to all registered change handlers when their internal state or is modified.
-     */
     public interface Handler {
-        void onChange(Class<?> source);
+
+        void onChanged(Class<?> actionType);
     }
 
     /**
-     * Registers a {@link org.jboss.gwt.circuit.PropagatesChange.Handler}
+     * Registers a {@link PropagatesChange.Handler} to be notified when the store was modified.
      */
-    void addChangeHandler(Handler handler);
+    HandlerRegistration addChangeHandler(Handler handler);
+
+    /**
+     * Registers a {@link PropagatesChange.Handler} to be notified only when the store was
+     * modified by the specified action type.
+     */
+    HandlerRegistration addChangeHandler(Class<?> actionType, Handler handler);
 }

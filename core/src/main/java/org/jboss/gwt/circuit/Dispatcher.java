@@ -36,6 +36,8 @@ public interface Dispatcher {
          */
         void ack();
 
+        void ack(boolean emitChange);
+
         /**
          * Must be called by stores to signal an error during the processing of a callback.
          */
@@ -56,7 +58,10 @@ public interface Dispatcher {
 
     /**
      * Dispatches the actions to all registered stores, which voted with an approved agreement. The stores are called
-     * according to the dependencies specified in the agreement for the given action.
+     * according to the dependencies specified in the agreement for the given action. No change events will be fired by
+     * this method, that is this method is the same as calling <code>dispatch(action, false)</code>.
+     *
+     * @param action the action to dispatch
      */
     void dispatch(Action action);
 

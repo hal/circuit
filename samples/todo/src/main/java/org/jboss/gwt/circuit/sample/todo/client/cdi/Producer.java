@@ -21,17 +21,15 @@
  */
 package org.jboss.gwt.circuit.sample.todo.client.cdi;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
+
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.shared.SimpleEventBus;
-import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.dag.DAGDispatcher;
 import org.jboss.gwt.circuit.sample.todo.client.TodoService;
 import org.jboss.gwt.circuit.sample.todo.client.TodoServiceAsync;
 import org.jboss.gwt.circuit.sample.todo.resources.TodoResources;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
 
 @ApplicationScoped
 @SuppressWarnings("UnusedDeclaration")
@@ -47,12 +45,6 @@ public class Producer {
     @ApplicationScoped
     public TodoResources produceTodoResources() {
         return GWT.create(TodoResources.class);
-    }
-
-    @Produces
-    @ApplicationScoped
-    public EventBus produceEventBus() {
-        return new SimpleEventBus();
     }
 
     @Produces

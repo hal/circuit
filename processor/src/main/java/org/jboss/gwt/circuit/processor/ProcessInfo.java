@@ -32,15 +32,13 @@ public class ProcessInfo {
     private final String actionType;
     private Set<String> dependencies;
 
+    public ProcessInfo(String method, String actionType) {
+        this(method, actionType, null);
+    }
+
     public ProcessInfo(final String method, String actionType, final String payload) {
         this.method = method;
         this.payload = payload;
-        this.actionType = actionType;
-        this.dependencies = new HashSet<>();
-    }
-
-    public ProcessInfo(String method, String actionType) {
-        this.method = method;
         this.actionType = actionType;
         this.dependencies = new HashSet<>();
     }

@@ -25,9 +25,9 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.jboss.gwt.circuit.ChangeSupport;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
+import org.jboss.gwt.circuit.ChangeSupport;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.StoreCallback;
 
@@ -52,8 +52,10 @@ public class CalculatorStore extends ChangeSupport {
                 Term term = (Term) action.getPayload();
                 results.put(term, calculate(term));
                 channel.ack();
-                fireChanged(CalculatorStore.class);
             }
+
+            @Override
+            public void signalChange(final Action action) { fireChange(action); }
         });
     }
 

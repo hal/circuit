@@ -49,7 +49,6 @@ import org.jboss.gwt.circuit.sample.todo.shared.Todo;
 public class TodoStore extends ChangeSupport {
 
     private Todo selectedTodo;
-//    private String selectedUser;
     private final List<Todo> todos;
     private final TodoServiceAsync todoService;
     private final UserStore userStore;
@@ -64,16 +63,15 @@ public class TodoStore extends ChangeSupport {
 
     // ------------------------------------------------------ user actions
 
-    @Process(actionType = SelectUser.class, dependencies = {UserStore.class})
+    @Process(actionType = SelectUser.class, dependencies = UserStore.class)
     public void onSelectUser(String user, final Dispatcher.Channel channel) {
         // reset selection
         selectedTodo = null;
 
         channel.ack();
-        fireChanged(TodoStore.class);
     }
 
-    @Process(actionType = RemoveUser.class, dependencies = {UserStore.class})
+    @Process(actionType = RemoveUser.class, dependencies = UserStore.class)
     public void onRemoveUser(String user, final Dispatcher.Channel channel) {
 
         todoService.removeForUser(user, new TodoCallback<Void>(channel) {
@@ -94,8 +92,8 @@ public class TodoStore extends ChangeSupport {
             public void onSuccess(final Collection<Todo> result) {
                 todos.clear();
                 todos.addAll(result);
+
                 channel.ack();
-                fireChanged(TodoStore.class);
             }
         });
     }
@@ -113,8 +111,8 @@ public class TodoStore extends ChangeSupport {
     @Process(actionType = SelectTodo.class)
     public void onSelect(final Todo todo, final Dispatcher.Channel channel) {
         this.selectedTodo = todo;
+
         channel.ack();
-        fireChanged(TodoStore.class);
     }
 
     @Process(actionType = SaveTodo.class)
@@ -137,12 +135,9 @@ public class TodoStore extends ChangeSupport {
         todoService.delete(todo, new TodoCallback<Void>(channel) {
             @Override
             public void onSuccess(final Void result) {
-
                 if (todo.equals(selectedTodo)) { selectedTodo = null; }
-
                 onList(channel);
             }
-
         });
     }
 

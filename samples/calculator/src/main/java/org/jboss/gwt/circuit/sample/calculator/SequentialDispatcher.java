@@ -47,6 +47,7 @@ public class SequentialDispatcher implements Dispatcher {
         for (StoreCallback callback : callbacks.values()) {
             if (callback.voteFor(action).isApproved()) {
                 callback.complete(action, NoopChannel.INSTANCE);
+                callback.signalChange(action);
             } else {
                 System.out.printf("Ignoring unsupported %s\n", action);
             }

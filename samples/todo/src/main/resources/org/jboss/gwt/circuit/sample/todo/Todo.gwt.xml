@@ -25,7 +25,6 @@
 
     <inherits name="org.jboss.errai.enterprise.CDI"/>
 
-    <inherits name="org.jboss.gwt.Circuit"/>
     <inherits name="org.jboss.gwt.circuit.Meta"/>
 
     <source path="client"/>

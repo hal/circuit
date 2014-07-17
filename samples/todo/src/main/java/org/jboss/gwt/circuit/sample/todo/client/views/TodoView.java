@@ -27,7 +27,6 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import com.google.gwt.cell.client.SafeHtmlCell;
-import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -60,31 +59,18 @@ import org.jboss.gwt.circuit.sample.todo.shared.Todo;
 @SuppressWarnings("UnusedDeclaration")
 public class TodoView extends Composite {
 
-
-    @Inject
-    TodoStore todoStore;
-
-    @Inject
-    UserStore userStore;
-
-    @Inject
-    TodoStore store;
-
-    @Inject
-    Dispatcher dispatcher;
+    @Inject TodoStore todoStore;
+    @Inject UserStore userStore;
+    @Inject TodoStore store;
+    @Inject Dispatcher dispatcher;
 
     // --------------------------------------
 
     private final Button removeButton;
-
     private final Button doneButton;
-
     private ListBox users;
-
     private String selectedUser;
-
     private final CellTable<Todo> table;
-
     private final ListDataProvider<Todo> dataProvider;
 
     public TodoView() {
@@ -95,7 +81,7 @@ public class TodoView extends Composite {
         users = new ListBox();
         users.addChangeHandler(new ChangeHandler() {
             @Override
-            public void onChange(ChangeEvent changeEvent) {
+            public void onChange(com.google.gwt.event.dom.client.ChangeEvent changeEvent) {
                 dispatcher.dispatch(
                         new SelectUser(
                                 users.getValue(users.getSelectedIndex())
@@ -126,9 +112,9 @@ public class TodoView extends Composite {
         Column<Todo, SafeHtml> nameColumn = new Column<Todo, SafeHtml>(new SafeHtmlCell()) {
             @Override
             public SafeHtml getValue(Todo object) {
-                String css = object.isDone() ? "todo-done":"none";
+                String css = object.isDone() ? "todo-done" : "none";
                 SafeHtmlBuilder html = new SafeHtmlBuilder();
-                html.appendHtmlConstant("<div class="+css+">");
+                html.appendHtmlConstant("<div class=" + css + ">");
                 html.appendEscaped(object.getName());
                 html.appendHtmlConstant("</div>");
                 return html.toSafeHtml();
@@ -199,26 +185,20 @@ public class TodoView extends Composite {
     @PostConstruct
     public void init() {
 
-        todoStore.addChangeHandler(
-                new PropagatesChange.Handler() {
-                    @Override
-                    public void onChange(Class<?> source) {
-                        showTodos(todoStore.getTodos());
-                        removeButton.setEnabled(todoStore.getSelectedTodo()!=null);
-                        doneButton.setEnabled(todoStore.getSelectedTodo()!=null);
-                    }
-                }
-        );
-
-        userStore.addChangeHandler(
-                new PropagatesChange.Handler() {
-                    @Override
-                    public void onChange(Class<?> source) {
-                        updateUserList();
-                    }
-                }
-        );
-
+        todoStore.addChangeHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChanged(final Class<?> actionType) {
+                showTodos(todoStore.getTodos());
+                removeButton.setEnabled(todoStore.getSelectedTodo() != null);
+                doneButton.setEnabled(todoStore.getSelectedTodo() != null);
+            }
+        });
+        userStore.addChangeHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChanged(final Class<?> actionType) {
+                updateUserList();
+            }
+        });
     }
 
     private void updateUserList() {
@@ -228,14 +208,12 @@ public class TodoView extends Composite {
         String selection = userStore.getSelectedUser();
 
         int idx = -1;
-        for(String user : model) {
+        for (String user : model) {
             users.addItem(user);
-            if(user.equals(selection))
-                idx=users.getItemCount()-1;
+            if (user.equals(selection)) { idx = users.getItemCount() - 1; }
         }
 
-        if(idx!=-1)
-            users.setSelectedIndex(idx);
+        if (idx != -1) { users.setSelectedIndex(idx); }
     }
 
     void showTodos(final List<Todo> todos) {

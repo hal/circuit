@@ -21,7 +21,9 @@
  */
 package org.jboss.gwt.circuit.dag;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -66,13 +68,13 @@ public class DAGDispatcher implements Dispatcher {
     private boolean locked;
     private final Queue<Action> queue;
     private final Map<Class<?>, StoreCallback> callbacks;
-    private final CompoundDiagnostics cd;
+    private final CompoundDiagnostics diagnostics;
 
     public DAGDispatcher() {
         locked = false;
         queue = new BoundedQueue<>(BOUNDS_SIZE);
         callbacks = new HashMap<>();
-        cd = new CompoundDiagnostics();
+        diagnostics = new CompoundDiagnostics();
     }
 
     @Override
@@ -83,7 +85,7 @@ public class DAGDispatcher implements Dispatcher {
 
     @Override
     public void dispatch(final Action action) {
-        cd.onDispatch(action);
+        diagnostics.onDispatch(action);
 
         if (!locked) {
             dispatchInternal(action);
@@ -97,7 +99,7 @@ public class DAGDispatcher implements Dispatcher {
         }
     }
 
-    private void dispatchInternal(Action action) {
+    private void dispatchInternal(final Action action) {
         // lock globally
         lock();
 
@@ -113,12 +115,12 @@ public class DAGDispatcher implements Dispatcher {
     }
 
     private void lock() {
-        cd.onLock();
+        diagnostics.onLock();
         locked = true;
     }
 
     private void unlock() {
-        cd.onUnlock();
+        diagnostics.onUnlock();
         locked = false;
     }
 
@@ -137,18 +139,14 @@ public class DAGDispatcher implements Dispatcher {
     }
 
     private void complete(final Action action, final Map<Class<?>, Agreement> approvals) {
-
         DirectedGraph<Class<?>, DefaultEdge> dag = createDag(approvals);
         // TODO Cache topological order
         TopologicalOrderIterator<Class<?>, DefaultEdge> iterator = new TopologicalOrderIterator<>(dag);
 
-        executeInOrder(action, iterator);
+        executeInOrder(action, iterator, new ArrayList<StoreCallback>());
     }
 
-    private DirectedGraph<Class<?>, DefaultEdge> createDag(
-            final Map<Class<?>, Agreement> approvals
-    ) {
-
+    private DirectedGraph<Class<?>, DefaultEdge> createDag(final Map<Class<?>, Agreement> approvals) {
         DirectedGraph<Class<?>, DefaultEdge> dag = new DefaultDirectedGraph<>(new EdgeFactoryImpl());
 
         // Add vertices (stores)
@@ -188,9 +186,10 @@ public class DAGDispatcher implements Dispatcher {
         return dag;
     }
 
-    private void executeInOrder(final Action action, final TopologicalOrderIterator<Class<?>, DefaultEdge> iterator) {
-
+    private void executeInOrder(final Action action, final TopologicalOrderIterator<Class<?>, DefaultEdge> iterator,
+            final List<StoreCallback> acknowledgedCallbacks) {
         if (!iterator.hasNext()) {
+            signalChange(acknowledgedCallbacks, action);
             unlock();
             if (!queue.isEmpty()) {
                 dispatchInternal(queue.poll());
@@ -199,35 +198,49 @@ public class DAGDispatcher implements Dispatcher {
         }
 
         final Class<?> store = iterator.next();
-        StoreCallback callback = callbacks.get(store);
-        cd.onExecute(store, action);
+        final StoreCallback callback = callbacks.get(store);
+        diagnostics.onExecute(store, action);
         callback.complete(action, new Channel() {
             @Override
             public void ack() {
-                cd.onAck(store, action);
+                ack(true);
+            }
+
+            @Override
+            public void ack(final boolean emitChange) {
+                diagnostics.onAck(store, action);
+                if (emitChange) {
+                    acknowledgedCallbacks.add(callback);
+                }
                 proceed();
             }
 
             @Override
             public void nack(final Throwable t) {
-                cd.onNack(store, action, t);
+                diagnostics.onNack(store, action, t);
                 proceed();
             }
 
             private void proceed() {
-                executeInOrder(action, iterator);
+                executeInOrder(action, iterator, acknowledgedCallbacks);
             }
         });
     }
 
+    private void signalChange(List<StoreCallback> acknowledgedCallbacks, Action action) {
+        for (StoreCallback callback : acknowledgedCallbacks) {
+            callback.signalChange(action);
+        }
+    }
+
     @Override
     public void addDiagnostics(final Dispatcher.Diagnostics d) {
-        this.cd.add(d);
+        this.diagnostics.add(d);
     }
 
     @Override
     public void removeDiagnostics(Dispatcher.Diagnostics d) {
-        this.cd.remove(d);
+        this.diagnostics.remove(d);
     }
 }
 

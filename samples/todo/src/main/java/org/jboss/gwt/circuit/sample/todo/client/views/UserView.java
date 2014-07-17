@@ -31,11 +31,8 @@ public class UserView extends Composite {
     private final CellTable<String> table;
     private final Button removeButton;
 
-    @Inject
-    UserStore userStore;
-
-    @Inject
-    Dispatcher dispatcher;
+    @Inject UserStore userStore;
+    @Inject Dispatcher dispatcher;
 
     public UserView() {
 
@@ -100,19 +97,16 @@ public class UserView extends Composite {
 
         initWidget(layout);
     }
-    
+
     @PostConstruct
     public void init() {
-              
-        userStore.addChangeHandler(
-                new PropagatesChange.Handler() {
-                    @Override
-                    public void onChange(Class<?> source) {
-                        updateUserList();
-                        removeButton.setEnabled(userStore.getSelectedUser()!=null);
-                    }
-                }
-        );
+        userStore.addChangeHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChanged(final Class<?> actionType) {
+                updateUserList();
+                removeButton.setEnabled(userStore.getSelectedUser() != null);
+            }
+        });
     }
 
     private void updateUserList() {

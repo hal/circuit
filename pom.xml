@@ -95,7 +95,7 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- circuit -->
+            <!-- Circuit -->
             <dependency>
                 <groupId>org.jboss.gwt.circuit</groupId>
                 <artifactId>circuit-core</artifactId>
@@ -141,7 +141,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
 
             <!-- GWT & related -->
             <dependency>

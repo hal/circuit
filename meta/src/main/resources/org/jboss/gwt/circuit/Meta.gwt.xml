@@ -22,6 +22,7 @@
   -->
 
 <module>
-    <inherits name="com.google.gwt.core.Core"/>
+    <inherits name="org.jboss.gwt.Circuit"/>
+
     <source path="meta"/>
 </module>

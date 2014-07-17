@@ -62,21 +62,18 @@ public class UserStore extends ChangeSupport {
         this.users.add("Mary");
 
         channel.ack();
-        fireChanged(UserStore.class);
     }
 
     @Process(actionType = SelectUser.class)
     public void onSelect(String user, final Dispatcher.Channel channel) {
         this.selectedUser = user;
         channel.ack();
-        fireChanged(UserStore.class);
     }
 
     @Process(actionType = AddUser.class)
     public void onAdd(String user, final Dispatcher.Channel channel) {
         if (!users.contains(user)) { this.users.add(user); }
         channel.ack();
-        fireChanged(UserStore.class);
     }
 
     @Process(actionType = RemoveUser.class)
@@ -90,7 +87,6 @@ public class UserStore extends ChangeSupport {
         if (user.equals(selectedUser)) { dispatcher.dispatch(new SelectUser(Todo.USER_ANY)); }
 
         channel.ack();
-        fireChanged(UserStore.class);
     }
 
     public String getSelectedUser() {

@@ -19,25 +19,29 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.circuit.sample.wardrobe.stores;
+package org.jboss.gwt.circuit;
 
-import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.meta.Process;
-import org.jboss.gwt.circuit.meta.Store;
-import org.jboss.gwt.circuit.sample.wardrobe.actions.Dress;
-import org.jboss.gwt.circuit.sample.wardrobe.actions.Undress;
+import static org.junit.Assert.*;
 
-@Store
-@SuppressWarnings("UnusedParameters")
-public class ShoesStore {
+import org.jboss.gwt.circuit.dag.BoundedQueue;
+import org.junit.Test;
 
-    @Process(actionType = Dress.class, dependencies = {TrousersStore.class, SocksStore.class})
-    public void dress(Dispatcher.Channel channel) {
-        channel.ack();
-    }
+public class BoundedQueueTest {
 
-    @Process(actionType = Undress.class)
-    public void undress(Dispatcher.Channel channel) {
-        channel.ack();
+    @Test
+    public void boundedQueue() {
+        BoundedQueue<Integer> queue = new BoundedQueue<>(3);
+        queue.offer(1);
+        queue.offer(2);
+        queue.offer(3);
+        boolean enqueued = queue.offer(4);
+
+        assertEquals(3, queue.size());
+        assertFalse("fourth item should not have been enqueued", enqueued);
+        assertTrue(1 == queue.poll());
+        assertTrue(2 == queue.poll());
+        assertTrue(3 == queue.poll());
+        assertTrue("queue should be empty", queue.isEmpty());
+        assertTrue(queue.poll() == null);
     }
 }

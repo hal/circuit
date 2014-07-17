@@ -22,8 +22,8 @@
 package org.jboss.gwt.circuit.sample.wardrobe.stores;
 
 import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.meta.*;
 import org.jboss.gwt.circuit.meta.Process;
+import org.jboss.gwt.circuit.meta.Store;
 import org.jboss.gwt.circuit.sample.wardrobe.actions.Dress;
 import org.jboss.gwt.circuit.sample.wardrobe.actions.Undress;
 

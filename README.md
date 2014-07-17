@@ -72,8 +72,6 @@ Stores keep the application state and act as proxies to the data model used by a
 
 Stores are registered with the Dispatcher for Actions they are interested in. They can directly rely on the data passed with an Action, or listen for state changes in other parts of the data model.
 
-Stores do emit Change Events to interested parties that rely on the data or state managed by a particular Store.
-
 ```java
 public class TodoStore {
 
@@ -119,7 +117,7 @@ One of the core problems Circuit addresses are cascading effects of event based 
 
 In a typical GUI application an event triggers some business logic, model update or state change, most often as a result of user interaction. Events can trigger other events, which leads to unpredictable data flow, hard to diagnose problems and unclear application semantics.
 
-The guiding principal in Circuit (and Flux) is provide a framework with deterministic behaviour that allows you to hook into the data flow at any point and know exactly what steps will executed next.
+The guiding principal in Circuit (and Flux) is to provide a framework with deterministic behaviour that allows you to hook into the data flow at any point and know exactly what steps will be executed next.
 
 The uni-directional data flow described above already provides a good baseline, but Circuit adds some specific semantics to the contract between the core components, which will be described in the next sections.
 
@@ -147,9 +145,13 @@ public class TodoStore {
 }
 ```
 
-### Preparation and Completion phase
+### Contract Between Store and Dispatcher
 
-The Circuit Dispatcher processes Actions in two phases: a preparation and a completion phase. 
+Stores are registered with a `StoreCallback` against the Dispatcher. This callback is the contract between the store and the dispatcher and consists of three phases: 
+
+1. Prepare Action
+1. Complete Action
+1. Signal Change Event 
 
 During the preparation phase Stores signal interest in a particular Action type and any dependencies they have on other Stores for a particular Action type. 
 
@@ -157,7 +159,7 @@ The Dispatcher creates a dependency graph for each action type and invoke the St
 
 This way Stores can safely rely on the State of other Stores during the processing of an Action.
 
-Upon completion a Store emits Change Events to signal interested parties that the data or state of the application has changed. Since Stores process the Action in an ordered way, the change notifications follow that pattern.
+Upon completion Stores consume the Action and acknowledge successful processing. Finally Change Events are fired to signal interested parties that the data or state of the application has changed. Since Stores process the Action in an ordered way, the Change Events follow that pattern.
 
 #### Action Acknowledgement
 
@@ -175,14 +177,17 @@ public class TodoStore {
     	todoService.save(todo, new TodoCallback<Void>(channel) {
             @Override
             public void onSuccess(final Void result) {
-				// acknowledgement and change event
+				// acknowledgement
 				channel.ack();
-				fireChanged(TodoStore.class);
             }
         });
     }
 }
 ```
+
+#### Change Events
+
+When an Action is acknowledged by a Store, the Dispatcher will fire a Change Event for that Store. However, this only happens *after* the Action was processed by all Stores. The order of Change Events follows the order in which the Action was processed by the Stores.
 
 ## Programming Model
 
@@ -214,7 +219,7 @@ To see an example on how to use the API in more detail, take a look at the [calc
 
 ### Annotation Based Approach
 
-As an alternative to using the API directly and implementing all the bits and pieces manually, Circuit comes with a set of annotations and an APT processor which generates most of the boilerplate code for you. The annotations step in when it comes to write the code for callback registration and declare store dependencies. 
+As an alternative to using the API directly and implementing all the bits and pieces manually, Circuit comes with a set of annotations and an APT processor which generates most of the boilerplate code for you. The annotations step in when it comes to write the code for the callback registration and declare store dependencies. 
 
 The entrance ticket is the `@Store` annotation which must be placed on the store implementation:
 
@@ -225,7 +230,7 @@ public class ShoesStore {
 }
 ```
 
-A store implementation marked with `@Store` should contain one or more methods marked with `@Process`. This annotation tells Circuit what action type (and thus what payload) the method can process. Furthermore dependencies to other stores can be expressed using `@Process`: 
+A store implementation marked with `@Store` must contain one or more methods marked with `@Process`. This annotation tells Circuit what action type (and thus what payload) the method can process. Furthermore dependencies to other stores can be expressed using `@Process`: 
 
 ```java
 @Store
@@ -243,7 +248,7 @@ The signature for methods annotated with `@Process` must adhere the following ru
 
 - The return type must be `void`
 - The method can have up to two parameters:
-	- If there's only one parameter it must be of type `Dispatcher.Channel`. 
+	- If there's only one parameter it must be of type `org.jboss.gwt.circuit.Dispatcher.Channel`. 
 	- Otherwise the first parameter has to be the type of the actions payload and the second parameter has to be the channel. 
 	
 To see the annotations in action take a look at the [wardrobe](samples/wardrobe) and [todo](samples/todo) samples.
@@ -280,6 +285,11 @@ public class ShoesStoreAdapter {
                 }
                 [...]
             }
+            
+            @Override
+            public void signalChange(final Action action) {
+                [...]
+            }            
         });
     }
 }
