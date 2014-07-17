@@ -46,7 +46,7 @@ public interface StoreCallback {
     void complete(Action action, Dispatcher.Channel channel);
 
     /**
-     * After the action was acknowledged by the all stores, a {@link ChangeEvent} is sent to all
+     * After the action was acknowledged by the all stores, a change event is sent to all
      * registered {@link PropagatesChange.Handler}s.
      */
     void signalChange(Action action);

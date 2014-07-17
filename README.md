@@ -72,8 +72,6 @@ Stores keep the application state and act as proxies to the data model used by a
 
 Stores are registered with the Dispatcher for Actions they are interested in. They can directly rely on the data passed with an Action, or listen for state changes in other parts of the data model.
 
-Stores do emit Change Events to interested parties that rely on the data or state managed by a particular Store.
-
 ```java
 public class TodoStore {
 
@@ -119,7 +117,7 @@ One of the core problems Circuit addresses are cascading effects of event based 
 
 In a typical GUI application an event triggers some business logic, model update or state change, most often as a result of user interaction. Events can trigger other events, which leads to unpredictable data flow, hard to diagnose problems and unclear application semantics.
 
-The guiding principal in Circuit (and Flux) is provide a framework with deterministic behaviour that allows you to hook into the data flow at any point and know exactly what steps will executed next.
+The guiding principal in Circuit (and Flux) is to provide a framework with deterministic behaviour that allows you to hook into the data flow at any point and know exactly what steps will be executed next.
 
 The uni-directional data flow described above already provides a good baseline, but Circuit adds some specific semantics to the contract between the core components, which will be described in the next sections.
 
@@ -147,9 +145,13 @@ public class TodoStore {
 }
 ```
 
-### Preparation and Completion phase
+### Contract Between Store and Dispatcher
 
-The Circuit Dispatcher processes Actions in two phases: a preparation and a completion phase. 
+Stores are registered with a `StoreCallback` against the Dispatcher. This callback is the contract between the store and the dispatcher and consists of three phases: 
+
+1. Prepare Action
+1. Complete Action
+1. Signal Change Event 
 
 During the preparation phase Stores signal interest in a particular Action type and any dependencies they have on other Stores for a particular Action type. 
 
@@ -157,7 +159,7 @@ The Dispatcher creates a dependency graph for each action type and invoke the St
 
 This way Stores can safely rely on the State of other Stores during the processing of an Action.
 
-Upon completion a Store emits Change Events to signal interested parties that the data or state of the application has changed. Since Stores process the Action in an ordered way, the change notifications follow that pattern.
+Upon completion Stores consume the Action and acknowledge successful processing. Finally Change Events are fired to signal interested parties that the data or state of the application has changed. Since Stores process the Action in an ordered way, the Change Events follow that pattern.
 
 #### Action Acknowledgement
 
@@ -175,14 +177,17 @@ public class TodoStore {
     	todoService.save(todo, new TodoCallback<Void>(channel) {
             @Override
             public void onSuccess(final Void result) {
-				// acknowledgement and change event
+				// acknowledgement
 				channel.ack();
-				fireChanged(TodoStore.class);
             }
         });
     }
 }
 ```
+
+#### Change Events
+
+When an Action is acknowledged by a Store, the Dispatcher will fire a Change Event for that Store. However, this only happens *after* the Action was processed by all Stores. The order of Change Events follows the order in which the Action was processed by the Stores.
 
 ## Programming Model
 
@@ -280,6 +285,11 @@ public class ShoesStoreAdapter {
                 }
                 [...]
             }
+            
+            @Override
+            public void signalChange(final Action action) {
+                [...]
+            }            
         });
     }
 }

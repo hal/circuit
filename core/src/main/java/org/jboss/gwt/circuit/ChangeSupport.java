@@ -40,6 +40,15 @@ public abstract class ChangeSupport implements PropagatesChange {
         this.handler.put(actionType, handler);
     }
 
+    public Iterable<Handler> getActionHandler(Action action) {
+        Class<? extends Action> actionType = action.getClass();
+        return handler.get(actionType); // returns an empty list if no handler were registered for this action
+    }
+
+    public Iterable<Handler> getHandler() {
+        return handler.get(ANY_ACTION);
+    }
+
     protected void fireChange(Action action) {
         Class<? extends Action> actionType = action.getClass();
         Iterable<Handler> actionHandlers = getActionHandler(action);
@@ -53,14 +62,5 @@ public abstract class ChangeSupport implements PropagatesChange {
                 storeHandler.onChanged(actionType);
             }
         }
-    }
-
-    public Iterable<Handler> getActionHandler(Action action) {
-        Class<? extends Action> actionType = action.getClass();
-        return handler.get(actionType); // returns an empty list if no handler were registered for this action
-    }
-
-    public Iterable<Handler> getHandler() {
-        return handler.get(ANY_ACTION);
     }
 }

@@ -73,6 +73,7 @@ public class ${storeClassName} {
             @Override
             public void signalChange(final Action action) {
                 <#if changeSupport>
+                <#-- ChangeSupport.fireChange(Action) is protected on purpose, so we have to reimplement it here -->
                 Class<? extends Action> actionType = action.getClass();
                 Iterable<Handler> actionHandlers = delegate.getActionHandler(action);
                 if (actionHandlers.iterator().hasNext()) {
