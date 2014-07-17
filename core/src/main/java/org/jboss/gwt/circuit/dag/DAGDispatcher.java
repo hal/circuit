@@ -203,8 +203,15 @@ public class DAGDispatcher implements Dispatcher {
         callback.complete(action, new Channel() {
             @Override
             public void ack() {
+                ack(true);
+            }
+
+            @Override
+            public void ack(final boolean emitChange) {
                 diagnostics.onAck(store, action);
-                acknowledgedCallbacks.add(callback);
+                if (emitChange) {
+                    acknowledgedCallbacks.add(callback);
+                }
                 proceed();
             }
 

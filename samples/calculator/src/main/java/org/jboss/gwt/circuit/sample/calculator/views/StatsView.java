@@ -35,7 +35,7 @@ import org.jboss.gwt.circuit.sample.calculator.Term;
 public class StatsView implements View {
 
     public StatsView(final CalculatorStore store) {
-        store.addChangedHandler(new PropagatesChange.Handler() {
+        store.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChanged(final Class<?> actionType) {
                 Multimap<Op, Term> termsByOp = LinkedListMultimap.create();

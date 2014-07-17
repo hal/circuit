@@ -91,7 +91,7 @@ public class DispatcherTest {
         final List<Class<?>> stores = new ArrayList<>();
 
         FooStore fooStore = new FooStore(dispatcher);
-        fooStore.addChangedHandler(new PropagatesChange.Handler() {
+        fooStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChanged(final Class<?> actionType) {
                 stores.add(FooStore.class);
@@ -103,7 +103,7 @@ public class DispatcherTest {
                 return new Agreement(true, FooStore.class);
             }
         };
-        barStore.addChangedHandler(new PropagatesChange.Handler() {
+        barStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChanged(final Class<?> actionType) {
                 stores.add(BarStore.class);
@@ -117,19 +117,19 @@ public class DispatcherTest {
     }
 
     @Test
-    public void actionChangedEvents() {
+    public void actionChangedEvents() throws InterruptedException {
         final List<Class<?>> stores = new ArrayList<>();
         final List<Class<?>> actionTypes = new ArrayList<>();
 
         FooStore fooStore = new FooStore(dispatcher);
-        fooStore.addChangedHandler(new PropagatesChange.Handler() {
+        fooStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChanged(final Class<?> actionType) {
                 stores.add(FooStore.class);
             }
         });
         BarStore barStore = new BarStore(dispatcher);
-        barStore.addChangedHandler(FooBarAction.class, new PropagatesChange.Handler() {
+        barStore.addChangeHandler(FooBarAction.class, new PropagatesChange.Handler() {
             @Override
             public void onChanged(final Class<?> actionType) {
                 stores.add(BarStore.class);
@@ -140,8 +140,8 @@ public class DispatcherTest {
 
         // FooBarAction is processed both by the FooStore and BarStore
         assertEquals(2, stores.size());
-        assertEquals(FooStore.class, stores.get(0));
-        assertEquals(BarStore.class, stores.get(1));
+        assertTrue(stores.contains(BarStore.class));
+        assertTrue(stores.contains(FooStore.class));
 
         // The change handler for FooBarAction must be called exactly once
         assertEquals(1, actionTypes.size());

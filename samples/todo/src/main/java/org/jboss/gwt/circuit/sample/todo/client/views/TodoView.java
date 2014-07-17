@@ -185,7 +185,7 @@ public class TodoView extends Composite {
     @PostConstruct
     public void init() {
 
-        todoStore.addChangedHandler(new PropagatesChange.Handler() {
+        todoStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChanged(final Class<?> actionType) {
                 showTodos(todoStore.getTodos());
@@ -193,7 +193,7 @@ public class TodoView extends Composite {
                 doneButton.setEnabled(todoStore.getSelectedTodo() != null);
             }
         });
-        userStore.addChangedHandler(new PropagatesChange.Handler() {
+        userStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChanged(final Class<?> actionType) {
                 updateUserList();

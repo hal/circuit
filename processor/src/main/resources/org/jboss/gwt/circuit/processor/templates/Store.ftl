@@ -75,16 +75,13 @@ public class ${storeClassName} {
                 <#if changeSupport>
                 <#-- ChangeSupport.fireChange(Action) is protected on purpose, so we have to reimplement it here -->
                 Class<? extends Action> actionType = action.getClass();
-                Iterable<Handler> actionHandlers = delegate.getActionHandler(action);
-                if (actionHandlers.iterator().hasNext()) {
-                    for (Handler actionHandler : actionHandlers) {
-                        actionHandler.onChanged(actionType);
-                    }
-                } else {
-                    Iterable<Handler> storeHandlers = delegate.getHandler();
-                    for (Handler storeHandler : storeHandlers) {
-                        storeHandler.onChanged(actionType);
-                    }
+                Iterable<Handler> actionHandlers = delegate.getActionHandler(actionType);
+                for (Handler actionHandler : actionHandlers) {
+                    actionHandler.onChanged(actionType);
+                }
+                Iterable<Handler> storeHandlers = delegate.getHandler();
+                for (Handler storeHandler : storeHandlers) {
+                    storeHandler.onChanged(actionType);
                 }
                 <#else>
                 System.out.println("WARN: Cannot signal change event: " + ${storeDelegate}.class.getName() + " does not extend " + org.jboss.gwt.circuit.ChangeSupport.class.getName());

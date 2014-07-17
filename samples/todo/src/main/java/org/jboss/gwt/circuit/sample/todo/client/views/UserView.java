@@ -100,7 +100,7 @@ public class UserView extends Composite {
 
     @PostConstruct
     public void init() {
-        userStore.addChangedHandler(new PropagatesChange.Handler() {
+        userStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChanged(final Class<?> actionType) {
                 updateUserList();

@@ -21,46 +21,106 @@
  */
 package org.jboss.gwt.circuit;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
+import com.google.web.bindery.event.shared.HandlerRegistration;
 
 public abstract class ChangeSupport implements PropagatesChange {
 
+    static class HandlerRef {
+
+        private final String id;
+        final Handler handler;
+
+        HandlerRef(final Handler handler) {
+            this.id = UUID.uuid();
+            this.handler = handler;
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) { return true; }
+            if (!(o instanceof HandlerRef)) { return false; }
+
+            HandlerRef handlerRef = (HandlerRef) o;
+
+            if (!id.equals(handlerRef.id)) { return false; }
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return id.hashCode();
+        }
+    }
+
+
+    public class ChangeHandlerRegistration implements HandlerRegistration {
+
+        private final HandlerRef handlerRef;
+        private final Class<?> actionType;
+
+        public ChangeHandlerRegistration(final Class<?> actionType, final HandlerRef handlerRef) {
+            this.actionType = actionType;
+            this.handlerRef = handlerRef;
+        }
+
+        @Override
+        public void removeHandler() {
+            handler.remove(actionType, handlerRef);
+        }
+    }
+
+
     private final static Class<Void> ANY_ACTION = Void.TYPE;
-
-    private Multimap<Class<?>, Handler> handler = LinkedListMultimap.create();
+    private Multimap<Class<?>, HandlerRef> handler = LinkedListMultimap.create();
 
     @Override
-    public void addChangedHandler(final Handler handler) {
-        this.handler.put(ANY_ACTION, handler);
+    public HandlerRegistration addChangeHandler(final Handler handler) {
+        HandlerRef handlerRef = new HandlerRef(handler);
+        this.handler.put(ANY_ACTION, handlerRef);
+        return new ChangeHandlerRegistration(ANY_ACTION, handlerRef);
     }
 
     @Override
-    public void addChangedHandler(final Class<?> actionType, final Handler handler) {
-        this.handler.put(actionType, handler);
+    public HandlerRegistration addChangeHandler(final Class<?> actionType, final Handler handler) {
+        HandlerRef handlerRef = new HandlerRef(handler);
+        this.handler.put(actionType, handlerRef);
+        return new ChangeHandlerRegistration(actionType, handlerRef);
     }
 
-    public Iterable<Handler> getActionHandler(Action action) {
-        Class<? extends Action> actionType = action.getClass();
-        return handler.get(actionType); // returns an empty list if no handler were registered for this action
+    public Iterable<Handler> getActionHandler(final Class<?> actionType) {
+        Collection<HandlerRef> handlerRefs = handler.get(actionType); // returns an empty list if nothing was found
+        return extractHandler(handlerRefs);
     }
 
     public Iterable<Handler> getHandler() {
-        return handler.get(ANY_ACTION);
+        return extractHandler(handler.get(ANY_ACTION));
+    }
+
+    private List<Handler> extractHandler(final Collection<HandlerRef> handlerRefs) {
+        List<Handler> handler = new ArrayList<>();
+        for (HandlerRef id : handlerRefs) {
+            handler.add(id.handler);
+        }
+        return handler;
     }
 
     protected void fireChange(Action action) {
+        // TODO Exception handling / umbrella exception
         Class<? extends Action> actionType = action.getClass();
-        Iterable<Handler> actionHandlers = getActionHandler(action);
-        if (actionHandlers.iterator().hasNext()) {
-            for (Handler actionHandler : actionHandlers) {
-                actionHandler.onChanged(actionType);
-            }
-        } else {
-            Iterable<Handler> storeHandlers = getHandler();
-            for (Handler storeHandler : storeHandlers) {
-                storeHandler.onChanged(actionType);
-            }
+        Iterable<Handler> actionHandlers = getActionHandler(actionType);
+        for (Handler actionHandler : actionHandlers) {
+            actionHandler.onChanged(actionType);
+        }
+        Iterable<Handler> storeHandlers = getHandler();
+        for (Handler storeHandler : storeHandlers) {
+            storeHandler.onChanged(actionType);
         }
     }
 }

@@ -27,7 +27,7 @@ import org.jboss.gwt.circuit.sample.calculator.CalculatorStore;
 public class TermsView implements View {
 
     public TermsView(final CalculatorStore store) {
-        store.addChangedHandler(new PropagatesChange.Handler() {
+        store.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChanged(final Class<?> actionType) {
                 System.out.printf("Number of terms:    %d\n", store.getResults().size());

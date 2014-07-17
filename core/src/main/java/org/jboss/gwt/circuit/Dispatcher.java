@@ -36,6 +36,8 @@ public interface Dispatcher {
          */
         void ack();
 
+        void ack(boolean emitChange);
+
         /**
          * Must be called by stores to signal an error during the processing of a callback.
          */
