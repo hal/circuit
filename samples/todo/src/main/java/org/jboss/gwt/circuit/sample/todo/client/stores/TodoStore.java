@@ -29,6 +29,7 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.jboss.gwt.circuit.ChangeSupport;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.meta.Process;
 import org.jboss.gwt.circuit.meta.Store;
@@ -45,7 +46,7 @@ import org.jboss.gwt.circuit.sample.todo.shared.Todo;
 @Store
 @ApplicationScoped
 @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
-public class TodoStore {
+public class TodoStore extends ChangeSupport {
 
     private Todo selectedTodo;
     private final List<Todo> todos;

@@ -1,6 +1,7 @@
 <#-- @ftlvariable name="packageName" type="java.lang.String" -->
 <#-- @ftlvariable name="storeClassName" type="java.lang.String" -->
 <#-- @ftlvariable name="storeDelegate" type="java.lang.String" -->
+<#-- @ftlvariable name="changeSupport" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="processInfos" type="java.util.List<org.jboss.gwt.circuit.processor.ProcessInfo>" -->
 package ${packageName};
 
@@ -11,6 +12,7 @@ import javax.inject.Inject;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
 import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.PropagatesChange.Handler;
 import org.jboss.gwt.circuit.StoreCallback;
 
 /*
@@ -66,6 +68,26 @@ public class ${storeClassName} {
                     System.out.println("WARN: Unmatched action " + action.getClass().getName() + " in store " + delegate.getClass());
                     channel.ack();
                 }
+            }
+
+            @Override
+            public void signalChange(final Action action) {
+                <#if changeSupport>
+                Class<? extends Action> actionType = action.getClass();
+                Iterable<Handler> actionHandlers = delegate.getActionHandler(action);
+                if (actionHandlers.iterator().hasNext()) {
+                    for (Handler actionHandler : actionHandlers) {
+                        actionHandler.onChanged(actionType);
+                    }
+                } else {
+                    Iterable<Handler> storeHandlers = delegate.getHandler();
+                    for (Handler storeHandler : storeHandlers) {
+                        storeHandler.onChanged(actionType);
+                    }
+                }
+                <#else>
+                System.out.println("WARN: Cannot signal change event: " + ${storeDelegate}.class.getName() + " does not extend " + org.jboss.gwt.circuit.ChangeSupport.class.getName());
+                </#if>
             }
         });
     }

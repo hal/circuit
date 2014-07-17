@@ -51,6 +51,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeKind;
+import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
@@ -58,6 +59,7 @@ import javax.tools.StandardLocation;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import org.jboss.gwt.circuit.ChangeSupport;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.meta.Process;
 import org.jboss.gwt.circuit.meta.Store;
@@ -92,6 +94,7 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
         final Messager messager = processingEnv.getMessager();
         if (!roundEnv.processingOver()) {
             final Types typeUtils = processingEnv.getTypeUtils();
+            final Elements elementUtils = processingEnv.getElementUtils();
 
             // store annotations
             for (Element e : roundEnv.getElementsAnnotatedWith(Store.class)) {
@@ -100,6 +103,8 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
 
                 final String packageName = packageElement.getQualifiedName().toString();
                 final String storeDelegate = storeElement.getSimpleName().toString();
+                final boolean changeSupport = typeUtils.isAssignable(storeElement.asType(),
+                        elementUtils.getTypeElement(ChangeSupport.class.getName()).asType());
                 final String storeClassName = GenerationUtil.storeImplementation(storeDelegate);
                 messager.printMessage(NOTE,
                         String.format("Discovered annotated store [%s]", storeElement.getQualifiedName()));
@@ -112,7 +117,7 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
                         messager.printMessage(NOTE, String.format("Generating code for [%s]", storeClassName));
                         StoreGenerator generator = new StoreGenerator();
                         final StringBuffer code = generator.generate(packageName, storeClassName, storeDelegate,
-                                processInfos);
+                                changeSupport, processInfos);
                         writeCode(packageName, storeClassName, code);
 
                         messager.printMessage(NOTE,

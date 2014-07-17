@@ -4,7 +4,7 @@ package org.jboss.gwt.circuit;
  * @author Heiko Braun
  * @date 23/06/14
  */
-public class FooStore {
+public class FooStore extends ChangeSupport {
 
     public FooStore(Dispatcher dispatcher) {
         dispatcher.register(FooStore.class, new StoreCallback() {
@@ -16,6 +16,11 @@ public class FooStore {
             @Override
             public void complete(Action action, Dispatcher.Channel channel) {
                 process(action, channel);
+            }
+
+            @Override
+            public void signalChange(final Action action) {
+                fireChange(action);
             }
         });
     }

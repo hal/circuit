@@ -21,16 +21,15 @@
  */
 package org.jboss.gwt.circuit.sample.calculator.views;
 
-import org.jboss.gwt.circuit.ChangeManagement;
-import org.jboss.gwt.circuit.ChangedEvent;
+import org.jboss.gwt.circuit.PropagatesChange;
 import org.jboss.gwt.circuit.sample.calculator.CalculatorStore;
 
 public class TermsView implements View {
 
-    public TermsView(final CalculatorStore store, final ChangeManagement changeManagement) {
-        changeManagement.addHandler(CalculatorStore.class, new ChangeManagement.Handler() {
+    public TermsView(final CalculatorStore store) {
+        store.addChangedHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChange(final ChangedEvent event) {
+            public void onChanged(final Class<?> actionType) {
                 System.out.printf("Number of terms:    %d\n", store.getResults().size());
             }
         });

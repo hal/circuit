@@ -21,25 +21,38 @@
  */
 package org.jboss.gwt.circuit;
 
-public class ChangedEvent extends StoreActionTuple {
+public class ChangeEvent {
 
-    ChangedEvent(final Class<?> store) {
-        super(store);
+    private final Class<?> store;
+    private final Class<?> actionType;
+
+    ChangeEvent(final Class<?> store, final Class<?> actionType) {
+        this.store = store;
+        this.actionType = actionType;
     }
 
-    ChangedEvent(final Class<?> store, final Class<?> actionType) {
-        super(store, actionType);
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) { return true; }
+        if (!(o instanceof ChangeEvent)) { return false; }
+
+        ChangeEvent that = (ChangeEvent) o;
+
+        if (!actionType.equals(that.actionType)) { return false; }
+        if (!store.equals(that.store)) { return false; }
+
+        return true;
     }
 
-    public Class<?> getStore() {
-        return store;
+    @Override
+    public int hashCode() {
+        int result = store.hashCode();
+        result = 31 * result + actionType.hashCode();
+        return result;
     }
 
-    public Class<?> getActionType() {
-        return actionType;
-    }
-
-    public boolean isBoundToActionType() {
-        return !actionType.equals(NO_ACTION);
+    @Override
+    public String toString() {
+        return "ChangedEvent(" + store + ", " + actionType + ')';
     }
 }

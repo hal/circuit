@@ -17,9 +17,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
-import org.jboss.gwt.circuit.ChangeManagement;
-import org.jboss.gwt.circuit.ChangedEvent;
 import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.PropagatesChange;
 import org.jboss.gwt.circuit.sample.todo.client.actions.AddUser;
 import org.jboss.gwt.circuit.sample.todo.client.actions.RemoveUser;
 import org.jboss.gwt.circuit.sample.todo.client.actions.SelectUser;
@@ -34,7 +33,6 @@ public class UserView extends Composite {
 
     @Inject UserStore userStore;
     @Inject Dispatcher dispatcher;
-    @Inject ChangeManagement changeManagement;
 
     public UserView() {
 
@@ -102,9 +100,9 @@ public class UserView extends Composite {
 
     @PostConstruct
     public void init() {
-        changeManagement.addHandler(UserStore.class, new ChangeManagement.Handler() {
+        userStore.addChangedHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChange(final ChangedEvent event) {
+            public void onChanged(final Class<?> actionType) {
                 updateUserList();
                 removeButton.setEnabled(userStore.getSelectedUser() != null);
             }

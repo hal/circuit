@@ -74,6 +74,11 @@ public class DeploymentStore {
                 }
                 channel.ack();
             }
+
+            @Override
+            public void signalChange(final Action action) {
+                // noop
+            }
         });
     }
 

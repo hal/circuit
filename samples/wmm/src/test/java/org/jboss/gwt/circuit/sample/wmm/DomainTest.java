@@ -23,7 +23,6 @@ package org.jboss.gwt.circuit.sample.wmm;
 
 import static org.junit.Assert.*;
 
-import org.jboss.gwt.circuit.ChangeManagement;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.dag.DAGDispatcher;
 import org.jboss.gwt.circuit.sample.wmm.actions.DeployAction;
@@ -47,7 +46,7 @@ public class DomainTest {
 
     @Before
     public void setUp() {
-        dispatcher = new DAGDispatcher(new ChangeManagement());
+        dispatcher = new DAGDispatcher();
         deploymentStore = new DeploymentStore(dispatcher);
         hostStore = new HostStore(dispatcher);
     }

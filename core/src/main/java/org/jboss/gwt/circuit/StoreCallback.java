@@ -22,8 +22,13 @@
 package org.jboss.gwt.circuit;
 
 /**
- * Callbacks are registered with a {@link Dispatcher} to pass an {@link Action} to
- * a store.
+ * Callbacks are the contract between the {@link org.jboss.gwt.circuit.Dispatcher} and a store. This contract consists
+ * of:
+ * <ol>
+ * <li>Vote for an action</li>
+ * <li>Pass the action to the store</li>
+ * <li>Notify handlers that the store has changed</li>
+ * </ol>
  */
 public interface StoreCallback {
 
@@ -36,7 +41,13 @@ public interface StoreCallback {
 
     /**
      * After a successful vote, the dispatcher hands the action to the store for completion.
-     * It's the stores responsibility to acknowledge the action and notify it's change handlers.
+     * It's the stores responsibility to acknowledge the action.
      */
     void complete(Action action, Dispatcher.Channel channel);
+
+    /**
+     * After the action was acknowledged by the all stores, a {@link ChangeEvent} is sent to all
+     * registered {@link PropagatesChange.Handler}s.
+     */
+    void signalChange(Action action);
 }

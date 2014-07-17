@@ -56,23 +56,12 @@ public interface Dispatcher {
 
     /**
      * Dispatches the actions to all registered stores, which voted with an approved agreement. The stores are called
-     * according to the dependencies specified in the agreement for the given action.
-     * <p/>
-     * Implementations are free to decide whether to fire changed events or not.
+     * according to the dependencies specified in the agreement for the given action. No change events will be fired by
+     * this method, that is this method is the same as calling <code>dispatch(action, false)</code>.
      *
      * @param action the action to dispatch
      */
     void dispatch(Action action);
-
-    /**
-     * Same as {@link #dispatch(Action)} with the option to fire change events after the action was successfully
-     * processed (acked) by all stores.
-     *
-     * @param action      the action to dispatch
-     * @param fireChanged {@code true} if a changed event should be fired after the action was successfully processed
-     *                    (acked) by all stores, {@code false} otherwise
-     */
-    void dispatch(Action action, boolean fireChanged);
 
     /**
      * Registers a diagnostics instance.

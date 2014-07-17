@@ -27,7 +27,6 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import com.google.gwt.cell.client.SafeHtmlCell;
-import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -46,9 +45,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
-import org.jboss.gwt.circuit.ChangeManagement;
-import org.jboss.gwt.circuit.ChangedEvent;
 import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.PropagatesChange;
 import org.jboss.gwt.circuit.sample.todo.client.actions.RemoveTodo;
 import org.jboss.gwt.circuit.sample.todo.client.actions.ResolveTodo;
 import org.jboss.gwt.circuit.sample.todo.client.actions.SaveTodo;
@@ -65,20 +63,14 @@ public class TodoView extends Composite {
     @Inject UserStore userStore;
     @Inject TodoStore store;
     @Inject Dispatcher dispatcher;
-    @Inject ChangeManagement changeManagement;
 
     // --------------------------------------
 
     private final Button removeButton;
-
     private final Button doneButton;
-
     private ListBox users;
-
     private String selectedUser;
-
     private final CellTable<Todo> table;
-
     private final ListDataProvider<Todo> dataProvider;
 
     public TodoView() {
@@ -89,7 +81,7 @@ public class TodoView extends Composite {
         users = new ListBox();
         users.addChangeHandler(new ChangeHandler() {
             @Override
-            public void onChange(ChangeEvent changeEvent) {
+            public void onChange(com.google.gwt.event.dom.client.ChangeEvent changeEvent) {
                 dispatcher.dispatch(
                         new SelectUser(
                                 users.getValue(users.getSelectedIndex())
@@ -193,18 +185,17 @@ public class TodoView extends Composite {
     @PostConstruct
     public void init() {
 
-        changeManagement.addHandler(TodoStore.class, new ChangeManagement.Handler() {
+        todoStore.addChangedHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChange(final ChangedEvent changedEvent) {
+            public void onChanged(final Class<?> actionType) {
                 showTodos(todoStore.getTodos());
                 removeButton.setEnabled(todoStore.getSelectedTodo() != null);
                 doneButton.setEnabled(todoStore.getSelectedTodo() != null);
             }
         });
-
-        changeManagement.addHandler(UserStore.class, new ChangeManagement.Handler() {
+        userStore.addChangedHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChange(final ChangedEvent event) {
+            public void onChanged(final Class<?> actionType) {
                 updateUserList();
             }
         });

@@ -23,40 +23,32 @@ package org.jboss.gwt.circuit.sample.calculator.views;
 
 import static org.jboss.gwt.circuit.sample.calculator.Term.Op;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import org.jboss.gwt.circuit.ChangeManagement;
-import org.jboss.gwt.circuit.ChangedEvent;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.Multimap;
+import org.jboss.gwt.circuit.PropagatesChange;
 import org.jboss.gwt.circuit.sample.calculator.CalculatorStore;
 import org.jboss.gwt.circuit.sample.calculator.Term;
 
 public class StatsView implements View {
 
-    public StatsView(final CalculatorStore store, final ChangeManagement changeManagement) {
-        changeManagement.addHandler(CalculatorStore.class, new ChangeManagement.Handler() {
+    public StatsView(final CalculatorStore store) {
+        store.addChangedHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChange(final ChangedEvent event) {
-                Map<Op, List<Term>> termsByOp = new HashMap<>();
+            public void onChanged(final Class<?> actionType) {
+                Multimap<Op, Term> termsByOp = LinkedListMultimap.create();
                 Set<Term> terms = store.getResults().keySet();
                 for (Term term : terms) {
-                    List<Term> termsOfOp = termsByOp.get(term.getOp());
-                    if (termsOfOp == null) {
-                        termsOfOp = new ArrayList<>();
-                        termsByOp.put(term.getOp(), termsOfOp);
-                    }
-                    termsOfOp.add(term);
+                    termsByOp.put(term.getOp(), term);
                 }
 
                 StringBuilder message = new StringBuilder();
-                for (Iterator<Map.Entry<Op, List<Term>>> iterator = termsByOp.entrySet().iterator();
-                     iterator.hasNext(); ) {
-                    Map.Entry<Op, List<Term>> entry = iterator.next();
-                    message.append(entry.getKey().name()).append("(").append(entry.getValue().size()).append(")");
+                Set<Op> keys = termsByOp.keySet();
+                for (Iterator<Op> iterator = keys.iterator(); iterator.hasNext(); ) {
+                    Op key = iterator.next();
+                    message.append(key.name()).append("(").append(termsByOp.get(key).size()).append(")");
                     if (iterator.hasNext()) {
                         message.append(", ");
                     }

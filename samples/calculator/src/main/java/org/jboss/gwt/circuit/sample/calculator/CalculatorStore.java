@@ -27,15 +27,15 @@ import java.util.Map;
 
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
-import org.jboss.gwt.circuit.ChangeManagement;
+import org.jboss.gwt.circuit.ChangeSupport;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.StoreCallback;
 
-public class CalculatorStore {
+public class CalculatorStore extends ChangeSupport {
 
     private final Map<Term, Integer> results;
 
-    public CalculatorStore(final ChangeManagement changeManagement, final Dispatcher dispatcher) {
+    public CalculatorStore(final Dispatcher dispatcher) {
         this.results = new LinkedHashMap<>();
 
         dispatcher.register(CalculatorStore.class, new StoreCallback() {
@@ -52,8 +52,10 @@ public class CalculatorStore {
                 Term term = (Term) action.getPayload();
                 results.put(term, calculate(term));
                 channel.ack();
-                changeManagement.fireChanged(CalculatorStore.class, action.getClass());
             }
+
+            @Override
+            public void signalChange(final Action action) { fireChange(action); }
         });
     }
 

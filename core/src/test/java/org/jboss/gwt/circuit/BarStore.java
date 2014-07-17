@@ -1,10 +1,6 @@
 package org.jboss.gwt.circuit;
 
-/**
- * @author Heiko Braun
- * @date 23/06/14
- */
-public class BarStore {
+public class BarStore extends ChangeSupport {
 
     public BarStore(Dispatcher dispatcher) {
         dispatcher.register(BarStore.class, new StoreCallback() {
@@ -16,6 +12,11 @@ public class BarStore {
             @Override
             public void complete(Action action, Dispatcher.Channel channel) {
                 process(action, channel);
+            }
+
+            @Override
+            public void signalChange(final Action action) {
+                fireChange(action);
             }
         });
     }

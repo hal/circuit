@@ -39,12 +39,10 @@ public class DispatcherTest {
 
     private Dispatcher dispatcher;
     private TestDiagnostics diagnostics;
-    private ChangeManagement changeManagement;
 
     @Before
     public void setUp() {
-        changeManagement = new ChangeManagement();
-        dispatcher = new DAGDispatcher(changeManagement);
+        dispatcher = new DAGDispatcher();
         diagnostics = new TestDiagnostics();
         dispatcher.addDiagnostics(diagnostics);
     }
@@ -91,22 +89,26 @@ public class DispatcherTest {
     @Test
     public void changedEvents() {
         final List<Class<?>> stores = new ArrayList<>();
-        ChangeManagement.Handler recordStoresHandler = new ChangeManagement.Handler() {
-            @Override
-            public void onChange(final ChangedEvent event) {
-                stores.add(event.getStore());
-            }
-        };
-        changeManagement.addHandler(FooStore.class, recordStoresHandler);
-        changeManagement.addHandler(BarStore.class, recordStoresHandler);
 
-        new FooStore(dispatcher);
-        new BarStore(dispatcher) {
+        FooStore fooStore = new FooStore(dispatcher);
+        fooStore.addChangedHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChanged(final Class<?> actionType) {
+                stores.add(FooStore.class);
+            }
+        });
+        BarStore barStore = new BarStore(dispatcher) {
             @Override
             protected Agreement vote(Action action) {
                 return new Agreement(true, FooStore.class);
             }
         };
+        barStore.addChangedHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChanged(final Class<?> actionType) {
+                stores.add(BarStore.class);
+            }
+        });
         dispatcher.dispatch(new FooBarAction(0));
 
         assertEquals(2, stores.size());
@@ -115,42 +117,25 @@ public class DispatcherTest {
     }
 
     @Test
-    public void noChangedEvents() {
-        final List<Class<?>> stores = new ArrayList<>();
-        ChangeManagement.Handler recordStoresHandler = new ChangeManagement.Handler() {
-            @Override
-            public void onChange(final ChangedEvent event) {
-                stores.add(event.getStore());
-            }
-        };
-        changeManagement.addHandler(FooStore.class, recordStoresHandler);
-        changeManagement.addHandler(BarStore.class, recordStoresHandler);
-
-        new FooStore(dispatcher);
-        new BarStore(dispatcher);
-        dispatcher.dispatch(new FooBarAction(0), false);
-
-        assertTrue(stores.isEmpty());
-    }
-
-    @Test
     public void actionChangedEvents() {
         final List<Class<?>> stores = new ArrayList<>();
-        final List<StoreActionTuple> storeActionTuples = new ArrayList<>();
-        ChangeManagement.Handler recordHandler = new ChangeManagement.Handler() {
-            @Override
-            public void onChange(final ChangedEvent event) {
-                stores.add(event.getStore());
-                if (event.isBoundToActionType()) {
-                    storeActionTuples.add(event);
-                }
-            }
-        };
-        changeManagement.addHandler(FooStore.class, recordHandler);
-        changeManagement.addHandler(BarStore.class, FooBarAction.class, recordHandler);
+        final List<Class<?>> actionTypes = new ArrayList<>();
 
-        new FooStore(dispatcher);
-        new BarStore(dispatcher);
+        FooStore fooStore = new FooStore(dispatcher);
+        fooStore.addChangedHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChanged(final Class<?> actionType) {
+                stores.add(FooStore.class);
+            }
+        });
+        BarStore barStore = new BarStore(dispatcher);
+        barStore.addChangedHandler(FooBarAction.class, new PropagatesChange.Handler() {
+            @Override
+            public void onChanged(final Class<?> actionType) {
+                stores.add(BarStore.class);
+                actionTypes.add(actionType);
+            }
+        });
         dispatcher.dispatch(new FooBarAction(0));
 
         // FooBarAction is processed both by the FooStore and BarStore
@@ -158,8 +143,8 @@ public class DispatcherTest {
         assertEquals(FooStore.class, stores.get(0));
         assertEquals(BarStore.class, stores.get(1));
 
-        // The change handler must be called once for the tuple (BarStore.class, FooBarAction.class)
-        assertEquals(1, storeActionTuples.size());
-        assertEquals(new StoreActionTuple(BarStore.class, FooBarAction.class), storeActionTuples.get(0));
+        // The change handler for FooBarAction must be called exactly once
+        assertEquals(1, actionTypes.size());
+        assertEquals(FooBarAction.class, actionTypes.get(0));
     }
 }
