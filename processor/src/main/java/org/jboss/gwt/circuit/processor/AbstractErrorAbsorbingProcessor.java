@@ -29,6 +29,7 @@ import java.io.Writer;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
@@ -129,9 +130,11 @@ public abstract class AbstractErrorAbsorbingProcessor extends AbstractProcessor 
     /**
      * Writes the given code to javac's Filer.
      */
-    protected final void writeCode(final String packageName, final String className, final StringBuffer code)
+    protected final void writeCode(final ProcessingEnvironment pe, final String packageName, final String className,
+            final StringBuffer code)
             throws IOException {
-        JavaFileObject jfo = processingEnv.getFiler().createSourceFile(packageName + "." + className);
+
+        JavaFileObject jfo = pe.getFiler().createSourceFile(packageName + "." + className);
         Writer w = jfo.openWriter();
         BufferedWriter bw = new BufferedWriter(w);
         bw.append(code);
