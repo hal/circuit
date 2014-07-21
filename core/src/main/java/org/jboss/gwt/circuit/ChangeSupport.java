@@ -116,11 +116,11 @@ public abstract class ChangeSupport implements PropagatesChange {
         Class<? extends Action> actionType = action.getClass();
         Iterable<Handler> actionHandlers = getActionHandler(actionType);
         for (Handler actionHandler : actionHandlers) {
-            actionHandler.onChanged(actionType);
+            actionHandler.onChange(actionType);
         }
         Iterable<Handler> storeHandlers = getHandler();
         for (Handler storeHandler : storeHandlers) {
-            storeHandler.onChanged(actionType);
+            storeHandler.onChange(actionType);
         }
     }
 }

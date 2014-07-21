@@ -102,7 +102,7 @@ class TodoPresenter() {
 		todoStore.addChangeHandler(
 		    new PropagatesChange.Handler() {
   				@Override
-    			public void onChange(Class<?> source) {
+    			public void onChanged(Class<?> actionType) {
 					// when the model changed, update the view
     				updateView(todoStore.getTodos());                     
  				}
@@ -280,7 +280,7 @@ public class ShoesStoreAdapter {
 
             @Override
             public void complete(final Action action, final Dispatcher.Channel channel) {
-                if (action instanceof org.jboss.gwt.circuit.sample.wardrobe.actions.Dress) {
+                if (action instanceof Dress) {
                     delegate.dress(channel);
                 }
                 [...]

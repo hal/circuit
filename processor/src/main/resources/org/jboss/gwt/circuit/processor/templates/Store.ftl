@@ -77,11 +77,11 @@ public class ${storeClassName} {
                 Class<? extends Action> actionType = action.getClass();
                 Iterable<Handler> actionHandlers = delegate.getActionHandler(actionType);
                 for (Handler actionHandler : actionHandlers) {
-                    actionHandler.onChanged(actionType);
+                    actionHandler.onChange(actionType);
                 }
                 Iterable<Handler> storeHandlers = delegate.getHandler();
                 for (Handler storeHandler : storeHandlers) {
-                    storeHandler.onChanged(actionType);
+                    storeHandler.onChange(actionType);
                 }
                 <#else>
                 System.out.println("WARN: Cannot signal change event: " + ${storeDelegate}.class.getName() + " does not extend " + org.jboss.gwt.circuit.ChangeSupport.class.getName());

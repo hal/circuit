@@ -93,7 +93,7 @@ public class DispatcherTest {
         FooStore fooStore = new FooStore(dispatcher);
         fooStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChanged(final Class<?> actionType) {
+            public void onChange(final Class<?> actionType) {
                 stores.add(FooStore.class);
             }
         });
@@ -105,7 +105,7 @@ public class DispatcherTest {
         };
         barStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChanged(final Class<?> actionType) {
+            public void onChange(final Class<?> actionType) {
                 stores.add(BarStore.class);
             }
         });
@@ -124,14 +124,14 @@ public class DispatcherTest {
         FooStore fooStore = new FooStore(dispatcher);
         fooStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChanged(final Class<?> actionType) {
+            public void onChange(final Class<?> actionType) {
                 stores.add(FooStore.class);
             }
         });
         BarStore barStore = new BarStore(dispatcher);
         barStore.addChangeHandler(FooBarAction.class, new PropagatesChange.Handler() {
             @Override
-            public void onChanged(final Class<?> actionType) {
+            public void onChange(final Class<?> actionType) {
                 stores.add(BarStore.class);
                 actionTypes.add(actionType);
             }

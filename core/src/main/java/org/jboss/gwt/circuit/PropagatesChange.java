@@ -9,7 +9,7 @@ public interface PropagatesChange {
 
     public interface Handler {
 
-        void onChanged(Class<?> actionType);
+        void onChange(Class<?> actionType);
     }
 
     /**
