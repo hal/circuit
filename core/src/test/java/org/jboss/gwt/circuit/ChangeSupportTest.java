@@ -26,7 +26,7 @@ public class ChangeSupportTest {
         final AtomicInteger counter = new AtomicInteger(0);
         HandlerRegistration handlerRegistration = fooStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChanged(final Class<?> actionType) {
+            public void onChange(final Class<?> actionType) {
                 counter.incrementAndGet();
             }
         });
@@ -46,7 +46,7 @@ public class ChangeSupportTest {
         final AtomicInteger counter = new AtomicInteger(0);
         HandlerRegistration actionRegistration = fooStore.addChangeHandler(FooBarAction.class, new PropagatesChange.Handler() {
             @Override
-            public void onChanged(final Class<?> actionType) {
+            public void onChange(final Class<?> actionType) {
                 counter.incrementAndGet();
             }
         });
@@ -66,13 +66,13 @@ public class ChangeSupportTest {
         final AtomicInteger counter = new AtomicInteger(0);
         HandlerRegistration handlerRegistration = fooStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChanged(final Class<?> actionType) {
+            public void onChange(final Class<?> actionType) {
                 counter.incrementAndGet();
             }
         });
         HandlerRegistration actionRegistration = fooStore.addChangeHandler(FooBarAction.class, new PropagatesChange.Handler() {
             @Override
-            public void onChanged(final Class<?> actionType) {
+            public void onChange(final Class<?> actionType) {
                 counter.incrementAndGet();
             }
         });

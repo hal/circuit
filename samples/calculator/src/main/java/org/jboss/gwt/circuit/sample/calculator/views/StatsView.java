@@ -37,7 +37,7 @@ public class StatsView implements View {
     public StatsView(final CalculatorStore store) {
         store.addChangeHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChanged(final Class<?> actionType) {
+            public void onChange(final Class<?> actionType) {
                 Multimap<Op, Term> termsByOp = LinkedListMultimap.create();
                 Set<Term> terms = store.getResults().keySet();
                 for (Term term : terms) {
