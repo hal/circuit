@@ -90,57 +90,65 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
         if (roundEnv.errorRaised()) {
             return false;
         }
-
-        final Messager messager = processingEnv.getMessager();
         if (!roundEnv.processingOver()) {
-            final Types typeUtils = processingEnv.getTypeUtils();
-            final Elements elementUtils = processingEnv.getElementUtils();
-
-            // store annotations
-            for (Element e : roundEnv.getElementsAnnotatedWith(Store.class)) {
-                TypeElement storeElement = (TypeElement) e;
-                PackageElement packageElement = (PackageElement) storeElement.getEnclosingElement();
-
-                final String packageName = packageElement.getQualifiedName().toString();
-                final String storeDelegate = storeElement.getSimpleName().toString();
-                final boolean changeSupport = typeUtils.isAssignable(storeElement.asType(),
-                        elementUtils.getTypeElement(ChangeSupport.class.getName()).asType());
-                final String storeClassName = GenerationUtil.storeImplementation(storeDelegate);
-                messager.printMessage(NOTE,
-                        String.format("Discovered annotated store [%s]", storeElement.getQualifiedName()));
-
-                List<ExecutableElement> processMethods = new ArrayList<>();
-                if (findValidProcessMethods(messager, typeUtils, storeElement, processMethods)) {
-                    Collection<ProcessInfo> processInfos = getProcessInfos(messager, typeUtils, storeElement,
-                            processMethods);
-                    try {
-                        messager.printMessage(NOTE, String.format("Generating code for [%s]", storeClassName));
-                        StoreGenerator generator = new StoreGenerator();
-                        final StringBuffer code = generator.generate(packageName, storeClassName, storeDelegate,
-                                changeSupport, processInfos);
-                        writeCode(packageName, storeClassName, code);
-
-                        messager.printMessage(NOTE,
-                                String.format("Successfully generated store implementation [%s]", storeClassName));
-                    } catch (GenerationException ge) {
-                        final String msg = ge.getMessage();
-                        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, msg, storeElement);
-                    }
-                } else {
-                    // no valid process methods!
-                    messager.printMessage(ERROR,
-                            String.format("%s does not contain suitable methods annotated with %s.",
-                                    storeElement.getQualifiedName(), Process.class.getName()));
-                    break;
-                }
-            }
-
+            processStores(roundEnv);
         } else {
-            // After all files were generated write GraphViz and validate dependencies
-            String graphVizFile = writeGraphViz(messager);
-            validateDAG(messager, graphVizFile);
+            storePostProcessing(processingEnv.getMessager());
         }
         return true;
+    }
+
+    // TODO (hpehl) Remove public visibility once this processor is no longer referenced by hal/core:SPIProcessor
+    public void processStores(final RoundEnvironment roundEnv) throws Exception {
+
+        final Messager messager = processingEnv.getMessager();
+        final Types typeUtils = processingEnv.getTypeUtils();
+        final Elements elementUtils = processingEnv.getElementUtils();
+
+        // store annotations
+        for (Element e : roundEnv.getElementsAnnotatedWith(Store.class)) {
+            TypeElement storeElement = (TypeElement) e;
+            PackageElement packageElement = (PackageElement) storeElement.getEnclosingElement();
+
+            final String packageName = packageElement.getQualifiedName().toString();
+            final String storeDelegate = storeElement.getSimpleName().toString();
+            final boolean changeSupport = typeUtils.isAssignable(storeElement.asType(),
+                    elementUtils.getTypeElement(ChangeSupport.class.getName()).asType());
+            final String storeClassName = GenerationUtil.storeImplementation(storeDelegate);
+            messager.printMessage(NOTE,
+                    String.format("Discovered annotated store [%s]", storeElement.getQualifiedName()));
+
+            List<ExecutableElement> processMethods = new ArrayList<>();
+            if (findValidProcessMethods(messager, typeUtils, storeElement, processMethods)) {
+                Collection<ProcessInfo> processInfos = getProcessInfos(messager, typeUtils, storeElement,
+                        processMethods);
+                try {
+                    messager.printMessage(NOTE, String.format("Generating code for [%s]", storeClassName));
+                    StoreGenerator generator = new StoreGenerator();
+                    final StringBuffer code = generator.generate(packageName, storeClassName, storeDelegate,
+                            changeSupport, processInfos);
+                    writeCode(packageName, storeClassName, code);
+
+                    messager.printMessage(NOTE,
+                            String.format("Successfully generated store implementation [%s]", storeClassName));
+                } catch (GenerationException ge) {
+                    final String msg = ge.getMessage();
+                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, msg, storeElement);
+                }
+            } else {
+                // no valid process methods!
+                messager.printMessage(ERROR,
+                        String.format("%s does not contain suitable methods annotated with %s.",
+                                storeElement.getQualifiedName(), Process.class.getName()));
+                break;
+            }
+        }
+    }
+
+    // TODO (hpehl) Remove public visibility once this processor is no longer referenced by hal/core:SPIProcessor
+    public void storePostProcessing(Messager messager) throws Exception {
+        String graphVizFile = writeGraphViz(messager);
+        validateDAG(messager, graphVizFile);
     }
 
     private boolean findValidProcessMethods(final Messager messager, final Types typeUtils,
