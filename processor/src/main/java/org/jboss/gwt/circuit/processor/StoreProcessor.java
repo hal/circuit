@@ -38,7 +38,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.Messager;
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
@@ -73,31 +72,11 @@ import org.jgrapht.graph.DefaultEdge;
 @SupportedAnnotationTypes("org.jboss.gwt.circuit.meta.Store")
 public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
 
-    // TODO (hpehl) Remove helper class once this processor is no longer referenced by hal/core:SPIProcessor
-    public static class StoreGenerationMetadata {
-
-        public final String packageName;
-        public final String storeClassName;
-        public final String storeDelegate;
-        public final boolean changeSupport;
-        public final Collection<ProcessInfo> processInfos;
-
-        public StoreGenerationMetadata(final String packageName, final String storeClassName,
-                final String storeDelegate, final boolean changeSupport, final Collection<ProcessInfo> processInfos) {
-            this.packageName = packageName;
-            this.storeClassName = storeClassName;
-            this.storeDelegate = storeDelegate;
-            this.changeSupport = changeSupport;
-            this.processInfos = processInfos;
-        }
-    }
-
-
     static final String GRAPH_VIZ_OUTPUT = "dependencies.gv";
 
     private final Map<String, GraphVizInfo> graphVizInfos;
     private final Map<String, Multimap<String, String>> dagValidation;
-    private final List<StoreGenerationMetadata> metadata;
+    private final List<StoreDelegateMetadata> metadata;
 
     public StoreProcessor() {
         graphVizInfos = new HashMap<>();
@@ -107,29 +86,28 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
 
     @Override
     protected boolean processWithExceptions(final Set<? extends TypeElement> annotations,
-            final RoundEnvironment roundEnv)
-            throws Exception {
+            final RoundEnvironment roundEnv) throws Exception {
 
         if (roundEnv.errorRaised()) {
             return false;
         }
         if (!roundEnv.processingOver()) {
-            processStores(processingEnv, roundEnv);
+            collectData(roundEnv);
         } else {
-            writeStores(processingEnv);
-            storePostProcessing(processingEnv);
+            generateFiles();
         }
         return true;
     }
 
-    // TODO (hpehl) Remove public visibility once this processor is no longer referenced by hal/core:SPIProcessor
-    public void processStores(final ProcessingEnvironment pe, final RoundEnvironment roundEnv) throws Exception {
 
-        final Messager messager = pe.getMessager();
-        final Types typeUtils = pe.getTypeUtils();
-        final Elements elementUtils = pe.getElementUtils();
+    // ------------------------------------------------------ collect methods
 
-        // store annotations
+    private void collectData(final RoundEnvironment roundEnv) throws Exception {
+
+        final Messager messager = processingEnv.getMessager();
+        final Types typeUtils = processingEnv.getTypeUtils();
+        final Elements elementUtils = processingEnv.getElementUtils();
+
         for (Element e : roundEnv.getElementsAnnotatedWith(Store.class)) {
             TypeElement storeElement = (TypeElement) e;
             PackageElement packageElement = (PackageElement) storeElement.getEnclosingElement();
@@ -143,11 +121,11 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
                     String.format("Discovered annotated store [%s]", storeElement.getQualifiedName()));
 
             List<ExecutableElement> processMethods = new ArrayList<>();
-            if (findValidProcessMethods(pe, messager, typeUtils, storeElement, processMethods)) {
+            if (findValidProcessMethods(messager, typeUtils, storeElement, processMethods)) {
                 Collection<ProcessInfo> processInfos = getProcessInfos(messager, typeUtils, storeElement,
                         processMethods);
 
-                metadata.add(new StoreGenerationMetadata(packageName, storeClassName, storeDelegate, changeSupport,
+                metadata.add(new StoreDelegateMetadata(packageName, storeClassName, storeDelegate, changeSupport,
                         processInfos));
             } else {
                 // no valid process methods!
@@ -159,38 +137,13 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
         }
     }
 
-    public void writeStores(final ProcessingEnvironment pe) throws Exception {
-        final Messager messager = pe.getMessager();
-        for (StoreGenerationMetadata md : metadata) {
-            try {
-                messager.printMessage(NOTE, String.format("Generating code for [%s]", md.storeClassName));
-                StoreGenerator generator = new StoreGenerator();
-                final StringBuffer code = generator.generate(md.packageName, md.storeClassName, md.storeDelegate,
-                        md.changeSupport, md.processInfos);
-                writeCode(pe, md.packageName, md.storeClassName, code);
-
-                messager.printMessage(NOTE,
-                        String.format("Successfully generated store implementation [%s]", md.storeClassName));
-            } catch (GenerationException ge) {
-                final String msg = ge.getMessage();
-                messager.printMessage(Diagnostic.Kind.ERROR, msg/* , storeElement*/);
-            }
-        }
-    }
-
-    // TODO (hpehl) Remove public visibility once this processor is no longer referenced by hal/core:SPIProcessor
-    public void storePostProcessing(ProcessingEnvironment pe) throws Exception {
-        String graphVizFile = writeGraphViz(pe);
-        validateDAG(pe, graphVizFile);
-    }
-
-    private boolean findValidProcessMethods(final ProcessingEnvironment pe, final Messager messager,
-            final Types typeUtils, final TypeElement storeElement, List<ExecutableElement> processMethods) {
+    private boolean findValidProcessMethods(final Messager messager, final Types typeUtils,
+            final TypeElement storeElement, List<ExecutableElement> processMethods) {
 
         boolean valid = true;
         StringBuilder errorMessage = new StringBuilder();
         NoType voidType = typeUtils.getNoType(TypeKind.VOID);
-        List<ExecutableElement> allProcessMethods = GenerationUtil.getAnnotatedMethods(storeElement, pe,
+        List<ExecutableElement> allProcessMethods = GenerationUtil.getAnnotatedMethods(storeElement, processingEnv,
                 Process.class.getName(), voidType, ANY_PARAMS, errorMessage);
         if (allProcessMethods.isEmpty()) {
             messager.printMessage(ERROR, String.format(
@@ -258,7 +211,6 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
                 continue;
             }
 
-            // --------------------------
             // collect infos for the code generation
             ProcessInfo processInfo = processInfos.get(processInfos.size() - 1);
             for (String store : dependencies) {
@@ -266,7 +218,6 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
                 processInfo.addDependency(store + ".class");
             }
 
-            // --------------------------
             // record dependencies in a different data structures to generate GraphViz...
             GraphVizInfo graphVizInfo = graphVizInfos.get(actionType);
             if (graphVizInfo == null) {
@@ -283,7 +234,6 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
                 graphVizInfo.addDependency(storeDelegate, simpleDependency);
             }
 
-            // --------------------------
             // ...and verify DAG
             Multimap<String, String> dag = dagValidation.get(actionType);
             if (dag == null) {
@@ -296,13 +246,40 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
         return processInfos;
     }
 
-    private String writeGraphViz(final ProcessingEnvironment pe) throws GenerationException, IOException {
-        final Messager messager = pe.getMessager();
+
+    // ------------------------------------------------------ generate methods
+
+    private void generateFiles() throws Exception {
+        final Messager messager = processingEnv.getMessager();
+
+        // store delegates
+        for (StoreDelegateMetadata md : metadata) {
+            try {
+                messager.printMessage(NOTE, String.format("Generating code for [%s]", md.storeClassName));
+                StoreGenerator generator = new StoreGenerator();
+                final StringBuffer code = generator.generate(md);
+                writeCode(md.packageName, md.storeClassName, code);
+
+                messager.printMessage(NOTE,
+                        String.format("Successfully generated store implementation [%s]", md.storeClassName));
+            } catch (GenerationException ge) {
+                final String msg = ge.getMessage();
+                messager.printMessage(Diagnostic.Kind.ERROR, msg/* , storeElement*/);
+            }
+        }
+
+        // GraphVIZ
+        String graphVizFile = writeGraphViz();
+        validateDAG(graphVizFile);
+    }
+
+    private String writeGraphViz() throws GenerationException, IOException {
+        final Messager messager = processingEnv.getMessager();
         GraphVizGenerator generator = new GraphVizGenerator();
         StringBuffer code = generator.generate(graphVizInfos.values());
         messager.printMessage(NOTE,
                 "Generating GraphViz file to visualize store dependencies [" + GRAPH_VIZ_OUTPUT + "]");
-        FileObject fo = pe.getFiler()
+        FileObject fo = processingEnv.getFiler()
                 .createResource(StandardLocation.SOURCE_OUTPUT, "", GRAPH_VIZ_OUTPUT);
         Writer w = fo.openWriter();
         BufferedWriter bw = new BufferedWriter(w);
@@ -313,9 +290,9 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
         return fo.getName();
     }
 
-    private void validateDAG(final ProcessingEnvironment pe, final String graphVizFile) throws GenerationException {
+    private void validateDAG(final String graphVizFile) throws GenerationException {
         boolean cyclesFound = false;
-        final Messager messager = pe.getMessager();
+        final Messager messager = processingEnv.getMessager();
         for (Map.Entry<String, Multimap<String, String>> entry : dagValidation.entrySet()) {
             String payload = entry.getKey();
             Multimap<String, String> dependencies = entry.getValue();
