@@ -34,7 +34,7 @@
 
     <groupId>org.jboss.gwt.circuit</groupId>
     <artifactId>circuit-parent</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5</version>
     <name>circuit</name>
     <description>GWT implementation of the circuit pattern. See http://facebook.github.io/react/docs/circuit-overview.html</description>
     <packaging>pom</packaging>
