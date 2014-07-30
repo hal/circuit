@@ -82,7 +82,7 @@
 
         <!-- See https://issues.jboss.org/browse/ERRAI-760 -->
         <guava.version>17.0</guava.version>
-        <jgrapht.version>0.9.1-hal</jgrapht.version>
+        <jgrapht.version>0.9.2-hal</jgrapht.version>
         <junit.version>4.11</junit.version>
     </properties>
 
