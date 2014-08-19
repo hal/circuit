@@ -29,7 +29,7 @@
     <parent>
         <groupId>org.jboss.gwt.circuit</groupId>
         <artifactId>circuit-samples-parent</artifactId>
-        <version>0.0.7</version>
+        <version>0.0.8-SNAPSHOT</version>
     </parent>
 
     <artifactId>circuit-calculator-sample</artifactId>
@@ -41,6 +41,10 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>com.google.gwt</groupId>
+            <artifactId>gwt-user</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
