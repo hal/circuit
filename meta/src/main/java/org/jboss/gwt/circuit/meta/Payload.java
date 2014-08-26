@@ -27,19 +27,41 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a method within a class annotated with {@link Store} as the method which should receive actions.
- * The method must return void and have at least one parameter:
- * <ul>
- * <li>Action w/o payload: A single parameter of type {@link org.jboss.gwt.circuit.Dispatcher.Channel} is required</li>
- * <li>Action with payload: Parameters 0..n-1 are the action's payload, the last parameter must be
- * the {@link org.jboss.gwt.circuit.Dispatcher.Channel}</li>
- * </ul>
+ * Annotation to select a payload from an action by name. Must be used on process methods when the payload's type is
+ * ambiguous.
+ * <p/>
+ * <pre>
+ * public class Rate implements Action {
+ *     private final String author;
+ *     private final int stars;
+ *     private final String comment;
+ *
+ *     public Rate(final String author, final int stars, final String comment) {
+ *         this.author = author;
+ *         this.stars = stars;
+ *         this.comment = comment;
+ *     }
+ *
+ *     public String getAuthor() { return author; }
+ *     public int getStars() { return stars; }
+ *     public String getComment() { return comment; }
+ * }
+ *
+ * {@code @}Store
+ * public BookStore {
+ *     {@code @}Process(actionType = Rate.class)
+ *     void rate(final int stars,
+ *               {@code @}Payload("comment") final String comment,
+ *               {@code @}Payload("author") final String author,
+ *               final Dispatcher.Channel channel) {
+ *         ...
+ *     }
+ * }
+ * </pre>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
-public @interface Process {
+@Target({ElementType.PARAMETER})
+public @interface Payload {
 
-    Class<?> actionType();
-
-    Class<?>[] dependencies() default {};
+    String value();
 }
