@@ -21,17 +21,16 @@
  */
 package org.jboss.gwt.circuit.sample.calculator.views;
 
-import static org.jboss.gwt.circuit.sample.calculator.Term.Op;
+import org.jboss.gwt.circuit.Action;
+import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.sample.calculator.NoopAction;
+import org.jboss.gwt.circuit.sample.calculator.Term;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.jboss.gwt.circuit.Action;
-import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.sample.calculator.NoopAction;
-import org.jboss.gwt.circuit.sample.calculator.Term;
-import org.jboss.gwt.circuit.sample.calculator.TermAction;
+import static org.jboss.gwt.circuit.sample.calculator.Term.Op;
 
 public class InputView implements View {
 
@@ -56,8 +55,7 @@ public class InputView implements View {
         for (int i = 0; i < size; i++) {
             Op op = Op.values()[random.nextInt(Op.values().length)];
             boolean noop = 1 + random.nextInt(11) % 4 == 4;
-            Action action = noop ? new NoopAction() : new TermAction(
-                    new Term(1 + random.nextInt(10), op, 1 + random.nextInt(10)));
+            Action action = noop ? new NoopAction() : new Term(1 + random.nextInt(10), op, 1 + random.nextInt(10));
             actions.add(action);
         }
         return actions;

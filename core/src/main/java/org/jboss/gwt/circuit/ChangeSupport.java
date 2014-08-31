@@ -21,13 +21,12 @@
  */
 package org.jboss.gwt.circuit;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.web.bindery.event.shared.HandlerRegistration;
+import com.google.web.bindery.event.shared.UmbrellaException;
+
+import java.util.*;
 
 public abstract class ChangeSupport implements PropagatesChange {
 
@@ -62,45 +61,78 @@ public abstract class ChangeSupport implements PropagatesChange {
 
     public class ChangeHandlerRegistration implements HandlerRegistration {
 
+        private final Class<? extends Action> actionType;
+        private final Action action;
         private final HandlerRef handlerRef;
-        private final Class<?> actionType;
 
-        public ChangeHandlerRegistration(final Class<?> actionType, final HandlerRef handlerRef) {
+        public ChangeHandlerRegistration(final HandlerRef handlerRef) {
+            this(null, null, handlerRef);
+        }
+
+        public ChangeHandlerRegistration(final Class<? extends Action> actionType, final HandlerRef handlerRef) {
+            this(actionType, null, handlerRef);
+        }
+
+        public ChangeHandlerRegistration(final Action action, final HandlerRef handlerRef) {
+            this(null, action, handlerRef);
+        }
+
+        private ChangeHandlerRegistration(final Class<? extends Action> actionType, final Action action, final HandlerRef handlerRef) {
             this.actionType = actionType;
+            this.action = action;
             this.handlerRef = handlerRef;
         }
 
         @Override
         public void removeHandler() {
-            handler.remove(actionType, handlerRef);
+            if (action == null && actionType == null) {
+                handler.remove(handlerRef);
+            } else if (actionType != null) {
+                handlerByType.remove(actionType, handlerRef);
+            } else {
+                handlerByInstance.remove(action, handlerRef);
+            }
         }
     }
 
 
-    private final static Class<Void> ANY_ACTION = Void.TYPE;
-    private Multimap<Class<?>, HandlerRef> handler = LinkedListMultimap.create();
+    private Set<HandlerRef> handler = new LinkedHashSet<>();
+    private Multimap<Class<? extends Action>, HandlerRef> handlerByType = LinkedListMultimap.create();
+    private Multimap<Action, HandlerRef> handlerByInstance = LinkedListMultimap.create();
 
     @Override
     public HandlerRegistration addChangeHandler(final Handler handler) {
         HandlerRef handlerRef = new HandlerRef(handler);
-        this.handler.put(ANY_ACTION, handlerRef);
-        return new ChangeHandlerRegistration(ANY_ACTION, handlerRef);
+        this.handler.add(handlerRef);
+        return new ChangeHandlerRegistration(handlerRef);
     }
 
     @Override
-    public HandlerRegistration addChangeHandler(final Class<?> actionType, final Handler handler) {
+    public HandlerRegistration addChangeHandler(final Class<? extends Action> actionType, final Handler handler) {
         HandlerRef handlerRef = new HandlerRef(handler);
-        this.handler.put(actionType, handlerRef);
+        this.handlerByType.put(actionType, handlerRef);
         return new ChangeHandlerRegistration(actionType, handlerRef);
     }
 
-    public Iterable<Handler> getActionHandler(final Class<?> actionType) {
-        Collection<HandlerRef> handlerRefs = handler.get(actionType); // returns an empty list if nothing was found
+    @Override
+    public HandlerRegistration addChangeHandler(Action action, Handler handler) {
+        HandlerRef handlerRef = new HandlerRef(handler);
+        this.handlerByInstance.put(action, handlerRef);
+        return new ChangeHandlerRegistration(action, handlerRef);
+    }
+
+    public Iterable<Handler> getActionHandler() {
+        return extractHandler(handler);
+    }
+
+    public Iterable<Handler> getActionHandler(final Class<? extends Action> actionType) {
+        Collection<HandlerRef> handlerRefs = handlerByType.get(actionType); // returns an empty list if nothing was found
         return extractHandler(handlerRefs);
     }
 
-    public Iterable<Handler> getHandler() {
-        return extractHandler(handler.get(ANY_ACTION));
+    public Iterable<Handler> getActionHandler(final Action action) {
+        Collection<HandlerRef> handlerRefs = handlerByInstance.get(action); // returns an empty list if nothing was found
+        return extractHandler(handlerRefs);
     }
 
     private List<Handler> extractHandler(final Collection<HandlerRef> handlerRefs) {
@@ -112,15 +144,24 @@ public abstract class ChangeSupport implements PropagatesChange {
     }
 
     protected void fireChange(Action action) {
-        // TODO Exception handling / umbrella exception
-        Class<? extends Action> actionType = action.getClass();
-        Iterable<Handler> actionHandlers = getActionHandler(actionType);
-        for (Handler actionHandler : actionHandlers) {
-            actionHandler.onChange(actionType);
+        List<HandlerRef> allHandler = new ArrayList<>();
+        allHandler.addAll(handler);
+        allHandler.addAll(handlerByType.get(action.getClass()));
+        allHandler.addAll(handlerByInstance.get(action));
+
+        Set<Throwable> causes = null;
+        for (HandlerRef handlerRef : allHandler) {
+            try {
+                handlerRef.handler.onChange(action);
+            } catch (Throwable e) {
+                if (causes == null) {
+                    causes = new HashSet<>();
+                }
+                causes.add(e);
+            }
         }
-        Iterable<Handler> storeHandlers = getHandler();
-        for (Handler storeHandler : storeHandlers) {
-            storeHandler.onChange(actionType);
+        if (causes != null) {
+            throw new UmbrellaException(causes);
         }
     }
 }

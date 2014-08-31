@@ -21,7 +21,9 @@
  */
 package org.jboss.gwt.circuit.sample.calculator;
 
-public class Term {
+import org.jboss.gwt.circuit.Action;
+
+public class Term implements Action {
 
     public enum Op {
         PLUS("+"), MINUS("-"), MULTIPLY("*"), DIVIDE("/");

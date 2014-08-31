@@ -21,42 +21,26 @@
  */
 package org.jboss.gwt.circuit.processor;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.Name;
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 final class GenerationUtil {
 
     private GenerationUtil() {}
 
-    static final String OPT_DISPATCHER_NAME = "dispatcherName";
-    static final String OPT_DISPATCHER_PACKAGE = "dispatcherPackage";
-    static final String DEFAULT_DISPATCHER_NAME = "ApplicationDispatcher";
-
-    /**
-     * Handy constant for an emtpy array of argument types.
-     */
-    static final String[] NO_PARAMS = new String[0];
-
     /**
      * Passing a reference to exactly this array causes
      * {@link #getAnnotatedMethods(javax.lang.model.element.TypeElement, javax.annotation.processing.ProcessingEnvironment,
-     * String, javax.lang.model.type.TypeMirror, String[], StringBuilder)} not to care about parameter types.
+     * String, javax.lang.model.type.TypeMirror, String[])} not to care about parameter types.
      */
     static final String[] ANY_PARAMS = new String[0];
 
@@ -64,42 +48,11 @@ final class GenerationUtil {
         return delegate + "Adapter";
     }
 
-    static boolean isInstanceOf(final TypeElement clazz, final String className) {
-        boolean match = clazz.getQualifiedName().toString().equals(className);
-        if (!match) {
-            TypeMirror superclass = clazz.getSuperclass();
-        }
-        return false;
-    }
-
-    /**
-     * Finds all public, non-static, no-args method annotated with the given annotation which returns the given type.
-     * <p/>
-     * If a method with the given annotation is found but the method does not satisfy the requirements listed above,
-     * the
-     * method will be marked with an error explaining the problem. This will trigger a compilation failure.
-     * <p/>
-     * If more than one method satisfies all the criteria, all such methods are marked with an error explaining the
-     * problem.
-     *
-     * @param originalClassElement   the class to search for the annotated method.
-     * @param processingEnvironment  the current annotation processing environment.
-     * @param annotationName         the fully-qualified name of the annotation to search for.
-     * @param requiredReturnType     the fully qualified name of the type the method must return.
-     * @param requiredParameterTypes the parameter types the method must take. If the method must take no parameters,
-     *                               use
-     *                               {@link #NO_PARAMS}. If the method can take any parameters, use {@link
-     *                               #ANY_PARAMS}.
-     * @param errorHolder            filled with an error, if the given criteria do not match.
-     *
-     * @return a list of references to the methods that satisfy the criteria (empty list if no such method exists).
-     */
-    static List<ExecutableElement> getAnnotatedMethods(final TypeElement originalClassElement,
-            final ProcessingEnvironment processingEnvironment, final String annotationName,
-            final TypeMirror requiredReturnType, final String[] requiredParameterTypes, StringBuilder errorHolder) {
+    static List<ExecutableElement> findGetter(final TypeElement originalClassElement, final ProcessingEnvironment processingEnvironment,
+                                              final TypeMirror requiredReturnType, final String name) {
 
         final Types typeUtils = processingEnvironment.getTypeUtils();
-        final Elements elementUtils = processingEnvironment.getElementUtils();
+        final String getter = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
 
         TypeElement classElement = originalClassElement;
         while (true) {
@@ -107,51 +60,20 @@ final class GenerationUtil {
 
             List<ExecutableElement> matches = new ArrayList<>();
             for (ExecutableElement e : methods) {
-
-                final TypeMirror actualReturnType = e.getReturnType();
-
-                if (getAnnotation(elementUtils, e, annotationName) == null) {
+                if (!e.getSimpleName().toString().equals(getter)) {
                     continue;
                 }
-
-                List<String> problems = new ArrayList<>();
-
+                final TypeMirror actualReturnType = e.getReturnType();
                 if (!typeUtils.isAssignable(actualReturnType, requiredReturnType)) {
-                    problems.add("return " + requiredReturnType);
-                }
-                if (!doParametersMatch(typeUtils, elementUtils, e, requiredParameterTypes)) {
-                    if (requiredParameterTypes.length == 0) {
-                        problems.add("take no parameters");
-                    } else {
-                        StringBuilder sb = new StringBuilder();
-                        sb.append("take ").append(requiredParameterTypes.length).append(" parameters of type (");
-                        boolean first = true;
-                        for (String p : requiredParameterTypes) {
-                            if (!first) {
-                                sb.append(", ");
-                            }
-                            sb.append(p);
-                            first = false;
-                        }
-                        sb.append(")");
-                        problems.add(sb.toString());
-                    }
+                    continue;
                 }
                 if (e.getModifiers().contains(Modifier.STATIC)) {
-                    problems.add("be non-static");
+                    continue;
                 }
                 if (e.getModifiers().contains(Modifier.PRIVATE)) {
-                    problems.add("be non-private");
+                    continue;
                 }
-
-
-                if (problems.isEmpty()) {
-                    matches.add(e);
-                } else {
-                    if (errorHolder != null) {
-                        errorHolder.append(formatProblemsList(annotationName, problems));
-                    }
-                }
+                matches.add(e);
             }
 
             if (!matches.isEmpty()) {
@@ -165,7 +87,52 @@ final class GenerationUtil {
                 break;
             }
         }
+        return Collections.emptyList();
+    }
 
+    static List<ExecutableElement> getAnnotatedMethods(final TypeElement originalClassElement,
+            final ProcessingEnvironment processingEnvironment, final String annotationName,
+            final TypeMirror requiredReturnType, final String[] requiredParameterTypes) {
+
+        final Types typeUtils = processingEnvironment.getTypeUtils();
+        final Elements elementUtils = processingEnvironment.getElementUtils();
+
+        TypeElement classElement = originalClassElement;
+        while (true) {
+            final List<ExecutableElement> methods = ElementFilter.methodsIn(classElement.getEnclosedElements());
+
+            List<ExecutableElement> matches = new ArrayList<>();
+            for (ExecutableElement e : methods) {
+                final TypeMirror actualReturnType = e.getReturnType();
+                if (getAnnotation(elementUtils, e, annotationName) == null) {
+                    continue;
+                }
+                if (!typeUtils.isAssignable(actualReturnType, requiredReturnType)) {
+                    continue;
+                }
+                if (!doParametersMatch(typeUtils, elementUtils, e, requiredParameterTypes)) {
+                    continue;
+                }
+                if (e.getModifiers().contains(Modifier.STATIC)) {
+                    continue;
+                }
+                if (e.getModifiers().contains(Modifier.PRIVATE)) {
+                    continue;
+                }
+                matches.add(e);
+            }
+
+            if (!matches.isEmpty()) {
+                return matches;
+            }
+
+            TypeMirror superclass = classElement.getSuperclass();
+            if (superclass instanceof DeclaredType) {
+                classElement = (TypeElement) ((DeclaredType) superclass).asElement();
+            } else {
+                break;
+            }
+        }
         return Collections.emptyList();
     }
 
@@ -186,7 +153,7 @@ final class GenerationUtil {
     static Collection<String> extractValue(final AnnotationValue value) {
         if (value.getValue() instanceof Collection) {
             final Collection<?> varray = (List<?>) value.getValue();
-            final ArrayList<String> result = new ArrayList<String>(varray.size());
+            final ArrayList<String> result = new ArrayList<>(varray.size());
             for (final Object active : varray) {
                 result.addAll(extractValue((AnnotationValue) active));
             }
@@ -195,20 +162,6 @@ final class GenerationUtil {
         return Collections.singleton(value.getValue().toString());
     }
 
-    /**
-     * Checks whether the ExecutableElement's parameter list matches the requiredParameterTypes (order matters).
-     *
-     * @param typeUtils              type utils from current processing environment.
-     * @param elementUtils           element utils from current processing environment.
-     * @param e                      the method whose parameter list to check.
-     * @param requiredParameterTypes the required parameter types. Must not be null.
-     *                               If a reference to {@link #ANY_PARAMS}, this method returns true without any
-     *                               further
-     *                               checks.
-     *
-     * @return true if the target method's parameter list matches the given required parameter types, or if the special
-     * {@link #ANY_PARAMS} value is passed as {@code requiredParameterTypes}. False otherwise.
-     */
     static boolean doParametersMatch(final Types typeUtils,
             final Elements elementUtils,
             final ExecutableElement e,
@@ -232,44 +185,5 @@ final class GenerationUtil {
             }
         }
         return true;
-    }
-
-    /**
-     * Renders the given list of problems with an annotated method as an English sentence.
-     * The sentence takes the form "Methods annotated with <i>annotationSimpleName</i> must <i>list of problems</i>".
-     * Commas and "and" are inserted as appropriate.
-     *
-     * @param annotationFqcn the fully-qualified name of the annotation the problems pertain to.
-     * @param problems       the list of problems, as verb phrases. Must not be null, and should contain at least one
-     *                       item.
-     *
-     * @return a nice English sentence summarizing the problems.
-     */
-    private static String formatProblemsList(final String annotationFqcn, List<String> problems) {
-        StringBuilder msg = new StringBuilder();
-        msg.append("Methods annotated with @")
-                .append(fqcnToSimpleName(annotationFqcn))
-                .append(" must ");
-        for (int i = 0; i < problems.size(); i++) {
-            if (problems.size() > 2 && i > 0) {
-                msg.append(", ");
-            }
-            if (problems.size() == 2 && i == 1) {
-                msg.append(" and ");
-            }
-            if (problems.size() > 2 && i == problems.size() - 1) {
-                msg.append("and ");
-            }
-            msg.append(problems.get(i));
-        }
-        return msg.toString();
-    }
-
-    private static String fqcnToSimpleName(String fqcn) {
-        int lastIndexOfDot = fqcn.lastIndexOf('.');
-        if (lastIndexOfDot != -1) {
-            return fqcn.substring(lastIndexOfDot + 1);
-        }
-        return fqcn;
     }
 }

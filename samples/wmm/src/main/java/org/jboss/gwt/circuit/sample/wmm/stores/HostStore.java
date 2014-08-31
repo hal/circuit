@@ -21,15 +21,15 @@
  */
 package org.jboss.gwt.circuit.sample.wmm.stores;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.StoreCallback;
 import org.jboss.gwt.circuit.sample.wmm.actions.StartServerAction;
 import org.jboss.gwt.circuit.sample.wmm.actions.StopServerAction;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class HostStore {
 
@@ -53,10 +53,10 @@ public class HostStore {
             public void complete(final Action action, final Dispatcher.Channel channel) {
                 if (action instanceof StartServerAction) {
                     StartServerAction start = (StartServerAction) action;
-                    runningServers.add(start.getPayload());
+                    runningServers.add(start.getServer());
                 } else if (action instanceof StopServerAction) {
                     StopServerAction stop = (StopServerAction) action;
-                    runningServers.remove(stop.getPayload());
+                    runningServers.remove(stop.getServer());
                 }
                 channel.ack();
             }

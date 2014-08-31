@@ -9,7 +9,7 @@ public interface PropagatesChange {
 
     public interface Handler {
 
-        void onChange(Class<?> actionType);
+        void onChange(Action action);
     }
 
     /**
@@ -21,5 +21,11 @@ public interface PropagatesChange {
      * Registers a {@link PropagatesChange.Handler} to be notified only when the store was
      * modified by the specified action type.
      */
-    HandlerRegistration addChangeHandler(Class<?> actionType, Handler handler);
+    HandlerRegistration addChangeHandler(Class<? extends Action> actionType, Handler handler);
+
+    /**
+     * Registers a {@link PropagatesChange.Handler} to be notified only when the store was
+     * modified by the specified action instance.
+     */
+    HandlerRegistration addChangeHandler(Action action, Handler handler);
 }

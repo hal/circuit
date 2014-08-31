@@ -12,10 +12,6 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-/**
- * @author Heiko Braun
- * @date 25/06/14
- */
 public class Dialog {
 
     public static void askFor(String message, final AsyncCallback<String> callback) {

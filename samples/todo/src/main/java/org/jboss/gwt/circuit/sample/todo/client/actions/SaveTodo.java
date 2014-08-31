@@ -21,45 +21,16 @@
  */
 package org.jboss.gwt.circuit.sample.todo.client.actions;
 
-import org.jboss.gwt.circuit.meta.ActionType;
+import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.sample.todo.shared.Todo;
 
-@ActionType
-public class SaveTodo implements org.jboss.gwt.circuit.Action<Todo> {
+public class SaveTodo implements Action {
 
     private final Todo todo;
 
     public SaveTodo(final Todo todo) {this.todo = todo;}
 
-    @Override
-    public Todo getPayload() {
-        return todo;
-    }
-
-    @Deprecated
     public Todo getTodo() {
         return todo;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) { return true; }
-        if (!(o instanceof SaveTodo)) { return false; }
-
-        SaveTodo that = (SaveTodo) o;
-
-        if (!todo.equals(that.todo)) { return false; }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return todo.hashCode();
-    }
-
-    @Override
-    public String toString() {
-        return "RemoveTodo(" + todo + ")";
     }
 }

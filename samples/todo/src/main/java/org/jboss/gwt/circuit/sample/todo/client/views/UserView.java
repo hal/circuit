@@ -1,28 +1,25 @@
 package org.jboss.gwt.circuit.sample.todo.client.views;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.PropagatesChange;
 import org.jboss.gwt.circuit.sample.todo.client.actions.AddUser;
 import org.jboss.gwt.circuit.sample.todo.client.actions.RemoveUser;
 import org.jboss.gwt.circuit.sample.todo.client.actions.SelectUser;
 import org.jboss.gwt.circuit.sample.todo.client.stores.UserStore;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 @ApplicationScoped
 public class UserView extends Composite {
@@ -102,7 +99,7 @@ public class UserView extends Composite {
     public void init() {
         userStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChange(final Class<?> actionType) {
+            public void onChange(final Action action) {
                 updateUserList();
                 removeButton.setEnabled(userStore.getSelectedUser() != null);
             }

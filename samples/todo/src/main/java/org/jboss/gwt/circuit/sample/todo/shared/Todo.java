@@ -24,6 +24,7 @@ package org.jboss.gwt.circuit.sample.todo.shared;
 import java.io.Serializable;
 
 public class Todo implements Serializable {
+
     private String id;
     private String name;
     private boolean done;

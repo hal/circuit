@@ -22,9 +22,8 @@
 package org.jboss.gwt.circuit;
 
 /**
- * An action carrying a payload. The payload must implement {@code hashCode()} and {@code equals()}.
+ * The action marker interface. An action implementation is typically some kind of POJO.
+ * Actions must provide a proper {@code equals()} and {@code hashCode()} implementation.
  */
-public interface Action<P> {
-
-    P getPayload();
+public interface Action {
 }

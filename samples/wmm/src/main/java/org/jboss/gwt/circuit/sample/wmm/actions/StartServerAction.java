@@ -23,14 +23,13 @@ package org.jboss.gwt.circuit.sample.wmm.actions;
 
 import org.jboss.gwt.circuit.Action;
 
-public class StartServerAction implements Action<String> {
+public class StartServerAction implements Action {
 
     private final String server;
 
     public StartServerAction(final String server) {this.server = server;}
 
-    @Override
-    public String getPayload() {
+    public String getServer() {
         return server;
     }
 }

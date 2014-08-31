@@ -21,42 +21,6 @@
  */
 package org.jboss.gwt.circuit.processor;
 
-import static javax.tools.Diagnostic.Kind.ERROR;
-import static javax.tools.Diagnostic.Kind.NOTE;
-import static org.jboss.gwt.circuit.processor.GenerationUtil.ANY_PARAMS;
-
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.processing.Messager;
-import javax.annotation.processing.RoundEnvironment;
-import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
-import javax.lang.model.SourceVersion;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.PackageElement;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.NoType;
-import javax.lang.model.type.TypeKind;
-import javax.lang.model.util.Elements;
-import javax.lang.model.util.Types;
-import javax.tools.Diagnostic;
-import javax.tools.FileObject;
-import javax.tools.StandardLocation;
-
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import org.jboss.gwt.circuit.ChangeSupport;
@@ -67,6 +31,28 @@ import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
+
+import javax.annotation.processing.Messager;
+import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedSourceVersion;
+import javax.lang.model.SourceVersion;
+import javax.lang.model.element.*;
+import javax.lang.model.type.NoType;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
+import javax.tools.Diagnostic;
+import javax.tools.FileObject;
+import javax.tools.StandardLocation;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.*;
+
+import static javax.tools.Diagnostic.Kind.ERROR;
+import static javax.tools.Diagnostic.Kind.NOTE;
+import static org.jboss.gwt.circuit.processor.GenerationUtil.ANY_PARAMS;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 @SupportedAnnotationTypes("org.jboss.gwt.circuit.meta.Store")
@@ -86,7 +72,7 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
 
     @Override
     protected boolean processWithExceptions(final Set<? extends TypeElement> annotations,
-            final RoundEnvironment roundEnv) throws Exception {
+                                            final RoundEnvironment roundEnv) throws Exception {
 
         if (roundEnv.errorRaised()) {
             return false;
@@ -122,8 +108,8 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
 
             List<ExecutableElement> processMethods = new ArrayList<>();
             if (findValidProcessMethods(messager, typeUtils, storeElement, processMethods)) {
-                Collection<ProcessInfo> processInfos = getProcessInfos(messager, typeUtils, storeElement,
-                        processMethods);
+                Collection<ProcessInfo> processInfos = createProcessInfos(messager, typeUtils, elementUtils,
+                        storeElement, processMethods);
 
                 metadata.add(new StoreDelegateMetadata(packageName, storeClassName, storeDelegate, changeSupport,
                         processInfos));
@@ -138,13 +124,12 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
     }
 
     private boolean findValidProcessMethods(final Messager messager, final Types typeUtils,
-            final TypeElement storeElement, List<ExecutableElement> processMethods) {
+                                            final TypeElement storeElement, List<ExecutableElement> processMethods) {
 
         boolean valid = true;
-        StringBuilder errorMessage = new StringBuilder();
         NoType voidType = typeUtils.getNoType(TypeKind.VOID);
         List<ExecutableElement> allProcessMethods = GenerationUtil.getAnnotatedMethods(storeElement, processingEnv,
-                Process.class.getName(), voidType, ANY_PARAMS, errorMessage);
+                Process.class.getName(), voidType, ANY_PARAMS);
         if (allProcessMethods.isEmpty()) {
             messager.printMessage(ERROR, String.format(
                     "No process methods found in [%s]. Please use @%s to mark one or several methods as process methods.",
@@ -157,8 +142,10 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
         return valid;
     }
 
-    private Collection<ProcessInfo> getProcessInfos(final Messager messager, final Types typeUtils,
-            final TypeElement storeElement, final List<ExecutableElement> processMethods) throws GenerationException {
+    private Collection<ProcessInfo> createProcessInfos(final Messager messager, final Types typeUtils,
+                                                       Elements elementUtils, final TypeElement storeElement,
+                                                       final List<ExecutableElement> processMethods)
+            throws GenerationException {
 
         final List<ProcessInfo> processInfos = new LinkedList<>();
         final String storeDelegate = storeElement.getSimpleName().toString();
@@ -166,56 +153,59 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
 
             String actionType = Void.class.getCanonicalName();
             Collection<String> dependencies = Collections.emptySet();
-            for (AnnotationMirror am : methodElement.getAnnotationMirrors()) {
-                if (org.jboss.gwt.circuit.meta.Process.class.getName().equals(am.getAnnotationType().toString())) {
-                    for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : am
-                            .getElementValues().entrySet()) {
-                        if ("dependencies".equals(entry.getKey().getSimpleName().toString())) {
-                            dependencies = GenerationUtil.extractValue(entry.getValue());
-                        } else if ("actionType".equals(entry.getKey().getSimpleName().toString())) {
-                            actionType = (String) ((Set) GenerationUtil.extractValue(entry.getValue())).iterator()
-                                    .next();
-                        }
-                    }
+            AnnotationMirror processAnnotation = GenerationUtil.getAnnotation(elementUtils, methodElement, Process.class.getName());
+            for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : processAnnotation.getElementValues().entrySet()) {
+                if ("dependencies".equals(entry.getKey().getSimpleName().toString())) {
+                    dependencies = GenerationUtil.extractValue(entry.getValue());
+                } else if ("actionType".equals(entry.getKey().getSimpleName().toString())) {
+                    actionType = (String) ((Set) GenerationUtil.extractValue(entry.getValue())).iterator().next();
                 }
             }
 
-            if (methodElement.getParameters().size() == 2) {
-                // first parameter is action actionType, the second one the back channel
-                VariableElement payloadParameter = methodElement.getParameters().get(0);
-                TypeElement payloadParameterType = (TypeElement) typeUtils.asElement(payloadParameter.asType());
-                processInfos.add(
-                        new ProcessInfo(methodElement.getSimpleName().toString(), actionType,
-                                payloadParameterType.getQualifiedName().toString()));
-
-            } else if (methodElement.getParameters().size() == 1) {
-                // if a single param is used it need to be the back channel
-                VariableElement param = methodElement.getParameters().get(0);
-                TypeElement paramType = (TypeElement) typeUtils.asElement(param.asType());
-                if (!paramType.getQualifiedName().toString().equals(Dispatcher.Channel.class.getCanonicalName())) {
-                    String error = String.format(
-                            "Illegal type for parameter '%s' on method '%s' in class '%s'. Expected type '%s'",
-                            param.getSimpleName(), methodElement.getSimpleName(), storeElement.getSimpleName(),
-                            Dispatcher.Channel.class.getCanonicalName());
-                    messager.printMessage(Diagnostic.Kind.ERROR, error);
-                    continue;
-                }
-                processInfos.add(new ProcessInfo(methodElement.getSimpleName().toString(), actionType));
-
-            } else {
-                // anything beyond two parameters on receive methods is considered an error
-                String error = String.format(
-                        "Illegal number of argument on method '%s' in class '%s'",
-                        methodElement.getSimpleName(), storeElement.getSimpleName());
-                messager.printMessage(Diagnostic.Kind.ERROR, error);
-                continue;
-            }
-
-            // collect infos for the code generation
-            ProcessInfo processInfo = processInfos.get(processInfos.size() - 1);
+            TypeElement actionTypeElement = elementUtils.getTypeElement(actionType);
+            ProcessInfo processInfo = new ProcessInfo(methodElement.getSimpleName().toString(), actionType);
+            processInfos.add(processInfo);
             for (String store : dependencies) {
                 // IMPORTANT: The actual dependency is the store adaptee!
                 processInfo.addDependency(store + ".class");
+            }
+
+            List<? extends VariableElement> parameters = methodElement.getParameters();
+            if (parameters.size() == 1) {
+                // if a single param is used it needs to be the dispatcher channel
+                verifyDispatcherChannel(messager, typeUtils, storeElement, methodElement, parameters.get(0));
+                continue;
+
+            } else if (parameters.size() > 1) {
+                // parameters 1..n-1 are payload, the last one is the dispatcher channel
+                for (int i = 0; i < parameters.size(); i++) {
+                    if (i == parameters.size() - 1) {
+                        verifyDispatcherChannel(messager, typeUtils, storeElement, methodElement, parameters.get(i));
+                    } else {
+                        VariableElement parameter = parameters.get(i);
+                        TypeElement parameterType = (TypeElement) typeUtils.asElement(parameter.asType());
+                        String payloadType = parameterType.getQualifiedName().toString();
+                        String payloadName = parameter.getSimpleName().toString();
+
+                        // Check getter in action type
+                        List<ExecutableElement> getter = GenerationUtil.findGetter(actionTypeElement, processingEnv, parameterType.asType(), payloadName);
+                        if (getter.isEmpty()) {
+                            String error = String.format("No getter found for payload parameter '%s %s' on method '%s' in class '%s'",
+                                    payloadType, payloadName, methodElement.getSimpleName(), storeElement.getSimpleName());
+                            messager.printMessage(Diagnostic.Kind.ERROR, error);
+                            continue;
+                        }
+                        processInfo.addPayload(getter.get(0).getSimpleName().toString());
+                    }
+                }
+
+            } else {
+                // anything else is considered an error
+                String error = String.format(
+                        "No valid process method '%s' in class '%s'. Please provide at least a parameter of type '%s'",
+                        methodElement.getSimpleName(), storeElement.getSimpleName(), Dispatcher.Channel.class.getSimpleName());
+                messager.printMessage(Diagnostic.Kind.ERROR, error);
+                continue;
             }
 
             // record dependencies in a different data structures to generate GraphViz...
@@ -244,6 +234,18 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
         }
 
         return processInfos;
+    }
+
+    private void verifyDispatcherChannel(final Messager messager, final Types typeUtils,
+                                         TypeElement storeElement, ExecutableElement methodElement, VariableElement param) {
+        TypeElement paramType = (TypeElement) typeUtils.asElement(param.asType());
+        if (!paramType.getQualifiedName().toString().equals(Dispatcher.Channel.class.getCanonicalName())) {
+            String error = String.format(
+                    "Illegal type for parameter '%s' on method '%s' in class '%s'. Expected type '%s'",
+                    param.getSimpleName(), methodElement.getSimpleName(), storeElement.getSimpleName(),
+                    Dispatcher.Channel.class.getCanonicalName());
+            messager.printMessage(Diagnostic.Kind.ERROR, error);
+        }
     }
 
 

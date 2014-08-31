@@ -60,7 +60,7 @@ public class ${storeClassName} {
                     <#if processInfo.singleArg>
                     delegate.${processInfo.method}(channel);
                     <#else>
-                    delegate.${processInfo.method}(((${processInfo.actionType})action).getPayload(), channel);
+                    delegate.${processInfo.method}(<#list processInfo.getPayload() as payload>((${processInfo.actionType})action).${payload}()</#list>, channel);
                     </#if>
                 }
                 </#list>
@@ -74,14 +74,17 @@ public class ${storeClassName} {
             public void signalChange(final Action action) {
                 <#if changeSupport>
                 <#-- ChangeSupport.fireChange(Action) is protected on purpose, so we have to reimplement it here -->
-                Class<? extends Action> actionType = action.getClass();
-                Iterable<Handler> actionHandlers = delegate.getActionHandler(actionType);
-                for (Handler actionHandler : actionHandlers) {
-                    actionHandler.onChange(actionType);
+                Iterable<Handler> handler = delegate.getActionHandler(action);
+                for (Handler h : handler) {
+                    h.onChange(action);
                 }
-                Iterable<Handler> storeHandlers = delegate.getHandler();
-                for (Handler storeHandler : storeHandlers) {
-                    storeHandler.onChange(actionType);
+                handler = delegate.getActionHandler(action.getClass());
+                for (Handler h : handler) {
+                    h.onChange(action);
+                }
+                handler = delegate.getActionHandler();
+                for (Handler h : handler) {
+                    h.onChange(action);
                 }
                 <#else>
                 System.out.println("WARN: Cannot signal change event: " + ${storeDelegate}.class.getName() + " does not extend " + org.jboss.gwt.circuit.ChangeSupport.class.getName());
