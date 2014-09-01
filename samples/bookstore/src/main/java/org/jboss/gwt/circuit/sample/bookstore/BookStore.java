@@ -41,13 +41,17 @@ public class BookStore {
 
     @Process(actionType = Rate.class)
     public void rate(int stars, Book book, Dispatcher.Channel channel) {
+        failSafeGet(book).add(stars);
+        channel.ack();
+    }
+
+    private Rating failSafeGet(Book book) {
         Rating rating = ratings.get(book);
         if (rating == null) {
             rating = new Rating();
             ratings.put(book, rating);
         }
-        rating.add(stars);
-        channel.ack();
+        return rating;
     }
 
     public double getRating(Book book) {
