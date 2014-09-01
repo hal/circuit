@@ -38,8 +38,9 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>todo</module>
+        <module>bookstore</module>
         <module>calculator</module>
+        <module>todo</module>
         <module>wardrobe</module>
         <module>wmm</module>
     </modules>

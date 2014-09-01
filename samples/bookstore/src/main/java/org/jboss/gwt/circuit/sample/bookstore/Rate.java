@@ -19,24 +19,50 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.circuit.sample.wardrobe.stores;
+package org.jboss.gwt.circuit.sample.bookstore;
 
-import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.meta.Process;
-import org.jboss.gwt.circuit.meta.Store;
-import org.jboss.gwt.circuit.sample.wardrobe.actions.Dress;
-import org.jboss.gwt.circuit.sample.wardrobe.actions.Undress;
+import org.jboss.gwt.circuit.Action;
 
-@Store
-public class UndershirtStore {
+public class Rate implements Action {
 
-    @Process(actionType = Dress.class)
-    public void dress(Dispatcher.Channel channel) {
-        channel.ack();
+    private final Book book;
+    private final int stars;
+
+    public Rate(Book book, int stars) {
+        this.book = book;
+        this.stars = stars;
     }
 
-    @Process(actionType = Undress.class, dependencies = PulloverStore.class)
-    public void undress(Dispatcher.Channel channel) {
-        channel.ack();
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Rate)) return false;
+
+        Rate rate = (Rate) o;
+
+        if (stars != rate.stars) return false;
+        if (!book.equals(rate.book)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = book.hashCode();
+        result = 31 * result + stars;
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Rate(" + book + ": " + stars + " stars)";
+    }
+
+    public Book getBook() {
+        return book;
+    }
+
+    public int getStars() {
+        return stars;
     }
 }

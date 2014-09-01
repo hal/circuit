@@ -60,13 +60,12 @@ public class ${storeClassName} {
                     <#if processInfo.singleArg>
                     delegate.${processInfo.method}(channel);
                     <#else>
-                    delegate.${processInfo.method}(<#list processInfo.getPayload() as payload>((${processInfo.actionType})action).${payload}()</#list>, channel);
+                    delegate.${processInfo.method}(<#list processInfo.getPayload() as payload>((${processInfo.actionType})action).${payload}(), </#list>channel);
                     </#if>
                 }
                 </#list>
                 else {
-                    System.out.println("WARN: Unmatched action " + action.getClass().getName() + " in store " + delegate.getClass());
-                    channel.ack();
+                    channel.nack("Warning: Unmatched action type " + action.getClass().getName() + " in store " + delegate.getClass());
                 }
             }
 
@@ -74,17 +73,14 @@ public class ${storeClassName} {
             public void signalChange(final Action action) {
                 <#if changeSupport>
                 <#-- ChangeSupport.fireChange(Action) is protected on purpose, so we have to reimplement it here -->
-                Iterable<Handler> handler = delegate.getActionHandler(action);
-                for (Handler h : handler) {
-                    h.onChange(action);
+                for (Handler handler : delegate.getActionHandler(action)) {
+                    handler.onChange(action);
                 }
-                handler = delegate.getActionHandler(action.getClass());
-                for (Handler h : handler) {
-                    h.onChange(action);
+                for (Handler handler : delegate.getActionHandler(action.getClass())) {
+                    handler.onChange(action);
                 }
-                handler = delegate.getActionHandler();
-                for (Handler h : handler) {
-                    h.onChange(action);
+                for (Handler handler : delegate.getActionHandler()) {
+                    handler.onChange(action);
                 }
                 <#else>
                 System.out.println("WARN: Cannot signal change event: " + ${storeDelegate}.class.getName() + " does not extend " + org.jboss.gwt.circuit.ChangeSupport.class.getName());

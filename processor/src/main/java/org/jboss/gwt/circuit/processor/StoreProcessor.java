@@ -183,15 +183,13 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
                         verifyDispatcherChannel(messager, typeUtils, storeElement, methodElement, parameters.get(i));
                     } else {
                         VariableElement parameter = parameters.get(i);
-                        TypeElement parameterType = (TypeElement) typeUtils.asElement(parameter.asType());
-                        String payloadType = parameterType.getQualifiedName().toString();
                         String payloadName = parameter.getSimpleName().toString();
 
                         // Check getter in action type
-                        List<ExecutableElement> getter = GenerationUtil.findGetter(actionTypeElement, processingEnv, parameterType.asType(), payloadName);
+                        List<ExecutableElement> getter = GenerationUtil.findGetter(actionTypeElement, processingEnv, parameter.asType(), payloadName);
                         if (getter.isEmpty()) {
-                            String error = String.format("No getter found for payload parameter '%s %s' on method '%s' in class '%s'",
-                                    payloadType, payloadName, methodElement.getSimpleName(), storeElement.getSimpleName());
+                            String error = String.format("No getter found for payload parameter '%s' on method '%s' in class '%s'",
+                                    payloadName, methodElement.getSimpleName(), storeElement.getSimpleName());
                             messager.printMessage(Diagnostic.Kind.ERROR, error);
                             continue;
                         }
@@ -200,7 +198,7 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
                 }
 
             } else {
-                // anything else is considered an error
+                // anything else is considered as an error
                 String error = String.format(
                         "No valid process method '%s' in class '%s'. Please provide at least a parameter of type '%s'",
                         methodElement.getSimpleName(), storeElement.getSimpleName(), Dispatcher.Channel.class.getSimpleName());

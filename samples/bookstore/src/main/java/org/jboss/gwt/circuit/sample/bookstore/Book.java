@@ -19,24 +19,39 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.circuit.sample.wardrobe.stores;
+package org.jboss.gwt.circuit.sample.bookstore;
 
-import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.meta.Process;
-import org.jboss.gwt.circuit.meta.Store;
-import org.jboss.gwt.circuit.sample.wardrobe.actions.Dress;
-import org.jboss.gwt.circuit.sample.wardrobe.actions.Undress;
+public class Book {
 
-@Store
-public class UndershirtStore {
+    private final String isbn;
+    private final String title;
+    private final String author;
 
-    @Process(actionType = Dress.class)
-    public void dress(Dispatcher.Channel channel) {
-        channel.ack();
+    public Book(String isbn, String title, String author) {
+        this.isbn = isbn;
+        this.title = title;
+        this.author = author;
     }
 
-    @Process(actionType = Undress.class, dependencies = PulloverStore.class)
-    public void undress(Dispatcher.Channel channel) {
-        channel.ack();
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Book)) return false;
+
+        Book book = (Book) o;
+
+        if (!isbn.equals(book.isbn)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return isbn.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Book(" + isbn + ": " + title + " by " + author + + ')';
     }
 }
