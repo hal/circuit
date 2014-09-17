@@ -28,10 +28,11 @@ import java.lang.annotation.Target;
 
 /**
  * Marks a method within a class annotated with {@link Store} as the method which should receive actions.
- * The method must return void and have at most two parameters, but at least one:
+ * The method must return void and have at least one parameter:
  * <ul>
- *     <li>Action w/o payload: A single parameter of type {@link org.jboss.gwt.circuit.Dispatcher.Channel} is required</li>
- *     <li>Action with payload: The first parameter is the action, the second one the Dispatcher.Channel </li>
+ * <li>Action w/o payload: A single parameter of type {@link org.jboss.gwt.circuit.Dispatcher.Channel} is required</li>
+ * <li>Action with payload: Parameters 0..n-1 are the action's payload, the last parameter must be
+ * the {@link org.jboss.gwt.circuit.Dispatcher.Channel}</li>
  * </ul>
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -39,5 +40,6 @@ import java.lang.annotation.Target;
 public @interface Process {
 
     Class<?> actionType();
+
     Class<?>[] dependencies() default {};
 }

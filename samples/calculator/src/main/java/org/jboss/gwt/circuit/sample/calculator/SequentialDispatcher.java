@@ -21,13 +21,13 @@
  */
 package org.jboss.gwt.circuit.sample.calculator;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.NoopChannel;
 import org.jboss.gwt.circuit.StoreCallback;
-import org.jboss.gwt.circuit.util.NoopChannel;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class SequentialDispatcher implements Dispatcher {
 

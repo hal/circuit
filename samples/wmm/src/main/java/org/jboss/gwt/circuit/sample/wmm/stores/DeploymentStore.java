@@ -21,8 +21,6 @@
  */
 package org.jboss.gwt.circuit.sample.wmm.stores;
 
-import java.util.Iterator;
-
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import org.jboss.gwt.circuit.Action;
@@ -33,6 +31,8 @@ import org.jboss.gwt.circuit.sample.wmm.actions.DeployAction;
 import org.jboss.gwt.circuit.sample.wmm.actions.Deployment;
 import org.jboss.gwt.circuit.sample.wmm.actions.StopServerAction;
 import org.jboss.gwt.circuit.sample.wmm.actions.UndeployAction;
+
+import java.util.Iterator;
 
 public class DeploymentStore {
 
@@ -55,7 +55,7 @@ public class DeploymentStore {
             @Override
             public void complete(final Action action, final Dispatcher.Channel channel) {
                 if (action instanceof StopServerAction) {
-                    String serverToStop = ((StopServerAction) action).getPayload();
+                    String serverToStop = ((StopServerAction) action).getServer();
                     for (Iterator<String> iterator = deployments.values().iterator(); iterator.hasNext(); ) {
                         String server = iterator.next();
                         if (server.equals(serverToStop)) {
@@ -65,11 +65,11 @@ public class DeploymentStore {
                 }
                 else if (action instanceof DeployAction) {
                     DeployAction deployAction = (DeployAction) action;
-                    Deployment deployment = deployAction.getPayload();
+                    Deployment deployment = deployAction.getDeployment();
                     deployments.put(deployment.getName(), deployment.getServer());
                 } else if (action instanceof UndeployAction) {
                     UndeployAction undeployAction = (UndeployAction) action;
-                    Deployment deployment = undeployAction.getPayload();
+                    Deployment deployment = undeployAction.getDeployment();
                     deployments.remove(deployment.getName(), deployment.getServer());
                 }
                 channel.ack();

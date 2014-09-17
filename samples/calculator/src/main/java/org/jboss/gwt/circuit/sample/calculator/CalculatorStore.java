@@ -21,15 +21,11 @@
  */
 package org.jboss.gwt.circuit.sample.calculator;
 
+import org.jboss.gwt.circuit.*;
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import org.jboss.gwt.circuit.Action;
-import org.jboss.gwt.circuit.Agreement;
-import org.jboss.gwt.circuit.ChangeSupport;
-import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.StoreCallback;
 
 public class CalculatorStore extends ChangeSupport {
 
@@ -41,7 +37,7 @@ public class CalculatorStore extends ChangeSupport {
         dispatcher.register(CalculatorStore.class, new StoreCallback() {
             @Override
             public Agreement voteFor(final Action action) {
-                if (action instanceof TermAction) {
+                if (action instanceof Term) {
                     return new Agreement(true);
                 }
                 return Agreement.NONE;
@@ -49,9 +45,11 @@ public class CalculatorStore extends ChangeSupport {
 
             @Override
             public void complete(final Action action, final Dispatcher.Channel channel) {
-                Term term = (Term) action.getPayload();
-                results.put(term, calculate(term));
-                channel.ack();
+                if (action instanceof Term) {
+                    Term term = (Term) action;
+                    results.put(term, calculate(term));
+                    channel.ack();
+                }
             }
 
             @Override

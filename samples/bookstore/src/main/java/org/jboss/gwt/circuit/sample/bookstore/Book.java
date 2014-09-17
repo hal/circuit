@@ -19,26 +19,39 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.circuit.util;
+package org.jboss.gwt.circuit.sample.bookstore;
 
-import org.jboss.gwt.circuit.Dispatcher;
+public class Book {
 
-public class NoopChannel {
+    private final String isbn;
+    private final String title;
+    private final String author;
 
-    public static Dispatcher.Channel INSTANCE = new Dispatcher.Channel() {
-        @Override
-        public void ack() {
-            // noop
-        }
+    public Book(String isbn, String title, String author) {
+        this.isbn = isbn;
+        this.title = title;
+        this.author = author;
+    }
 
-        @Override
-        public void ack(final boolean emitChange) {
-            // noop
-        }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Book)) return false;
 
-        @Override
-        public void nack(final Throwable t) {
-            // noop
-        }
-    };
+        Book book = (Book) o;
+
+        if (!isbn.equals(book.isbn)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return isbn.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Book(" + isbn + ": " + title + " by " + author + + ')';
+    }
 }

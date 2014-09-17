@@ -19,23 +19,50 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.circuit.util;
+package org.jboss.gwt.circuit.sample.bookstore;
 
 import org.jboss.gwt.circuit.Action;
 
-public class SimpleAction implements Action<String> {
+public class Rate implements Action {
 
-    private final String id;
+    private final Book book;
+    private final int stars;
 
-    public SimpleAction(final String id) {this.id = id;}
+    public Rate(Book book, int stars) {
+        this.book = book;
+        this.stars = stars;
+    }
 
     @Override
-    public String getPayload() {
-        return id;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Rate)) return false;
+
+        Rate rate = (Rate) o;
+
+        if (stars != rate.stars) return false;
+        if (!book.equals(rate.book)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = book.hashCode();
+        result = 31 * result + stars;
+        return result;
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "(" + id + ")";
+        return "Rate(" + book + ": " + stars + " stars)";
+    }
+
+    public Book getBook() {
+        return book;
+    }
+
+    public int getStars() {
+        return stars;
     }
 }
