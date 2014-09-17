@@ -19,40 +19,30 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.circuit.sample.calculator;
+package org.jboss.gwt.circuit;
 
-import org.jboss.gwt.circuit.Action;
+public class NoopChannel {
 
-public class TermAction implements Action<Term> {
+    public static Dispatcher.Channel INSTANCE = new Dispatcher.Channel() {
 
-    private final Term term;
+        @Override
+        public void ack() {
+            // noop
+        }
 
-    public TermAction(final Term term) {this.term = term;}
+        @Override
+        public void ack(final boolean emitChange) {
+            // noop
+        }
 
-    @Override
-    public Term getPayload() {
-        return term;
-    }
+        @Override
+        public void nack(String reason) {
+            // noop
+        }
 
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) { return true; }
-        if (!(o instanceof TermAction)) { return false; }
-
-        TermAction that = (TermAction) o;
-
-        if (!term.equals(that.term)) { return false; }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return term.hashCode();
-    }
-
-    @Override
-    public String toString() {
-        return "TermAction(" + term + ")";
-    }
+        @Override
+        public void nack(final Throwable t) {
+            // noop
+        }
+    };
 }

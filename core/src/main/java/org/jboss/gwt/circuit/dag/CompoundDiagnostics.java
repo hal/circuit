@@ -1,10 +1,10 @@
 package org.jboss.gwt.circuit.dag;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -14,8 +14,8 @@ public class CompoundDiagnostics implements DAGDispatcher.Diagnostics {
     private final List<DAGDispatcher.Diagnostics> diagnostics = new LinkedList<>();
 
     @Override
-    public void onDispatch(final Action a) {
-        for (DAGDispatcher.Diagnostics d : diagnostics) { d.onDispatch(a); }
+    public void onDispatch(final Action action) {
+        for (DAGDispatcher.Diagnostics d : diagnostics) { d.onDispatch(action); }
     }
 
     @Override
@@ -24,18 +24,23 @@ public class CompoundDiagnostics implements DAGDispatcher.Diagnostics {
     }
 
     @Override
-    public void onExecute(final Class<?> s, final Action a) {
-        for (DAGDispatcher.Diagnostics d : diagnostics) { d.onExecute(s, a); }
+    public void onExecute(final Class<?> store, final Action action) {
+        for (DAGDispatcher.Diagnostics d : diagnostics) { d.onExecute(store, action); }
     }
 
     @Override
-    public void onAck(final Class<?> s, final Action a) {
-        for (DAGDispatcher.Diagnostics d : diagnostics) { d.onAck(s, a); }
+    public void onAck(final Class<?> store, final Action action) {
+        for (DAGDispatcher.Diagnostics d : diagnostics) { d.onAck(store, action); }
     }
 
     @Override
-    public void onNack(final Class<?> s, final Action a, final Throwable t) {
-        for (DAGDispatcher.Diagnostics d : diagnostics) { d.onNack(s, a, t); }
+    public void onNack(Class<?> store, Action action, String reason) {
+        for (DAGDispatcher.Diagnostics d : diagnostics) { d.onNack(store, action, reason); }
+    }
+
+    @Override
+    public void onNack(final Class<?> store, final Action action, final Throwable throwable) {
+        for (DAGDispatcher.Diagnostics d : diagnostics) { d.onNack(store, action, throwable); }
     }
 
     @Override
@@ -43,14 +48,14 @@ public class CompoundDiagnostics implements DAGDispatcher.Diagnostics {
         for (DAGDispatcher.Diagnostics d : diagnostics) { d.onUnlock(); }
     }
 
-    void add(final Dispatcher.Diagnostics d) {
-        if (!(d instanceof DAGDispatcher.Diagnostics)) {
+    void add(final Dispatcher.Diagnostics diagnostics) {
+        if (!(diagnostics instanceof DAGDispatcher.Diagnostics)) {
             throw new IllegalArgumentException("Diagnostics must be of type " + DAGDispatcher.Diagnostics.class);
         }
-        this.diagnostics.add((DAGDispatcher.Diagnostics) d);
+        this.diagnostics.add((DAGDispatcher.Diagnostics) diagnostics);
     }
 
-    void remove(Dispatcher.Diagnostics d) {
-        this.diagnostics.remove(d);
+    void remove(Dispatcher.Diagnostics diagnostics) {
+        this.diagnostics.remove(diagnostics);
     }
 }

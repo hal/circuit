@@ -39,6 +39,12 @@ public interface Dispatcher {
         void ack(boolean emitChange);
 
         /**
+         * Can be called by stores to signal that an action was not processed for some reason. Choose this
+         * method if the reason is not related to an error, but was due to some other reason.
+         */
+        void nack(String reason);
+
+        /**
          * Must be called by stores to signal an error during the processing of a callback.
          */
         void nack(Throwable t);

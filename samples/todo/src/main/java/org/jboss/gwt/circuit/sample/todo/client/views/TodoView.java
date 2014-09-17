@@ -21,11 +21,6 @@
  */
 package org.jboss.gwt.circuit.sample.todo.client.views;
 
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
 import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -36,25 +31,21 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.PropagatesChange;
-import org.jboss.gwt.circuit.sample.todo.client.actions.RemoveTodo;
-import org.jboss.gwt.circuit.sample.todo.client.actions.ResolveTodo;
-import org.jboss.gwt.circuit.sample.todo.client.actions.SaveTodo;
-import org.jboss.gwt.circuit.sample.todo.client.actions.SelectTodo;
-import org.jboss.gwt.circuit.sample.todo.client.actions.SelectUser;
+import org.jboss.gwt.circuit.sample.todo.client.actions.*;
 import org.jboss.gwt.circuit.sample.todo.client.stores.TodoStore;
 import org.jboss.gwt.circuit.sample.todo.client.stores.UserStore;
 import org.jboss.gwt.circuit.sample.todo.shared.Todo;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import java.util.List;
 
 @SuppressWarnings("UnusedDeclaration")
 public class TodoView extends Composite {
@@ -64,14 +55,12 @@ public class TodoView extends Composite {
     @Inject TodoStore store;
     @Inject Dispatcher dispatcher;
 
-    // --------------------------------------
-
     private final Button removeButton;
     private final Button doneButton;
-    private ListBox users;
-    private String selectedUser;
     private final CellTable<Todo> table;
     private final ListDataProvider<Todo> dataProvider;
+    private ListBox users;
+    private String selectedUser;
 
     public TodoView() {
 
@@ -187,7 +176,7 @@ public class TodoView extends Composite {
 
         todoStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChange(final Class<?> actionType) {
+            public void onChange(final Action action) {
                 showTodos(todoStore.getTodos());
                 removeButton.setEnabled(todoStore.getSelectedTodo() != null);
                 doneButton.setEnabled(todoStore.getSelectedTodo() != null);
@@ -195,7 +184,7 @@ public class TodoView extends Composite {
         });
         userStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChange(final Class<?> actionType) {
+            public void onChange(final Action action) {
                 updateUserList();
             }
         });

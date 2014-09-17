@@ -19,14 +19,37 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.gwt.circuit.util;
+package org.jboss.gwt.circuit.sample.bookstore;
 
-import org.jboss.gwt.circuit.Action;
+import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.dag.DAGDispatcher;
+import org.junit.Before;
+import org.junit.Test;
 
-public class EmptyAction implements Action<Void> {
+import static org.junit.Assert.assertEquals;
 
-    @Override
-    public Void getPayload() {
-        return null;
+public class BookStoreTest {
+
+    private Dispatcher dispatcher;
+    private BookStore store;
+    private Book book;
+
+    @Before
+    public void setUp() {
+        dispatcher = new DAGDispatcher();
+        store = new BookStore();
+        new BookStoreAdapter(store, dispatcher);
+        book = new Book("isbn-978-0345417954", "The Hotel New Hampshire", "John Irving");
+    }
+
+    @Test
+    public void rate() {
+        dispatcher.dispatch(new Rate(book, 1));
+        dispatcher.dispatch(new Rate(book, 2));
+        dispatcher.dispatch(new Rate(book, 3));
+        dispatcher.dispatch(new Rate(book, 4));
+        dispatcher.dispatch(new Rate(book, 5));
+
+        assertEquals(3.0, store.getRating(book), .01);
     }
 }

@@ -78,6 +78,12 @@ public class DiagnosticsView implements DAGDispatcher.Diagnostics, IsWidget {
     }
 
     @Override
+    public void onNack(Class<?> store, Action action, String reason) {
+        nacked++;
+        refresh();
+    }
+
+    @Override
     public void onUnlock() {
         locked = false;
         refresh();

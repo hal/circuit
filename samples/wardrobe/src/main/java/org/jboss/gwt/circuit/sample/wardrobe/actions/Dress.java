@@ -21,8 +21,6 @@
  */
 package org.jboss.gwt.circuit.sample.wardrobe.actions;
 
-import org.jboss.gwt.circuit.meta.ActionType;
-import org.jboss.gwt.circuit.util.EmptyAction;
+import org.jboss.gwt.circuit.Action;
 
-@ActionType
-public class Dress extends EmptyAction {}
+public class Dress implements Action {}

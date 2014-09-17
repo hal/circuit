@@ -23,14 +23,13 @@ package org.jboss.gwt.circuit.sample.wmm.actions;
 
 import org.jboss.gwt.circuit.Action;
 
-public class DeployAction implements Action<Deployment> {
+public class DeployAction implements Action {
 
-    private final Deployment payload;
+    private final Deployment deployment;
 
-    public DeployAction(final Deployment payload) {this.payload = payload;}
+    public DeployAction(final Deployment deployment) {this.deployment = deployment;}
 
-    @Override
-    public Deployment getPayload() {
-        return payload;
+    public Deployment getDeployment() {
+        return deployment;
     }
 }

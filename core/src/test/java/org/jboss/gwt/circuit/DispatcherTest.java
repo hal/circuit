@@ -21,15 +21,15 @@
  */
 package org.jboss.gwt.circuit;
 
-import static org.junit.Assert.*;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jboss.gwt.circuit.dag.CycleDetected;
 import org.jboss.gwt.circuit.dag.DAGDispatcher;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Harald Pehl
@@ -93,7 +93,7 @@ public class DispatcherTest {
         FooStore fooStore = new FooStore(dispatcher);
         fooStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChange(final Class<?> actionType) {
+            public void onChange(final Action action) {
                 stores.add(FooStore.class);
             }
         });
@@ -105,7 +105,7 @@ public class DispatcherTest {
         };
         barStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChange(final Class<?> actionType) {
+            public void onChange(final Action action) {
                 stores.add(BarStore.class);
             }
         });
@@ -119,21 +119,21 @@ public class DispatcherTest {
     @Test
     public void actionChangedEvents() throws InterruptedException {
         final List<Class<?>> stores = new ArrayList<>();
-        final List<Class<?>> actionTypes = new ArrayList<>();
+        final List<Class<? extends Action>> actions = new ArrayList<>();
 
         FooStore fooStore = new FooStore(dispatcher);
         fooStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChange(final Class<?> actionType) {
+            public void onChange(final Action action) {
                 stores.add(FooStore.class);
             }
         });
         BarStore barStore = new BarStore(dispatcher);
         barStore.addChangeHandler(FooBarAction.class, new PropagatesChange.Handler() {
             @Override
-            public void onChange(final Class<?> actionType) {
+            public void onChange(final Action action) {
                 stores.add(BarStore.class);
-                actionTypes.add(actionType);
+                actions.add(action.getClass());
             }
         });
         dispatcher.dispatch(new FooBarAction(0));
@@ -144,7 +144,7 @@ public class DispatcherTest {
         assertTrue(stores.contains(FooStore.class));
 
         // The change handler for FooBarAction must be called exactly once
-        assertEquals(1, actionTypes.size());
-        assertEquals(FooBarAction.class, actionTypes.get(0));
+        assertEquals(1, actions.size());
+        assertEquals(FooBarAction.class, actions.get(0));
     }
 }

@@ -1,22 +1,18 @@
 package org.jboss.gwt.circuit;
 
-import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.dag.DAGDispatcher;
 
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * @author Heiko Braun
- * @date 23/06/14
- */
 public class TestDiagnostics implements DAGDispatcher.Diagnostics {
 
     private boolean locked;
     private int numDispatched;
     private int numExecuted;
     private int numAcked;
-    private int numNacked;
+    private int numNackedByReason;
+    private int numNackedByThrowable;
 
     private List<Class<?>> executionOrder;
 
@@ -38,7 +34,8 @@ public class TestDiagnostics implements DAGDispatcher.Diagnostics {
         numDispatched = 0;
         numExecuted = 0;
         numAcked = 0;
-        numNacked = 0;
+        numNackedByReason = 0;
+        numNackedByThrowable = 0;
     }
 
     public int getNumDispatched() {
@@ -53,14 +50,16 @@ public class TestDiagnostics implements DAGDispatcher.Diagnostics {
         return numAcked;
     }
 
-    public int getNumNacked() {
-        return numNacked;
+    public int getNumNackedByReason() {
+        return numNackedByReason;
     }
 
-    // -----------------------
+    public int getNumNackedByThrowable() {
+        return numNackedByThrowable;
+    }
 
     @Override
-    public void onDispatch(Action a) {
+    public void onDispatch(Action action) {
         numDispatched++;
     }
 
@@ -70,19 +69,24 @@ public class TestDiagnostics implements DAGDispatcher.Diagnostics {
     }
 
     @Override
-    public void onExecute(Class<?> s, Action a) {
+    public void onExecute(Class<?> store, Action action) {
         numExecuted++;
-        executionOrder.add(s);
+        executionOrder.add(store);
     }
 
     @Override
-    public void onAck(Class<?> s, Action a) {
+    public void onAck(Class<?> store, Action action) {
         numAcked++;
     }
 
     @Override
-    public void onNack(Class<?> s, Action a, Throwable t) {
-        numNacked++;
+    public void onNack(Class<?> store, Action action, String reason) {
+        numNackedByReason++;
+    }
+
+    @Override
+    public void onNack(Class<?> store, Action action, Throwable throwable) {
+        numNackedByThrowable++;
     }
 
     @Override

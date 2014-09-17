@@ -21,46 +21,44 @@
  */
 package org.jboss.gwt.circuit.processor;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 public class ProcessInfo {
 
     private final String method;
-    private String payload;
     private final String actionType;
+    private final List<String> payload;
     private Set<String> dependencies;
 
-    public ProcessInfo(String method, String actionType) {
-        this(method, actionType, null);
-    }
-
-    public ProcessInfo(final String method, String actionType, final String payload) {
+    public ProcessInfo(final String method, String actionType) {
         this.method = method;
-        this.payload = payload;
         this.actionType = actionType;
+        this.payload = new ArrayList<>();
         this.dependencies = new HashSet<>();
     }
 
     public boolean isSingleArg() {
-        return payload == null;
-    }
-
-    public void addDependency(String storeClassName) {
-        dependencies.add(storeClassName);
+        return payload.isEmpty();
     }
 
     public String getMethod() {
         return method;
     }
 
-    public String getPayload() {
+    public String getActionType() {
+        return actionType;
+    }
+
+    public void addPayload(String name) {
+        payload.add(name);
+    }
+
+    public List<String> getPayload() {
         return payload;
     }
 
-    public String getActionType() {
-        return actionType;
+    public void addDependency(String storeClassName) {
+        dependencies.add(storeClassName);
     }
 
     public boolean hasDependencies() {

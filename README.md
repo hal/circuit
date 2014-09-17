@@ -47,9 +47,10 @@ Actions are most often initiated from user interaction, but they are not limited
 
 ```java
 @ActionType
-public class SaveTodo implements org.jboss.gwt.circuit.Action<Todo> {
+public class SaveTodo implements org.jboss.gwt.circuit.Action {
  	private final Todo todo;
 	[...]
+	public Todo getTodo() { return todo; }
 }
 ```
 
@@ -197,7 +198,7 @@ Circuit provides a minimalistic API with a handful of interfaces and some reason
 
 #### Action
 
-An action is defined by a class which implements the interface `org.jboss.gwt.circuit.Action<P>`, where `P` acts as the payload of the action. The payload is in most cases some kind of POJO which is processed by stores. However there might be cases where an action is more some kind of command without a payload at all.
+An action is defined by a class which implements the marker interface `org.jboss.gwt.circuit.Action`. In many cases actions are simple POJOs which should implement a reasonable `equals()` and `hashCode()` method. An action can carry a payload which is used by the stores, however there might be cases where an action is more like a command without a payload at all.
 
 #### Store
 
@@ -230,7 +231,7 @@ public class ShoesStore {
 }
 ```
 
-A store implementation marked with `@Store` must contain one or more methods marked with `@Process`. This annotation tells Circuit what action type (and thus what payload) the method can process. Furthermore dependencies to other stores can be expressed using `@Process`: 
+A store implementation marked with `@Store` must contain one or more methods marked with `@Process`. This annotation tells Circuit what action type the method can process. Furthermore dependencies to other stores can be expressed using `@Process`:
 
 ```java
 @Store
@@ -247,10 +248,9 @@ public class ShoesStore {
 The signature for methods annotated with `@Process` must adhere the following rules:
 
 - The return type must be `void`
-- The method can have up to two parameters:
-	- If there's only one parameter it must be of type `org.jboss.gwt.circuit.Dispatcher.Channel`. 
-	- Otherwise the first parameter has to be the type of the actions payload and the second parameter has to be the channel. 
-	
+- Parameters 0..n-1 map to the action's payload. For each parameter there must be a getter in the action.
+- The last parameter (or the only one, if no payload is referenced) must be of type `org.jboss.gwt.circuit.Dispatcher.Channel`.
+
 To see the annotations in action take a look at the [wardrobe](samples/wardrobe) and [todo](samples/todo) samples.
  
 #### What's Generated?

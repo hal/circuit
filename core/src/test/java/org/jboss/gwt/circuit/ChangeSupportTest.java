@@ -1,24 +1,26 @@
 package org.jboss.gwt.circuit;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.concurrent.atomic.AtomicInteger;
-
 import com.google.common.collect.Iterables;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import org.jboss.gwt.circuit.dag.DAGDispatcher;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.Assert.assertEquals;
+
 public class ChangeSupportTest {
 
     private Dispatcher dispatcher;
     private FooStore fooStore;
+    private FooBarAction action;
 
     @Before
     public void setUp() {
         dispatcher = new DAGDispatcher();
         fooStore = new FooStore(dispatcher);
+        action = new FooBarAction(0);
     }
 
     @Test
@@ -26,39 +28,65 @@ public class ChangeSupportTest {
         final AtomicInteger counter = new AtomicInteger(0);
         HandlerRegistration handlerRegistration = fooStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChange(final Class<?> actionType) {
+            public void onChange(final Action action) {
                 counter.incrementAndGet();
             }
         });
-        assertEquals(1, Iterables.size(fooStore.getHandler()));
+        assertEquals(1, Iterables.size(fooStore.getActionHandler()));
         assertEquals(0, Iterables.size(fooStore.getActionHandler(FooBarAction.class)));
+        assertEquals(0, Iterables.size(fooStore.getActionHandler(action)));
 
         dispatcher.dispatch(new FooBarAction(0));
         assertEquals(1, counter.get());
 
         handlerRegistration.removeHandler();
-        assertEquals(0, Iterables.size(fooStore.getHandler()));
+        assertEquals(0, Iterables.size(fooStore.getActionHandler()));
         assertEquals(0, Iterables.size(fooStore.getActionHandler(FooBarAction.class)));
+        assertEquals(0, Iterables.size(fooStore.getActionHandler(action)));
+    }
+
+    @Test
+    public void actionTypeRegistration() {
+        final AtomicInteger counter = new AtomicInteger(0);
+        HandlerRegistration actionTypeRegistration = fooStore.addChangeHandler(FooBarAction.class, new PropagatesChange.Handler() {
+            @Override
+            public void onChange(final Action action) {
+                counter.incrementAndGet();
+            }
+        });
+        assertEquals(0, Iterables.size(fooStore.getActionHandler()));
+        assertEquals(1, Iterables.size(fooStore.getActionHandler(FooBarAction.class)));
+        assertEquals(0, Iterables.size(fooStore.getActionHandler(action)));
+
+        dispatcher.dispatch(new FooBarAction(0));
+        assertEquals(1, counter.get());
+
+        actionTypeRegistration.removeHandler();
+        assertEquals(0, Iterables.size(fooStore.getActionHandler()));
+        assertEquals(0, Iterables.size(fooStore.getActionHandler(FooBarAction.class)));
+        assertEquals(0, Iterables.size(fooStore.getActionHandler(action)));
     }
 
     @Test
     public void actionRegistration() {
         final AtomicInteger counter = new AtomicInteger(0);
-        HandlerRegistration actionRegistration = fooStore.addChangeHandler(FooBarAction.class, new PropagatesChange.Handler() {
+        HandlerRegistration actionTypeRegistration = fooStore.addChangeHandler(action, new PropagatesChange.Handler() {
             @Override
-            public void onChange(final Class<?> actionType) {
+            public void onChange(final Action action) {
                 counter.incrementAndGet();
             }
         });
-        assertEquals(0, Iterables.size(fooStore.getHandler()));
-        assertEquals(1, Iterables.size(fooStore.getActionHandler(FooBarAction.class)));
+        assertEquals(0, Iterables.size(fooStore.getActionHandler()));
+        assertEquals(0, Iterables.size(fooStore.getActionHandler(FooBarAction.class)));
+        assertEquals(1, Iterables.size(fooStore.getActionHandler(action)));
 
         dispatcher.dispatch(new FooBarAction(0));
         assertEquals(1, counter.get());
 
-        actionRegistration.removeHandler();
-        assertEquals(0, Iterables.size(fooStore.getHandler()));
+        actionTypeRegistration.removeHandler();
+        assertEquals(0, Iterables.size(fooStore.getActionHandler()));
         assertEquals(0, Iterables.size(fooStore.getActionHandler(FooBarAction.class)));
+        assertEquals(0, Iterables.size(fooStore.getActionHandler(action)));
     }
 
     @Test
@@ -66,25 +94,34 @@ public class ChangeSupportTest {
         final AtomicInteger counter = new AtomicInteger(0);
         HandlerRegistration handlerRegistration = fooStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChange(final Class<?> actionType) {
+            public void onChange(final Action action) {
                 counter.incrementAndGet();
             }
         });
-        HandlerRegistration actionRegistration = fooStore.addChangeHandler(FooBarAction.class, new PropagatesChange.Handler() {
+        HandlerRegistration actionTypeRegistration = fooStore.addChangeHandler(FooBarAction.class, new PropagatesChange.Handler() {
             @Override
-            public void onChange(final Class<?> actionType) {
+            public void onChange(final Action action) {
                 counter.incrementAndGet();
             }
         });
-        assertEquals(1, Iterables.size(fooStore.getHandler()));
+        HandlerRegistration actionRegistration = fooStore.addChangeHandler(action, new PropagatesChange.Handler() {
+            @Override
+            public void onChange(final Action action) {
+                counter.incrementAndGet();
+            }
+        });
+        assertEquals(1, Iterables.size(fooStore.getActionHandler()));
         assertEquals(1, Iterables.size(fooStore.getActionHandler(FooBarAction.class)));
+        assertEquals(1, Iterables.size(fooStore.getActionHandler(action)));
 
         dispatcher.dispatch(new FooBarAction(0));
-        assertEquals(2, counter.get());
+        assertEquals(3, counter.get());
 
         handlerRegistration.removeHandler();
+        actionTypeRegistration.removeHandler();
         actionRegistration.removeHandler();
-        assertEquals(0, Iterables.size(fooStore.getHandler()));
+        assertEquals(0, Iterables.size(fooStore.getActionHandler()));
         assertEquals(0, Iterables.size(fooStore.getActionHandler(FooBarAction.class)));
+        assertEquals(0, Iterables.size(fooStore.getActionHandler(action)));
     }
 }

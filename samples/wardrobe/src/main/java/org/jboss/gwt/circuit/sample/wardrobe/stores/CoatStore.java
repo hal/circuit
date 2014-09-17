@@ -28,7 +28,6 @@ import org.jboss.gwt.circuit.sample.wardrobe.actions.Dress;
 import org.jboss.gwt.circuit.sample.wardrobe.actions.Undress;
 
 @Store
-@SuppressWarnings("UnusedParameters")
 public class CoatStore {
 
     @Process(actionType = Dress.class, dependencies = {PulloverStore.class, TrousersStore.class})

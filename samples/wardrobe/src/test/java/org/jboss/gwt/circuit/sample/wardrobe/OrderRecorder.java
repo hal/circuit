@@ -21,12 +21,12 @@
  */
 package org.jboss.gwt.circuit.sample.wardrobe;
 
+import org.jboss.gwt.circuit.Action;
+import org.jboss.gwt.circuit.dag.DAGDispatcher;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import org.jboss.gwt.circuit.Action;
-import org.jboss.gwt.circuit.dag.DAGDispatcher;
 
 public class OrderRecorder implements DAGDispatcher.Diagnostics {
 
@@ -54,6 +54,11 @@ public class OrderRecorder implements DAGDispatcher.Diagnostics {
     @Override
     public void onAck(final Class<?> s, final Action a) {
         order.add(s);
+    }
+
+    @Override
+    public void onNack(Class<?> store, Action action, String reason) {
+        // noop
     }
 
     @Override

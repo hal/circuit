@@ -21,13 +21,6 @@
  */
 package org.jboss.gwt.circuit.dag;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
 import org.jboss.gwt.circuit.Dispatcher;
@@ -37,6 +30,8 @@ import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.traverse.TopologicalOrderIterator;
+
+import java.util.*;
 
 /**
  * A dispatcher implementation with global locking and dependency resolution between stores based on directed acyclic
@@ -49,15 +44,17 @@ public class DAGDispatcher implements Dispatcher {
 
     public interface Diagnostics extends Dispatcher.Diagnostics {
 
-        void onDispatch(Action a);
+        void onDispatch(Action action);
 
         void onLock();
 
-        void onExecute(Class<?> s, Action a);
+        void onExecute(Class<?> store, Action action);
 
-        void onAck(Class<?> s, Action a);
+        void onAck(Class<?> store, Action action);
 
-        void onNack(Class<?> s, Action a, final Throwable t);
+        void onNack(Class<?> store, Action action, String reason);
+
+        void onNack(Class<?> store, Action action, Throwable throwable);
 
         void onUnlock();
     }
@@ -212,6 +209,12 @@ public class DAGDispatcher implements Dispatcher {
                 if (emitChange) {
                     acknowledgedCallbacks.add(callback);
                 }
+                proceed();
+            }
+
+            @Override
+            public void nack(final String reason) {
+                diagnostics.onNack(store, action, reason);
                 proceed();
             }
 

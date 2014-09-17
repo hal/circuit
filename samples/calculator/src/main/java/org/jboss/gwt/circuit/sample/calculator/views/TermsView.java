@@ -21,6 +21,7 @@
  */
 package org.jboss.gwt.circuit.sample.calculator.views;
 
+import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.PropagatesChange;
 import org.jboss.gwt.circuit.sample.calculator.CalculatorStore;
 
@@ -29,7 +30,7 @@ public class TermsView implements View {
     public TermsView(final CalculatorStore store) {
         store.addChangeHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChange(final Class<?> actionType) {
+            public void onChange(final Action action) {
                 System.out.printf("Number of terms:    %d\n", store.getResults().size());
             }
         });
