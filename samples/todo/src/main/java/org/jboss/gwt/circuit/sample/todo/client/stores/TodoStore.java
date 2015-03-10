@@ -46,6 +46,7 @@ public class TodoStore extends ChangeSupport {
     private final UserStore userStore;
 
     @Inject
+    @SuppressWarnings("CdiInjectionPointsInspection")
     public TodoStore(final TodoServiceAsync todoService, UserStore userStore) {
         this.todos = new LinkedList<>();
         this.todoService = todoService;
@@ -56,7 +57,7 @@ public class TodoStore extends ChangeSupport {
     // ------------------------------------------------------ user actions
 
     @Process(actionType = SelectUser.class, dependencies = UserStore.class)
-    public void onSelectUser(String user, final Dispatcher.Channel channel) {
+    public void onSelectUser(SelectUser action, final Dispatcher.Channel channel) {
         // reset selection
         selectedTodo = null;
 
@@ -64,9 +65,9 @@ public class TodoStore extends ChangeSupport {
     }
 
     @Process(actionType = RemoveUser.class, dependencies = UserStore.class)
-    public void onRemoveUser(String user, final Dispatcher.Channel channel) {
+    public void onRemoveUser(RemoveUser action, final Dispatcher.Channel channel) {
 
-        todoService.removeForUser(user, new TodoCallback<Void>(channel) {
+        todoService.removeForUser(action.getUser(), new TodoCallback<Void>(channel) {
             @Override
             public void onSuccess(Void v) {
                 onList(channel);
@@ -91,8 +92,8 @@ public class TodoStore extends ChangeSupport {
     }
 
     @Process(actionType = ResolveTodo.class)
-    public void onResolve(Todo todo, final Dispatcher.Channel channel) {
-        todoService.save(todo, new TodoCallback<Void>(channel) {
+    public void onResolve(ResolveTodo action, final Dispatcher.Channel channel) {
+        todoService.save(action.getTodo(), new TodoCallback<Void>(channel) {
             @Override
             public void onSuccess(final Void result) {
                 onList(channel);
@@ -101,19 +102,19 @@ public class TodoStore extends ChangeSupport {
     }
 
     @Process(actionType = SelectTodo.class)
-    public void onSelect(final Todo todo, final Dispatcher.Channel channel) {
-        this.selectedTodo = todo;
+    public void onSelect(final SelectTodo action, final Dispatcher.Channel channel) {
+        this.selectedTodo = action.getTodo();
 
         channel.ack();
     }
 
     @Process(actionType = SaveTodo.class)
-    public void onStore(final Todo todo, final Dispatcher.Channel channel) {
+    public void onStore(final SaveTodo action, final Dispatcher.Channel channel) {
 
         String assignee = userStore.getSelectedUser() != null ? userStore.getSelectedUser() : Todo.USER_ANY;
-        todo.setUser(assignee);
+        action.getTodo().setUser(assignee);
 
-        todoService.save(todo, new TodoCallback<Void>(channel) {
+        todoService.save(action.getTodo(), new TodoCallback<Void>(channel) {
             @Override
             public void onSuccess(final Void result) {
                 onList(channel);
@@ -122,12 +123,12 @@ public class TodoStore extends ChangeSupport {
     }
 
     @Process(actionType = RemoveTodo.class)
-    public void onRemove(final Todo todo, final Dispatcher.Channel channel) {
+    public void onRemove(final RemoveTodo action, final Dispatcher.Channel channel) {
 
-        todoService.delete(todo, new TodoCallback<Void>(channel) {
+        todoService.delete(action.getTodo(), new TodoCallback<Void>(channel) {
             @Override
             public void onSuccess(final Void result) {
-                if (todo.equals(selectedTodo)) { selectedTodo = null; }
+                if (action.getTodo().equals(selectedTodo)) { selectedTodo = null; }
                 onList(channel);
             }
         });

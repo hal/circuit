@@ -21,29 +21,29 @@
  */
 package org.jboss.gwt.circuit.processor;
 
+import freemarker.template.Configuration;
+import freemarker.template.DefaultObjectWrapperBuilder;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import freemarker.template.Version;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Map;
-
-import freemarker.template.Configuration;
-import freemarker.template.DefaultObjectWrapper;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
 
 abstract class AbstractGenerator {
 
     protected final Configuration config;
 
     protected AbstractGenerator() {
-        config = new Configuration();
+        Version version = new Version(2, 3, 22);
+        config = new Configuration(version);
         config.setDefaultEncoding("UTF-8");
         config.setClassForTemplateLoading(getClass(), "templates");
-        config.setObjectWrapper(new DefaultObjectWrapper());
+        config.setObjectWrapper(new DefaultObjectWrapperBuilder(version).build());
     }
 
-    // TODO If we can use Java 8 change this to
-    // public StringBuffer generate(java.util.function.Supplier<Map<String, Object>> contextSupplier, String templateName) throws GenerationException
     protected StringBuffer generate(Map<String, Object> context, String templateName) throws GenerationException {
         final StringWriter sw = new StringWriter();
         final BufferedWriter bw = new BufferedWriter(sw);
@@ -52,14 +52,14 @@ abstract class AbstractGenerator {
             // template.complete(contextSupplier.get(), bw);
             template.process(context, bw);
         } catch (IOException | TemplateException ioe) {
-            throw new GenerationException(ioe);
+            throw new GenerationException("Error generating template " + templateName + ": " + ioe.getMessage());
         } finally {
             try {
                 bw.close();
                 sw.close();
             } catch (IOException ioe) {
                 //noinspection ThrowFromFinallyBlock
-                throw new GenerationException(ioe);
+                throw new GenerationException("Error generating template " + templateName + ": " + ioe.getMessage());
             }
         }
         return sw.getBuffer();

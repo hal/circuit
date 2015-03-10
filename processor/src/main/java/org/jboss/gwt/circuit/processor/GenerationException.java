@@ -21,13 +21,22 @@
  */
 package org.jboss.gwt.circuit.processor;
 
-public class GenerationException extends Exception {
+import javax.lang.model.element.Element;
+
+public class GenerationException extends RuntimeException {
+
+    private final Element element;
 
     public GenerationException(final String msg) {
-        super(msg);
+        this(null, msg);
     }
 
-    public GenerationException(Throwable t) {
-        super(t);
+    public GenerationException(final Element element, final String msg) {
+        super(msg);
+        this.element = element;
+    }
+
+    public Element getElement() {
+        return element;
     }
 }

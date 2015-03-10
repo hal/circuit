@@ -21,6 +21,11 @@
  */
 package org.jboss.gwt.circuit.processor;
 
+import com.google.auto.common.AnnotationMirrors;
+import com.google.auto.common.MoreElements;
+import com.google.auto.common.MoreTypes;
+import com.google.auto.service.AutoService;
+import com.google.common.base.Optional;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import org.jboss.gwt.circuit.ChangeSupport;
@@ -32,18 +37,21 @@ import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
-import javax.annotation.processing.Messager;
-import javax.annotation.processing.RoundEnvironment;
-import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
+import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.*;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.PackageElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
-import javax.tools.Diagnostic;
 import javax.tools.FileObject;
+import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -54,15 +62,21 @@ import static javax.tools.Diagnostic.Kind.ERROR;
 import static javax.tools.Diagnostic.Kind.NOTE;
 import static org.jboss.gwt.circuit.processor.GenerationUtil.ANY_PARAMS;
 
+@AutoService(Processor.class)
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 @SupportedAnnotationTypes("org.jboss.gwt.circuit.meta.Store")
-public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
+public class StoreProcessor extends AbstractProcessor {
 
     static final String GRAPH_VIZ_OUTPUT = "dependencies.gv";
 
     private final Map<String, GraphVizInfo> graphVizInfos;
     private final Map<String, Multimap<String, String>> dagValidation;
     private final List<StoreDelegateMetadata> metadata;
+
+    private Types typeUtils;
+    private Elements elementUtils;
+    private Filer filer;
+    private Messager messager;
 
     public StoreProcessor() {
         graphVizInfos = new HashMap<>();
@@ -71,16 +85,56 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
     }
 
     @Override
-    protected boolean processWithExceptions(final Set<? extends TypeElement> annotations,
-                                            final RoundEnvironment roundEnv) throws Exception {
+    public synchronized void init(ProcessingEnvironment processingEnv) {
+        super.init(processingEnv);
+        typeUtils = processingEnv.getTypeUtils();
+        elementUtils = processingEnv.getElementUtils();
+        filer = processingEnv.getFiler();
+        messager = processingEnv.getMessager();
+    }
 
-        if (roundEnv.errorRaised()) {
-            return false;
+    @Override
+    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        for (Element e : roundEnv.getElementsAnnotatedWith(Store.class)) {
+
+            // collect data for *one* store
+            TypeElement storeElement = (TypeElement) e;
+            PackageElement packageElement = (PackageElement) storeElement.getEnclosingElement();
+            String packageName = packageElement.getQualifiedName().toString();
+            String storeDelegate = storeElement.getSimpleName().toString();
+            boolean changeSupport = typeUtils.isAssignable(storeElement.asType(),
+                    elementUtils.getTypeElement(ChangeSupport.class.getName()).asType());
+            String storeClassName = storeDelegate + "Adapter";
+            info("Discovered annotated store [%s]", storeElement.getQualifiedName());
+
+            try {
+                List<ExecutableElement> processMethods = findValidProcessMethods(storeElement);
+                Collection<ProcessInfo> processInfos = createProcessInfos(storeElement, processMethods);
+                validateProcessMethods(storeElement, processInfos);
+                metadata.add(new StoreDelegateMetadata(packageName, storeClassName, storeDelegate, changeSupport,
+                        processInfos));
+            } catch (GenerationException ge) {
+                error(ge);
+                return true;
+            }
         }
-        if (!roundEnv.processingOver()) {
-            collectData(roundEnv);
-        } else {
-            generateFiles();
+
+        // generate code for *all* stores
+        try {
+            for (StoreDelegateMetadata md : metadata) {
+                info("Generating code for [%s]", md.storeClassName);
+                StoreGenerator generator = new StoreGenerator();
+                final StringBuffer code = generator.generate(md);
+                writeCode(md.packageName, md.storeClassName, code);
+                info("Successfully generated store implementation [%s]", md.storeClassName);
+            }
+            metadata.clear();
+            if (roundEnv.processingOver()) {
+                String graphVizFile = writeGraphViz();
+                validateDAG(graphVizFile);
+            }
+        } catch (IOException e) {
+            error("Error generating code: %s", e.getMessage());
         }
         return true;
     }
@@ -88,122 +142,65 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
 
     // ------------------------------------------------------ collect methods
 
-    private void collectData(final RoundEnvironment roundEnv) throws Exception {
-
-        final Messager messager = processingEnv.getMessager();
-        final Types typeUtils = processingEnv.getTypeUtils();
-        final Elements elementUtils = processingEnv.getElementUtils();
-
-        for (Element e : roundEnv.getElementsAnnotatedWith(Store.class)) {
-            TypeElement storeElement = (TypeElement) e;
-            PackageElement packageElement = (PackageElement) storeElement.getEnclosingElement();
-
-            final String packageName = packageElement.getQualifiedName().toString();
-            final String storeDelegate = storeElement.getSimpleName().toString();
-            final boolean changeSupport = typeUtils.isAssignable(storeElement.asType(),
-                    elementUtils.getTypeElement(ChangeSupport.class.getName()).asType());
-            final String storeClassName = GenerationUtil.storeImplementation(storeDelegate);
-            messager.printMessage(NOTE,
-                    String.format("Discovered annotated store [%s]", storeElement.getQualifiedName()));
-
-            List<ExecutableElement> processMethods = new ArrayList<>();
-            if (findValidProcessMethods(messager, typeUtils, storeElement, processMethods)) {
-                Collection<ProcessInfo> processInfos = createProcessInfos(messager, typeUtils, elementUtils,
-                        storeElement, processMethods);
-
-                metadata.add(new StoreDelegateMetadata(packageName, storeClassName, storeDelegate, changeSupport,
-                        processInfos));
-            } else {
-                // no valid process methods!
-                messager.printMessage(ERROR,
-                        String.format("%s does not contain suitable methods annotated with %s.",
-                                storeElement.getQualifiedName(), Process.class.getName()));
-                break;
-            }
-        }
-    }
-
-    private boolean findValidProcessMethods(final Messager messager, final Types typeUtils,
-                                            final TypeElement storeElement, List<ExecutableElement> processMethods) {
-
-        boolean valid = true;
+    private List<ExecutableElement> findValidProcessMethods(final TypeElement storeElement)
+            throws NoSuchElementException {
         NoType voidType = typeUtils.getNoType(TypeKind.VOID);
         List<ExecutableElement> allProcessMethods = GenerationUtil.getAnnotatedMethods(storeElement, processingEnv,
                 Process.class.getName(), voidType, ANY_PARAMS);
         if (allProcessMethods.isEmpty()) {
-            messager.printMessage(ERROR, String.format(
-                    "No process methods found in [%s]. Please use @%s to mark one or several methods as process methods.",
-                    storeElement.getQualifiedName(), Process.class.getName()));
-            valid = false;
+            // no valid process methods!
+            throw new GenerationException(storeElement,
+                    String.format("%s does not contain suitable methods annotated with %s.",
+                            storeElement.getQualifiedName(), Process.class.getName()));
         }
-        for (ExecutableElement processMethod : allProcessMethods) {
-            processMethods.add(processMethod);
-        }
-        return valid;
+        return allProcessMethods;
     }
 
-    private Collection<ProcessInfo> createProcessInfos(final Messager messager, final Types typeUtils,
-                                                       Elements elementUtils, final TypeElement storeElement,
-                                                       final List<ExecutableElement> processMethods)
-            throws GenerationException {
-
-        final List<ProcessInfo> processInfos = new LinkedList<>();
+    private Collection<ProcessInfo> createProcessInfos(final TypeElement storeElement,
+                                                       final List<ExecutableElement> processMethods) {
+        final List<ProcessInfo> processInfos = new ArrayList<>();
         final String storeDelegate = storeElement.getSimpleName().toString();
         for (ExecutableElement methodElement : processMethods) {
 
-            String actionType = Void.class.getCanonicalName();
-            Collection<String> dependencies = Collections.emptySet();
-            AnnotationMirror processAnnotation = GenerationUtil.getAnnotation(elementUtils, methodElement, Process.class.getName());
-            for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : processAnnotation.getElementValues().entrySet()) {
-                if ("dependencies".equals(entry.getKey().getSimpleName().toString())) {
-                    dependencies = GenerationUtil.extractValue(entry.getValue());
-                } else if ("actionType".equals(entry.getKey().getSimpleName().toString())) {
-                    actionType = (String) ((Set) GenerationUtil.extractValue(entry.getValue())).iterator().next();
+            String actionType = null;
+            Collection<String> dependencies = Collections.emptyList();
+
+            // parse @Process parameter
+            Optional<AnnotationMirror> processAnnotation = MoreElements.getAnnotationMirror(methodElement, Process.class);
+            if (processAnnotation.isPresent()) {
+                Map<ExecutableElement, AnnotationValue> values = AnnotationMirrors.getAnnotationValuesWithDefaults(processAnnotation.get());
+                for (Map.Entry<ExecutableElement, AnnotationValue> entry : values.entrySet()) {
+                    if ("actionType".equals(entry.getKey().getSimpleName().toString())) {
+                        actionType = (String) ((Set) GenerationUtil.extractValue(entry.getValue())).iterator().next();
+                    } else if ("dependencies".equals(entry.getKey().getSimpleName().toString())) {
+                        dependencies = GenerationUtil.extractValue(entry.getValue());
+                    }
                 }
             }
-
-            TypeElement actionTypeElement = elementUtils.getTypeElement(actionType);
-            ProcessInfo processInfo = new ProcessInfo(methodElement.getSimpleName().toString(), actionType);
+            assert actionType != null;
+            ProcessInfo processInfo = new ProcessInfo(actionType, methodElement);
             processInfos.add(processInfo);
+
+            // collect dependencies
             for (String store : dependencies) {
                 // IMPORTANT: The actual dependency is the store adaptee!
                 processInfo.addDependency(store + ".class");
             }
 
+            // analyze the process signature
             List<? extends VariableElement> parameters = methodElement.getParameters();
-            if (parameters.size() == 1) {
-                // if a single param is used it needs to be the dispatcher channel
-                verifyDispatcherChannel(messager, typeUtils, storeElement, methodElement, parameters.get(0));
-                continue;
-
-            } else if (parameters.size() > 1) {
-                // parameters 1..n-1 are payload, the last one is the dispatcher channel
-                for (int i = 0; i < parameters.size(); i++) {
-                    if (i == parameters.size() - 1) {
-                        verifyDispatcherChannel(messager, typeUtils, storeElement, methodElement, parameters.get(i));
-                    } else {
-                        VariableElement parameter = parameters.get(i);
-                        String payloadName = parameter.getSimpleName().toString();
-
-                        // Check getter in action type
-                        List<ExecutableElement> getter = GenerationUtil.findGetter(actionTypeElement, processingEnv, parameter.asType(), payloadName);
-                        if (getter.isEmpty()) {
-                            String error = String.format("No getter found for payload parameter '%s' on method '%s' in class '%s'",
-                                    payloadName, methodElement.getSimpleName(), storeElement.getSimpleName());
-                            messager.printMessage(Diagnostic.Kind.ERROR, error);
-                            continue;
-                        }
-                        processInfo.addPayload(getter.get(0).getSimpleName().toString());
-                    }
-                }
-
+            if (parameters.size() == 2) {
+                // first parameter is the action, the second parameter the dispatcher channel
+                verifyProcessParameter(storeElement, methodElement, parameters.get(0), actionType);
+                verifyProcessParameter(storeElement, methodElement, parameters.get(1), Dispatcher.Channel.class.getCanonicalName());
+            } else if (parameters.size() == 1) {
+                // if a single param is used it has to be the dispatcher channel
+                verifyProcessParameter(storeElement, methodElement, parameters.get(0), Dispatcher.Channel.class.getCanonicalName());
             } else {
                 // anything else is considered as an error
-                String error = String.format(
-                        "No valid process method '%s' in class '%s'. Please provide at least a parameter of type '%s'",
-                        methodElement.getSimpleName(), storeElement.getSimpleName(), Dispatcher.Channel.class.getSimpleName());
-                messager.printMessage(Diagnostic.Kind.ERROR, error);
-                continue;
+                throw new GenerationException(methodElement,
+                        String.format("Illegal number of arguments on method '%s' in class '%s'",
+                                methodElement.getSimpleName(), storeElement.getSimpleName()));
             }
 
             // record dependencies in a different data structures to generate GraphViz...
@@ -230,73 +227,43 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
             }
             dag.putAll(storeDelegate, simpleDependencies);
         }
-
         return processInfos;
     }
 
-    private void verifyDispatcherChannel(final Messager messager, final Types typeUtils,
-                                         TypeElement storeElement, ExecutableElement methodElement, VariableElement param) {
-        TypeElement paramType = (TypeElement) typeUtils.asElement(param.asType());
-        if (!paramType.getQualifiedName().toString().equals(Dispatcher.Channel.class.getCanonicalName())) {
-            String error = String.format(
-                    "Illegal type for parameter '%s' on method '%s' in class '%s'. Expected type '%s'",
-                    param.getSimpleName(), methodElement.getSimpleName(), storeElement.getSimpleName(),
-                    Dispatcher.Channel.class.getCanonicalName());
-            messager.printMessage(Diagnostic.Kind.ERROR, error);
+
+    // ------------------------------------------------------ verify methods
+
+    private void verifyProcessParameter(TypeElement storeElement, ExecutableElement methodElement,
+                                        VariableElement parameter, String expected) {
+        TypeElement parameterType = MoreTypes.asTypeElement(typeUtils, parameter.asType());
+        if (!parameterType.getQualifiedName().toString().equals(expected)) {
+            throw new GenerationException(parameter,
+                    String.format("Illegal parameter '%s' on method '%s' in class '%s'. Expected type '%s'",
+                            parameter.getSimpleName(), methodElement.getSimpleName(), storeElement.getSimpleName(),
+                            expected));
         }
     }
 
-
-    // ------------------------------------------------------ generate methods
-
-    private void generateFiles() throws Exception {
-        final Messager messager = processingEnv.getMessager();
-
-        // store delegates
-        for (StoreDelegateMetadata md : metadata) {
-            try {
-                messager.printMessage(NOTE, String.format("Generating code for [%s]", md.storeClassName));
-                StoreGenerator generator = new StoreGenerator();
-                final StringBuffer code = generator.generate(md);
-                writeCode(md.packageName, md.storeClassName, code);
-
-                messager.printMessage(NOTE,
-                        String.format("Successfully generated store implementation [%s]", md.storeClassName));
-            } catch (GenerationException ge) {
-                final String msg = ge.getMessage();
-                messager.printMessage(Diagnostic.Kind.ERROR, msg/* , storeElement*/);
+    private void validateProcessMethods(TypeElement storeElement, Collection<ProcessInfo> processInfos) {
+        Map<String, ProcessInfo> actionTypes = new HashMap<>();
+        for (ProcessInfo processInfo : processInfos) {
+            ProcessInfo otherPi = actionTypes.get(processInfo.getActionType());
+            if (otherPi != null) {
+                throw new GenerationException(processInfo.getMethodElement(),
+                        String.format("Ambiguous process method %s in store %s. This method uses the same action type as %s. " +
+                                "Please make sure that the action type is unique across all process method in one store.",
+                                processInfo.getMethod(), storeElement.getSimpleName().toString(), otherPi.getMethod()));
             }
+            actionTypes.put(processInfo.getActionType(), processInfo);
         }
-
-        // GraphVIZ
-        String graphVizFile = writeGraphViz();
-        validateDAG(graphVizFile);
     }
 
-    private String writeGraphViz() throws GenerationException, IOException {
-        final Messager messager = processingEnv.getMessager();
-        GraphVizGenerator generator = new GraphVizGenerator();
-        StringBuffer code = generator.generate(graphVizInfos.values());
-        messager.printMessage(NOTE,
-                "Generating GraphViz file to visualize store dependencies [" + GRAPH_VIZ_OUTPUT + "]");
-        FileObject fo = processingEnv.getFiler()
-                .createResource(StandardLocation.SOURCE_OUTPUT, "", GRAPH_VIZ_OUTPUT);
-        Writer w = fo.openWriter();
-        BufferedWriter bw = new BufferedWriter(w);
-        bw.append(code);
-        bw.close();
-        w.close();
-        messager.printMessage(NOTE, "Successfully generated GraphViz file [" + GRAPH_VIZ_OUTPUT + "]");
-        return fo.getName();
-    }
-
-    private void validateDAG(final String graphVizFile) throws GenerationException {
+    private void validateDAG(final String graphVizFile) {
         boolean cyclesFound = false;
-        final Messager messager = processingEnv.getMessager();
         for (Map.Entry<String, Multimap<String, String>> entry : dagValidation.entrySet()) {
             String payload = entry.getKey();
             Multimap<String, String> dependencies = entry.getValue();
-            messager.printMessage(NOTE, "Check cyclic dependencies for action [" + payload + "]");
+            info("Check cyclic dependencies for action [%s]", payload);
             DirectedGraph<String, DefaultEdge> dg = new DefaultDirectedGraph<>(DefaultEdge.class);
 
             // vertices
@@ -325,13 +292,57 @@ public class StoreProcessor extends AbstractErrorAbsorbingProcessor {
                     cycleInfo.append(cycle).append(" -> ");
                 }
                 cycleInfo.append(cycles.get(0));
-                messager.printMessage(ERROR,
-                        "Cyclic dependencies detected for action [" + payload + "]: " + cycleInfo);
-                messager.printMessage(ERROR, "Please review [" + graphVizFile + "] for more details.");
+                error("Cyclic dependencies detected for action [%s]: %s. Please review [%s] for more details.",
+                        payload, cycleInfo, graphVizFile);
             }
             if (!cyclesFound) {
-                messager.printMessage(NOTE, "No cyclic dependencies found for action [" + payload + "]");
+                info("No cyclic dependencies found for action [%s]", payload);
             }
+        }
+    }
+
+    // ------------------------------------------------------ generate methods
+
+    private void writeCode(final String packageName, final String className, final StringBuffer code)
+            throws IOException {
+        JavaFileObject jfo = filer.createSourceFile(packageName + "." + className);
+        Writer w = jfo.openWriter();
+        BufferedWriter bw = new BufferedWriter(w);
+        bw.append(code);
+        bw.close();
+        w.close();
+    }
+
+    private String writeGraphViz() throws IOException {
+        GraphVizGenerator generator = new GraphVizGenerator();
+        StringBuffer code = generator.generate(graphVizInfos.values());
+        info("Generating GraphViz file to visualize store dependencies [%s]", GRAPH_VIZ_OUTPUT);
+        FileObject fo = processingEnv.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "", GRAPH_VIZ_OUTPUT);
+        Writer w = fo.openWriter();
+        BufferedWriter bw = new BufferedWriter(w);
+        bw.append(code);
+        bw.close();
+        w.close();
+        info("Successfully generated GraphViz file [%s]", GRAPH_VIZ_OUTPUT);
+        return fo.getName();
+    }
+
+
+    // ------------------------------------------------------ logging
+
+    private void info(String msg, Object... args) {
+        messager.printMessage(NOTE, String.format(msg, args));
+    }
+
+    private void error(String msg, Object... args) {
+        messager.printMessage(ERROR, String.format(msg, args));
+    }
+
+    private void error(GenerationException generationException) {
+        if (generationException.getElement() != null) {
+            messager.printMessage(ERROR, generationException.getMessage(), generationException.getElement());
+        } else {
+            messager.printMessage(ERROR, generationException.getMessage());
         }
     }
 }
