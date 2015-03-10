@@ -40,8 +40,8 @@ public class BookStore {
     }
 
     @Process(actionType = Rate.class)
-    public void rate(int stars, Book book, Dispatcher.Channel channel) {
-        failSafeGet(book).add(stars);
+    public void rate(Rate rate, Dispatcher.Channel channel) {
+        failSafeGet(rate.getBook()).add(rate.getStars());
         channel.ack();
     }
 
@@ -58,7 +58,7 @@ public class BookStore {
         return ratings.containsKey(book) ? ratings.get(book).avg() : 0.0;
     }
 
-    private final static class Rating {
+    final static class Rating {
         private final List<Integer> ratings;
 
         private Rating() {

@@ -40,8 +40,21 @@
     <packaging>war</packaging>
 
     <properties>
+        <errai.version>3.1.2.Final</errai.version>
         <webAppDirectory>${project.build.directory}/${project.build.finalName}</webAppDirectory>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.jboss.errai.bom</groupId>
+                <artifactId>errai-bom</artifactId>
+                <version>${errai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>

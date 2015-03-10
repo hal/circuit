@@ -22,7 +22,13 @@
 package org.jboss.gwt.circuit.processor;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.*;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.Name;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
@@ -43,52 +49,6 @@ final class GenerationUtil {
      * String, javax.lang.model.type.TypeMirror, String[])} not to care about parameter types.
      */
     static final String[] ANY_PARAMS = new String[0];
-
-    static String storeImplementation(String delegate) {
-        return delegate + "Adapter";
-    }
-
-    static List<ExecutableElement> findGetter(final TypeElement originalClassElement, final ProcessingEnvironment processingEnvironment,
-                                              final TypeMirror requiredReturnType, final String name) {
-
-        final Types typeUtils = processingEnvironment.getTypeUtils();
-        final String getter = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
-
-        TypeElement classElement = originalClassElement;
-        while (true) {
-            final List<ExecutableElement> methods = ElementFilter.methodsIn(classElement.getEnclosedElements());
-
-            List<ExecutableElement> matches = new ArrayList<>();
-            for (ExecutableElement e : methods) {
-                if (!e.getSimpleName().toString().equals(getter)) {
-                    continue;
-                }
-                final TypeMirror actualReturnType = e.getReturnType();
-                if (!typeUtils.isAssignable(actualReturnType, requiredReturnType)) {
-                    continue;
-                }
-                if (e.getModifiers().contains(Modifier.STATIC)) {
-                    continue;
-                }
-                if (e.getModifiers().contains(Modifier.PRIVATE)) {
-                    continue;
-                }
-                matches.add(e);
-            }
-
-            if (!matches.isEmpty()) {
-                return matches;
-            }
-
-            TypeMirror superclass = classElement.getSuperclass();
-            if (superclass instanceof DeclaredType) {
-                classElement = (TypeElement) ((DeclaredType) superclass).asElement();
-            } else {
-                break;
-            }
-        }
-        return Collections.emptyList();
-    }
 
     static List<ExecutableElement> getAnnotatedMethods(final TypeElement originalClassElement,
             final ProcessingEnvironment processingEnvironment, final String annotationName,
@@ -150,18 +110,6 @@ final class GenerationUtil {
         return ((TypeElement) annotation.getAnnotationType().asElement()).getQualifiedName();
     }
 
-    static Collection<String> extractValue(final AnnotationValue value) {
-        if (value.getValue() instanceof Collection) {
-            final Collection<?> varray = (List<?>) value.getValue();
-            final ArrayList<String> result = new ArrayList<>(varray.size());
-            for (final Object active : varray) {
-                result.addAll(extractValue((AnnotationValue) active));
-            }
-            return result;
-        }
-        return Collections.singleton(value.getValue().toString());
-    }
-
     static boolean doParametersMatch(final Types typeUtils,
             final Elements elementUtils,
             final ExecutableElement e,
@@ -185,5 +133,17 @@ final class GenerationUtil {
             }
         }
         return true;
+    }
+
+    static Collection<String> extractValue(final AnnotationValue value) {
+        if (value.getValue() instanceof Collection) {
+            final Collection<?> varray = (List<?>) value.getValue();
+            final ArrayList<String> result = new ArrayList<>(varray.size());
+            for (final Object active : varray) {
+                result.addAll(extractValue((AnnotationValue) active));
+            }
+            return result;
+        }
+        return Collections.singleton(value.getValue().toString());
     }
 }

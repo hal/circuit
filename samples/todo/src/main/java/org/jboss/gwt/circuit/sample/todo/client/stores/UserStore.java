@@ -45,6 +45,7 @@ public class UserStore extends ChangeSupport {
     private String selectedUser;
 
     @Inject
+    @SuppressWarnings("CdiInjectionPointsInspection")
     private Dispatcher dispatcher;
 
     public UserStore() {
@@ -63,26 +64,26 @@ public class UserStore extends ChangeSupport {
     }
 
     @Process(actionType = SelectUser.class)
-    public void onSelect(String user, final Dispatcher.Channel channel) {
-        this.selectedUser = user;
+    public void onSelect(SelectUser action, final Dispatcher.Channel channel) {
+        this.selectedUser = action.getUser();
         channel.ack();
     }
 
     @Process(actionType = AddUser.class)
-    public void onAdd(String user, final Dispatcher.Channel channel) {
-        if (!users.contains(user)) { this.users.add(user); }
+    public void onAdd(AddUser action, final Dispatcher.Channel channel) {
+        if (!users.contains(action.getUser())) { this.users.add(action.getUser()); }
         channel.ack();
     }
 
     @Process(actionType = RemoveUser.class)
-    public void onRemove(String user, final Dispatcher.Channel channel) {
+    public void onRemove(RemoveUser action, final Dispatcher.Channel channel) {
 
-        if (Todo.USER_ANY.equals(user)) { return; }
+        if (Todo.USER_ANY.equals(action.getUser())) { return; }
 
-        this.users.remove(user);
+        this.users.remove(action.getUser());
 
         // update selection if necessary
-        if (user.equals(selectedUser)) { dispatcher.dispatch(new SelectUser(Todo.USER_ANY)); }
+        if (action.getUser().equals(selectedUser)) { dispatcher.dispatch(new SelectUser(Todo.USER_ANY)); }
 
         channel.ack();
     }

@@ -75,15 +75,15 @@
     <properties>
         <maven.compiler.target>1.7</maven.compiler.target>
         <maven.compiler.source>1.7</maven.compiler.source>
-        <enterprise.cdi.version>1.2</enterprise.cdi.version>
-        <errai.version>3.0.0.Final</errai.version>
-        <freemarker.version>2.3.20</freemarker.version>
-        <gwt.version>2.6.1</gwt.version>
 
-        <!-- See https://issues.jboss.org/browse/ERRAI-760 -->
-        <guava.version>17.0</guava.version>
+        <auto-service.version>1.0-rc2</auto-service.version>
+        <auto-common.version>1.0-SNAPSHOT</auto-common.version>
+        <enterprise.cdi.version>1.2</enterprise.cdi.version>
+        <freemarker.version>2.3.22</freemarker.version>
+        <gwt.version>2.7.0</gwt.version>
+        <guava.version>18.0</guava.version>
         <jgrapht.version>0.9.2-hal</jgrapht.version>
-        <junit.version>4.11</junit.version>
+        <junit.version>4.12</junit.version>
     </properties>
 
     <modules>
@@ -118,6 +118,16 @@
                 <artifactId>cdi-api</artifactId>
                 <version>${enterprise.cdi.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.google.auto.service</groupId>
+                <artifactId>auto-service</artifactId>
+                <version>${auto-service.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.auto</groupId>
+                <artifactId>auto-common</artifactId>
+                <version>${auto-common.version}</version>
+            </dependency>
 
             <!-- JGraphT -->
             <dependency>
@@ -126,23 +136,12 @@
                 <version>${jgrapht.version}</version>
             </dependency>
 
-            <!-- Errai -->
-            <dependency>
-                <groupId>org.jboss.errai.bom</groupId>
-                <artifactId>errai-version-master</artifactId>
-                <version>${errai.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.errai</groupId>
-                <artifactId>errai-parent</artifactId>
-                <version>${errai.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
             <!-- GWT & related -->
+            <dependency>
+                <groupId>com.google.gwt</groupId>
+                <artifactId>gwt-user</artifactId>
+                <version>${gwt.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava-gwt</artifactId>
@@ -152,11 +151,6 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.gwt</groupId>
-                <artifactId>gwt-user</artifactId>
-                <version>${gwt.version}</version>
             </dependency>
 
             <!-- Freemarker -->
@@ -214,5 +208,4 @@
             </snapshots>
         </repository>
     </repositories>
-
 </project>

@@ -80,7 +80,7 @@ public class TodoStore {
 	private final List<Todo> todos;
 
 	@Process(actionType = SaveTodo.class)
-	public void onSave(final Todo todo, final Dispatcher.Channel channel) {
+	public void onSave(final SaveTodo todo, final Dispatcher.Channel channel) {
 		// persist the todo (backend call)
     }
 }
@@ -139,7 +139,7 @@ Circuit allows you to express dependencies between Stores on the level of an Act
 ```java
 public class TodoStore {
     @Process(actionType = RemoveUser.class, dependencies = {UserStore.class})
-    public void onRemoveUser(String user, final Dispatcher.Channel channel) {
+    public void onRemoveUser(RemoveUser user, final Dispatcher.Channel channel) {
 		// when a user is removed we removes his todo's 
 		[...]
     }
@@ -172,10 +172,10 @@ When Stores complete the processing of an Action, they acknowledge the Action th
 public class TodoStore {
 
 	@Process(actionType = SaveTodo.class)
-	public void onSave(final Todo todo, final Dispatcher.Channel channel) {
+	public void onSave(final SaveTodo todo, final Dispatcher.Channel channel) {
 
 		// async invocation
-    	todoService.save(todo, new TodoCallback<Void>(channel) {
+    	todoService.save(todo.getTodo(), new TodoCallback<Void>(channel) {
             @Override
             public void onSuccess(final Void result) {
 				// acknowledgement
@@ -248,8 +248,8 @@ public class ShoesStore {
 The signature for methods annotated with `@Process` must adhere the following rules:
 
 - The return type must be `void`
-- Parameters 0..n-1 map to the action's payload. For each parameter there must be a getter in the action.
-- The last parameter (or the only one, if no payload is referenced) must be of type `org.jboss.gwt.circuit.Dispatcher.Channel`.
+- The last parameter (or the only one, if no action is referenced) must be of type `org.jboss.gwt.circuit.Dispatcher.Channel`.
+- The first parameter can be the action which is processed.
 
 To see the annotations in action take a look at the [wardrobe](samples/wardrobe) and [todo](samples/todo) samples.
  

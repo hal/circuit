@@ -2,9 +2,10 @@
 <#-- @ftlvariable name="storeClassName" type="java.lang.String" -->
 <#-- @ftlvariable name="storeDelegate" type="java.lang.String" -->
 <#-- @ftlvariable name="changeSupport" type="java.lang.Boolean" -->
-<#-- @ftlvariable name="processInfos" type="java.util.List<org.jboss.gwt.circuit.processor.ProcessInfo>" -->
+<#-- @ftlvariable name="processInfos" type="java.util.Collection<org.jboss.gwt.circuit.processor.ProcessInfo>" -->
 package ${packageName};
 
+import java.util.logging.Logger;
 import javax.annotation.Generated;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -22,6 +23,7 @@ import org.jboss.gwt.circuit.StoreCallback;
 @Generated("org.jboss.gwt.circuit.processor.StoreProcessor")
 public class ${storeClassName} {
 
+    private final static Logger LOG = Logger.getLogger("org.jboss.gwt.circuit");
     private final ${storeDelegate} delegate;
 
     @Inject
@@ -60,12 +62,12 @@ public class ${storeClassName} {
                     <#if processInfo.singleArg>
                     delegate.${processInfo.method}(channel);
                     <#else>
-                    delegate.${processInfo.method}(<#list processInfo.getPayload() as payload>((${processInfo.actionType})action).${payload}(), </#list>channel);
+                    delegate.${processInfo.method}((${processInfo.actionType})action, channel);
                     </#if>
                 }
                 </#list>
                 else {
-                    channel.nack("Warning: Unmatched action type " + action.getClass().getName() + " in store " + delegate.getClass());
+                    channel.nack("Unmatched action type " + action.getClass().getName() + " in store " + delegate.getClass());
                 }
             }
 
@@ -83,7 +85,7 @@ public class ${storeClassName} {
                     handler.onChange(action);
                 }
                 <#else>
-                System.out.println("WARN: Cannot signal change event: " + ${storeDelegate}.class.getName() + " does not extend " + org.jboss.gwt.circuit.ChangeSupport.class.getName());
+                LOG.warning("Cannot signal change event: " + ${storeDelegate}.class.getName() + " does not extend " + org.jboss.gwt.circuit.ChangeSupport.class.getName());
                 </#if>
             }
         });

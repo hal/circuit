@@ -21,24 +21,25 @@
  */
 package org.jboss.gwt.circuit.processor;
 
-import java.util.*;
+import javax.lang.model.element.ExecutableElement;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 public class ProcessInfo {
 
-    private final String method;
+    private final ExecutableElement methodElement; // used only for error reporting
     private final String actionType;
-    private final List<String> payload;
+    private final String method;
+    private final int params;
     private Set<String> dependencies;
 
-    public ProcessInfo(final String method, String actionType) {
-        this.method = method;
+    public ProcessInfo(String actionType, ExecutableElement method) {
+        this.methodElement = method;
         this.actionType = actionType;
-        this.payload = new ArrayList<>();
+        this.method = method.getSimpleName().toString();
+        this.params = method.getParameters().size();
         this.dependencies = new HashSet<>();
-    }
-
-    public boolean isSingleArg() {
-        return payload.isEmpty();
     }
 
     public String getMethod() {
@@ -49,12 +50,8 @@ public class ProcessInfo {
         return actionType;
     }
 
-    public void addPayload(String name) {
-        payload.add(name);
-    }
-
-    public List<String> getPayload() {
-        return payload;
+    public boolean isSingleArg() {
+        return params == 1;
     }
 
     public void addDependency(String storeClassName) {
@@ -77,23 +74,30 @@ public class ProcessInfo {
         return csv.toString();
     }
 
+    ExecutableElement getMethodElement() {
+        return methodElement;
+    }
+
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) { return true; }
-        if (!(o instanceof ProcessInfo)) { return false; }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ProcessInfo)) return false;
 
         ProcessInfo that = (ProcessInfo) o;
 
-        if (!method.equals(that.method)) { return false; }
-        if (!payload.equals(that.payload)) { return false; }
+        if (params != that.params) return false;
+        if (!method.equals(that.method)) return false;
+        if (!actionType.equals(that.actionType)) return false;
+        return dependencies.equals(that.dependencies);
 
-        return true;
     }
 
     @Override
     public int hashCode() {
         int result = method.hashCode();
-        result = 31 * result + payload.hashCode();
+        result = 31 * result + actionType.hashCode();
+        result = 31 * result + params;
+        result = 31 * result + dependencies.hashCode();
         return result;
     }
 }
