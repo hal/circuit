@@ -36,7 +36,9 @@
     <artifactId>circuit-parent</artifactId>
     <version>0.0.9</version>
     <name>circuit</name>
-    <description>GWT implementation of the circuit pattern. See http://facebook.github.io/react/docs/circuit-overview.html</description>
+    <description>GWT implementation of the circuit pattern. See
+        http://facebook.github.io/react/docs/circuit-overview.html
+    </description>
     <packaging>pom</packaging>
 
     <organization>
@@ -90,7 +92,6 @@
         <module>core</module>
         <module>meta</module>
         <module>processor</module>
-        <module>samples</module>
     </modules>
 
     <dependencyManagement>
@@ -193,6 +194,15 @@
             </plugins>
         </pluginManagement>
     </build>
+
+    <profiles>
+        <profile>
+            <id>samples</id>
+            <modules>
+                <module>samples</module>
+            </modules>
+        </profile>
+    </profiles>
 
     <repositories>
         <repository>
