@@ -60,6 +60,7 @@ import java.util.*;
 
 import static javax.tools.Diagnostic.Kind.ERROR;
 import static javax.tools.Diagnostic.Kind.NOTE;
+import static javax.tools.Diagnostic.Kind.OTHER;
 import static org.jboss.gwt.circuit.processor.GenerationUtil.ANY_PARAMS;
 
 @AutoService(Processor.class)
@@ -105,7 +106,7 @@ public class StoreProcessor extends AbstractProcessor {
             boolean changeSupport = typeUtils.isAssignable(storeElement.asType(),
                     elementUtils.getTypeElement(ChangeSupport.class.getName()).asType());
             String storeClassName = storeDelegate + "Adapter";
-            info("Discovered annotated store [%s]", storeElement.getQualifiedName());
+            debug("Discovered annotated store [%s]", storeElement.getQualifiedName());
 
             try {
                 List<ExecutableElement> processMethods = findValidProcessMethods(storeElement);
@@ -122,11 +123,11 @@ public class StoreProcessor extends AbstractProcessor {
         // generate code for *all* stores
         try {
             for (StoreDelegateMetadata md : metadata) {
-                info("Generating code for [%s]", md.storeClassName);
+                debug("Generating code for [%s]", md.storeClassName);
                 StoreGenerator generator = new StoreGenerator();
                 final StringBuffer code = generator.generate(md);
                 writeCode(md.packageName, md.storeClassName, code);
-                info("Successfully generated store implementation [%s]", md.storeClassName);
+                info("Successfully processed store [%s] -> [%s]", md.storeDelegate, md.storeClassName);
             }
             metadata.clear();
             if (roundEnv.processingOver()) {
@@ -263,7 +264,7 @@ public class StoreProcessor extends AbstractProcessor {
         for (Map.Entry<String, Multimap<String, String>> entry : dagValidation.entrySet()) {
             String payload = entry.getKey();
             Multimap<String, String> dependencies = entry.getValue();
-            info("Check cyclic dependencies for action [%s]", payload);
+            debug("Check cyclic dependencies for action [%s]", payload);
             DirectedGraph<String, DefaultEdge> dg = new DefaultDirectedGraph<>(DefaultEdge.class);
 
             // vertices
@@ -296,7 +297,7 @@ public class StoreProcessor extends AbstractProcessor {
                         payload, cycleInfo, graphVizFile);
             }
             if (!cyclesFound) {
-                info("No cyclic dependencies found for action [%s]", payload);
+                debug("No cyclic dependencies found for action [%s]", payload);
             }
         }
     }
@@ -316,19 +317,23 @@ public class StoreProcessor extends AbstractProcessor {
     private String writeGraphViz() throws IOException {
         GraphVizGenerator generator = new GraphVizGenerator();
         StringBuffer code = generator.generate(graphVizInfos.values());
-        info("Generating GraphViz file to visualize store dependencies [%s]", GRAPH_VIZ_OUTPUT);
+        debug("Generating GraphViz file to visualize store dependencies [%s]", GRAPH_VIZ_OUTPUT);
         FileObject fo = processingEnv.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "", GRAPH_VIZ_OUTPUT);
         Writer w = fo.openWriter();
         BufferedWriter bw = new BufferedWriter(w);
         bw.append(code);
         bw.close();
         w.close();
-        info("Successfully generated GraphViz file [%s]", GRAPH_VIZ_OUTPUT);
+        debug("Successfully generated GraphViz file [%s]", GRAPH_VIZ_OUTPUT);
         return fo.getName();
     }
 
 
     // ------------------------------------------------------ logging
+
+    private void debug(String msg, Object... args) {
+        messager.printMessage(OTHER, String.format(msg, args));
+    }
 
     private void info(String msg, Object... args) {
         messager.printMessage(NOTE, String.format(msg, args));
