@@ -332,7 +332,9 @@ public class StoreProcessor extends AbstractProcessor {
     // ------------------------------------------------------ logging
 
     private void debug(String msg, Object... args) {
-        messager.printMessage(OTHER, String.format(msg, args));
+        if (processingEnv.getOptions().containsKey("debug")) {
+            messager.printMessage(NOTE, String.format(msg, args));
+        }
     }
 
     private void info(String msg, Object... args) {
