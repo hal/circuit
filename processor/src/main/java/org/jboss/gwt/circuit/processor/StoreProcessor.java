@@ -60,11 +60,10 @@ import java.util.*;
 
 import static javax.tools.Diagnostic.Kind.ERROR;
 import static javax.tools.Diagnostic.Kind.NOTE;
-import static javax.tools.Diagnostic.Kind.OTHER;
 import static org.jboss.gwt.circuit.processor.GenerationUtil.ANY_PARAMS;
 
 @AutoService(Processor.class)
-@SupportedSourceVersion(SourceVersion.RELEASE_7)
+@SupportedOptions("debug")
 @SupportedAnnotationTypes("org.jboss.gwt.circuit.meta.Store")
 public class StoreProcessor extends AbstractProcessor {
 
@@ -95,10 +94,14 @@ public class StoreProcessor extends AbstractProcessor {
     }
 
     @Override
-    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        for (Element e : roundEnv.getElementsAnnotatedWith(Store.class)) {
+    public SourceVersion getSupportedSourceVersion() {
+        return SourceVersion.latestSupported();
+    }
 
-            // collect data for *one* store
+    @Override
+    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        // collect data
+        for (Element e : roundEnv.getElementsAnnotatedWith(Store.class)) {
             TypeElement storeElement = (TypeElement) e;
             PackageElement packageElement = (PackageElement) storeElement.getEnclosingElement();
             String packageName = packageElement.getQualifiedName().toString();
@@ -120,7 +123,7 @@ public class StoreProcessor extends AbstractProcessor {
             }
         }
 
-        // generate code for *all* stores
+        // generate code
         try {
             for (StoreDelegateMetadata md : metadata) {
                 debug("Generating code for [%s]", md.storeClassName);
@@ -131,11 +134,14 @@ public class StoreProcessor extends AbstractProcessor {
             }
             metadata.clear();
             if (roundEnv.processingOver()) {
+                // Write the GraphViz file only once!
                 String graphVizFile = writeGraphViz();
                 validateDAG(graphVizFile);
+                graphVizInfos.clear();
+                dagValidation.clear();
             }
-        } catch (IOException e) {
-            error("Error generating code: %s", e.getMessage());
+        } catch (IOException ioe) {
+            error("Error generating code: %s", ioe.getMessage());
         }
         return true;
     }
@@ -252,7 +258,7 @@ public class StoreProcessor extends AbstractProcessor {
             if (otherPi != null) {
                 throw new GenerationException(processInfo.getMethodElement(),
                         String.format("Ambiguous process method %s in store %s. This method uses the same action type as %s. " +
-                                "Please make sure that the action type is unique across all process method in one store.",
+                                        "Please make sure that the action type is unique across all process method in one store.",
                                 processInfo.getMethod(), storeElement.getSimpleName().toString(), otherPi.getMethod()));
             }
             actionTypes.put(processInfo.getActionType(), processInfo);
@@ -262,9 +268,9 @@ public class StoreProcessor extends AbstractProcessor {
     private void validateDAG(final String graphVizFile) {
         boolean cyclesFound = false;
         for (Map.Entry<String, Multimap<String, String>> entry : dagValidation.entrySet()) {
-            String payload = entry.getKey();
+            String actionType = entry.getKey();
             Multimap<String, String> dependencies = entry.getValue();
-            debug("Check cyclic dependencies for action [%s]", payload);
+            debug("Check cyclic dependencies for action [%s]", actionType);
             DirectedGraph<String, DefaultEdge> dg = new DefaultDirectedGraph<>(DefaultEdge.class);
 
             // vertices
@@ -294,10 +300,10 @@ public class StoreProcessor extends AbstractProcessor {
                 }
                 cycleInfo.append(cycles.get(0));
                 error("Cyclic dependencies detected for action [%s]: %s. Please review [%s] for more details.",
-                        payload, cycleInfo, graphVizFile);
+                        actionType, cycleInfo, graphVizFile);
             }
             if (!cyclesFound) {
-                debug("No cyclic dependencies found for action [%s]", payload);
+                debug("No cyclic dependencies found for action [%s]", actionType);
             }
         }
     }
