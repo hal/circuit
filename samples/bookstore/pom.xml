@@ -48,7 +48,6 @@
         <dependency>
             <groupId>org.jboss.gwt.circuit</groupId>
             <artifactId>circuit-processor</artifactId>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -65,6 +64,11 @@
                         </goals>
                         <phase>generate-sources</phase>
                         <configuration>
+                            <!-- Uncomment to get more messages from the annotation processors
+                            <options>
+                                <debug>true</debug>
+                            </options>
+                            -->
                             <defaultOutputDirectory>${project.build.directory}/generated-sources/annotations</defaultOutputDirectory>
                         </configuration>
                     </execution>
