@@ -29,7 +29,7 @@
     <parent>
         <groupId>org.jboss.gwt.circuit</groupId>
         <artifactId>circuit-samples-parent</artifactId>
-        <version>0.0.12</version>
+        <version>0.1.0</version>
     </parent>
 
     <artifactId>circuit-wardrobe-sample</artifactId>
