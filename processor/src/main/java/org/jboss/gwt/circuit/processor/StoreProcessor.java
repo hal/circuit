@@ -143,7 +143,7 @@ public class StoreProcessor extends AbstractProcessor {
         } catch (IOException ioe) {
             error("Error generating code: %s", ioe.getMessage());
         }
-        return true;
+        return false;
     }
 
 

@@ -23,7 +23,9 @@ import org.jboss.gwt.circuit.StoreCallback;
 @Generated("org.jboss.gwt.circuit.processor.StoreProcessor")
 public class ${storeClassName} {
 
+    <#if !changeSupport>
     private final static Logger LOG = Logger.getLogger("org.jboss.gwt.circuit");
+    </#if>
     private final ${storeDelegate} delegate;
 
     @Inject
