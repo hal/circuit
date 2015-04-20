@@ -1,5 +1,8 @@
 package org.jboss.gwt.circuit;
 
+/**
+ * Sample store used for tests.
+ */
 public class BarStore extends ChangeSupport {
 
     public BarStore(Dispatcher dispatcher) {
