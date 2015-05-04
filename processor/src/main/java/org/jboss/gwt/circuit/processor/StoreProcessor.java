@@ -242,7 +242,7 @@ public class StoreProcessor extends AbstractProcessor {
 
     private void verifyProcessParameter(TypeElement storeElement, ExecutableElement methodElement,
                                         VariableElement parameter, String expected) {
-        TypeElement parameterType = MoreTypes.asTypeElement(typeUtils, parameter.asType());
+        TypeElement parameterType = MoreTypes.asTypeElement(parameter.asType());
         if (!parameterType.getQualifiedName().toString().equals(expected)) {
             throw new GenerationException(parameter,
                     String.format("Illegal parameter '%s' on method '%s' in class '%s'. Expected type '%s'",
