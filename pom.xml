@@ -79,7 +79,7 @@
         <maven.compiler.source>1.7</maven.compiler.source>
 
         <auto-service.version>1.0-rc2</auto-service.version>
-        <auto-common.version>1.0-SNAPSHOT</auto-common.version>
+        <auto-common.version>1.0-jboss</auto-common.version>
         <enterprise.cdi.version>1.2</enterprise.cdi.version>
         <freemarker.version>2.3.22</freemarker.version>
         <gwt.version>2.7.0</gwt.version>
