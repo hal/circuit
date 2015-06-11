@@ -139,7 +139,6 @@ public class DAGDispatcher implements Dispatcher {
         DirectedGraph<Class<?>, DefaultEdge> dag = createDag(approvals);
         // TODO Cache topological order
         TopologicalOrderIterator<Class<?>, DefaultEdge> iterator = new TopologicalOrderIterator<>(dag);
-
         executeInOrder(action, iterator, new ArrayList<StoreCallback>());
     }
 

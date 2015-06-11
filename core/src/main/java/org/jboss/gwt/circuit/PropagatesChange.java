@@ -7,7 +7,7 @@ import com.google.web.bindery.event.shared.HandlerRegistration;
  */
 public interface PropagatesChange {
 
-    public interface Handler {
+    interface Handler {
 
         void onChange(Action action);
     }
