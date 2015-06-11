@@ -46,10 +46,7 @@ public abstract class ChangeSupport implements PropagatesChange {
             if (!(o instanceof HandlerRef)) { return false; }
 
             HandlerRef handlerRef = (HandlerRef) o;
-
-            if (!id.equals(handlerRef.id)) { return false; }
-
-            return true;
+            return id.equals(handlerRef.id);
         }
 
         @Override

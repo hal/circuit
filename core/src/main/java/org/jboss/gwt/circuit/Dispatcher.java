@@ -29,7 +29,7 @@ public interface Dispatcher {
     /**
      * Contract between the dispatcher and the store to manage ordered processing of callbacks.
      */
-    public interface Channel {
+    interface Channel {
 
         /**
          * Must be called by stores to signal the successful processing of a callback.

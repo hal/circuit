@@ -27,7 +27,7 @@ package org.jboss.gwt.circuit;
  * <ol>
  * <li>Vote for an action</li>
  * <li>Pass the action to the store</li>
- * <li>Notify handlers that the store has changed</li>
+ * <li>Notify handlers that the store has changed or that the action processing failed.</li>
  * </ol>
  */
 public interface StoreCallback {
@@ -41,12 +41,12 @@ public interface StoreCallback {
 
     /**
      * After a successful vote, the dispatcher hands the action to the store for completion.
-     * It's the stores responsibility to acknowledge the action.
+     * It's the stores responsibility to ack / nack the action.
      */
     void complete(Action action, Dispatcher.Channel channel);
 
     /**
-     * After the action was acknowledged by the all stores, a change event is sent to all
+     * After the action was acknowledged by the store, a change event is sent to all
      * registered {@link PropagatesChange.Handler}s.
      */
     void signalChange(Action action);
