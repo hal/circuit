@@ -37,7 +37,7 @@ abstract class AbstractGenerator {
     protected final Configuration config;
 
     protected AbstractGenerator() {
-        Version version = new Version(2, 3, 22);
+        Version version = new Version(2, 3, 23);
         config = new Configuration(version);
         config.setDefaultEncoding("UTF-8");
         config.setClassForTemplateLoading(getClass(), "templates");

@@ -79,9 +79,9 @@
         <maven.compiler.source>1.7</maven.compiler.source>
 
         <auto-service.version>1.0-rc2</auto-service.version>
-        <auto-common.version>1.0-jboss</auto-common.version>
+        <auto-common.version>0.3</auto-common.version>
         <enterprise.cdi.version>1.2</enterprise.cdi.version>
-        <freemarker.version>2.3.22</freemarker.version>
+        <freemarker.version>2.3.23</freemarker.version>
         <gwt.version>2.7.0</gwt.version>
         <guava.version>18.0</guava.version>
         <jgrapht.version>0.9.2-hal</jgrapht.version>
