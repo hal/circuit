@@ -21,7 +21,6 @@
  */
 package org.jboss.gwt.circuit.processor;
 
-import com.google.auto.common.AnnotationMirrors;
 import com.google.auto.common.MoreElements;
 import com.google.auto.common.MoreTypes;
 import com.google.auto.service.AutoService;
@@ -37,7 +36,14 @@ import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
-import javax.annotation.processing.*;
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Filer;
+import javax.annotation.processing.Messager;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.Processor;
+import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedOptions;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
@@ -56,7 +62,15 @@ import javax.tools.StandardLocation;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 import static javax.tools.Diagnostic.Kind.ERROR;
 import static javax.tools.Diagnostic.Kind.NOTE;
@@ -175,8 +189,9 @@ public class StoreProcessor extends AbstractProcessor {
             // parse @Process parameter
             Optional<AnnotationMirror> processAnnotation = MoreElements.getAnnotationMirror(methodElement, Process.class);
             if (processAnnotation.isPresent()) {
-                Map<ExecutableElement, AnnotationValue> values = AnnotationMirrors.getAnnotationValuesWithDefaults(processAnnotation.get());
-                for (Map.Entry<ExecutableElement, AnnotationValue> entry : values.entrySet()) {
+                Map<? extends ExecutableElement, ? extends AnnotationValue> values = elementUtils
+                        .getElementValuesWithDefaults(processAnnotation.get());
+                for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : values.entrySet()) {
                     if ("actionType".equals(entry.getKey().getSimpleName().toString())) {
                         actionType = (String) ((Set) GenerationUtil.extractValue(entry.getValue())).iterator().next();
                     } else if ("dependencies".equals(entry.getKey().getSimpleName().toString())) {
@@ -242,7 +257,7 @@ public class StoreProcessor extends AbstractProcessor {
 
     private void verifyProcessParameter(TypeElement storeElement, ExecutableElement methodElement,
                                         VariableElement parameter, String expected) {
-        TypeElement parameterType = MoreTypes.asTypeElement(parameter.asType());
+        TypeElement parameterType = MoreTypes.asTypeElement(typeUtils, parameter.asType());
         if (!parameterType.getQualifiedName().toString().equals(expected)) {
             throw new GenerationException(parameter,
                     String.format("Illegal parameter '%s' on method '%s' in class '%s'. Expected type '%s'",
