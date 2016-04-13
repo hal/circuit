@@ -59,4 +59,28 @@
             <artifactId>freemarker</artifactId>
         </dependency>
     </dependencies>
+
+   <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <relocations>
+                                <relocation>
+                                    <pattern>com.google.auto.common</pattern>
+                                    <shadedPattern>org.jboss.gwt.circuit.processor.shaded.auto.common</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
