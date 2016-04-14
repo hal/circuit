@@ -30,6 +30,8 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.NoType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
@@ -68,7 +70,10 @@ final class GenerationUtil {
                     continue;
                 }
                 if (!typeUtils.isAssignable(actualReturnType, requiredReturnType)) {
-                    continue;
+                    NoType voidType = typeUtils.getNoType(TypeKind.VOID);
+                    if (!(voidType.equals(actualReturnType) && voidType.equals(requiredReturnType))) {
+                        continue;
+                    }
                 }
                 if (!doParametersMatch(typeUtils, elementUtils, e, requiredParameterTypes)) {
                     continue;
