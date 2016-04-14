@@ -77,6 +77,19 @@
                                     <shadedPattern>org.jboss.gwt.circuit.processor.shaded.auto.common</shadedPattern>
                                 </relocation>
                             </relocations>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>com.google.auto.service:*</exclude>
+                                    <exclude>com.google.code.findbugs:*</exclude>
+                                    <exclude>com.google.errorprone:*</exclude>
+                                    <exclude>com.google.guava:*</exclude>
+                                    <exclude>com.google.gwt:*</exclude>
+                                    <exclude>com.google.j2objc:*</exclude>
+                                    <exclude>javax.enterprise:*</exclude>
+                                    <exclude>org.freemarker:*</exclude>
+                                    <exclude>org.jgrapht:*</exclude>
+                                </excludes>
+                            </artifactSet>
                         </configuration>
                     </execution>
                 </executions>
