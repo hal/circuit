@@ -29,15 +29,19 @@
     <parent>
         <groupId>org.jboss.gwt.circuit</groupId>
         <artifactId>circuit-parent</artifactId>
-        <version>0.1.6</version>
+        <version>0.2.0</version>
     </parent>
 
     <artifactId>circuit-core</artifactId>
     <name>circuit :: Core</name>
     <description>Core circuit API</description>
-
+    <packaging>gwt-lib</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>org.jboss.gwt.circuit</groupId>
+            <artifactId>circuit-jgrapht</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava-gwt</artifactId>
@@ -45,10 +49,6 @@
         <dependency>
             <groupId>javax.enterprise</groupId>
             <artifactId>cdi-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jgrapht</groupId>
-            <artifactId>jgrapht-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.gwt</groupId>
@@ -62,4 +62,17 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>net.ltgt.gwt.maven</groupId>
+                <artifactId>gwt-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <moduleName>org.jboss.gwt.Circuit</moduleName>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

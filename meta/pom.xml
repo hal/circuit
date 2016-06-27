@@ -29,13 +29,13 @@
     <parent>
         <groupId>org.jboss.gwt.circuit</groupId>
         <artifactId>circuit-parent</artifactId>
-        <version>0.1.6</version>
+        <version>0.2.0</version>
     </parent>
 
     <artifactId>circuit-meta</artifactId>
     <name>circuit :: Metadata</name>
     <description>Metadata annotation to generate circuit stores and dispatcher.</description>
-    <packaging>jar</packaging>
+    <packaging>gwt-lib</packaging>
 
     <dependencies>
         <dependency>
@@ -45,7 +45,19 @@
         <dependency>
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-user</artifactId>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>net.ltgt.gwt.maven</groupId>
+                <artifactId>gwt-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <moduleName>org.jboss.gwt.circuit.Meta</moduleName>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

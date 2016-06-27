@@ -31,16 +31,6 @@ public class NoopChannel {
         }
 
         @Override
-        public void ack(final boolean emitChange) {
-            // noop
-        }
-
-        @Override
-        public void nack(String reason) {
-            // noop
-        }
-
-        @Override
         public void nack(final Throwable t) {
             // noop
         }

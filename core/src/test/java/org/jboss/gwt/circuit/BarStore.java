@@ -21,6 +21,11 @@ public class BarStore extends ChangeSupport {
             public void signalChange(final Action action) {
                 fireChange(action);
             }
+
+            @Override
+            public void signalError(final Action action, final Throwable throwable) {
+                fireError(action, throwable);
+            }
         });
     }
 

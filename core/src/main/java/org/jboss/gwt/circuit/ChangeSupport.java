@@ -21,31 +21,36 @@
  */
 package org.jboss.gwt.circuit;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import com.google.web.bindery.event.shared.UmbrellaException;
 
-import java.util.*;
+public abstract class ChangeSupport implements PropagatesChange, PropagatesError {
 
-public abstract class ChangeSupport implements PropagatesChange {
-
-    static class HandlerRef {
+    private static class ChangeHandlerRef {
 
         private final String id;
-        final Handler handler;
+        final ChangeHandler changeHandler;
 
-        HandlerRef(final Handler handler) {
+        ChangeHandlerRef(final ChangeHandler handler) {
             this.id = UUID.uuid();
-            this.handler = handler;
+            this.changeHandler = handler;
         }
 
         @Override
         public boolean equals(final Object o) {
             if (this == o) { return true; }
-            if (!(o instanceof HandlerRef)) { return false; }
+            if (!(o instanceof ChangeHandlerRef)) { return false; }
 
-            HandlerRef handlerRef = (HandlerRef) o;
+            ChangeHandlerRef handlerRef = (ChangeHandlerRef) o;
             return id.equals(handlerRef.id);
         }
 
@@ -60,21 +65,22 @@ public abstract class ChangeSupport implements PropagatesChange {
 
         private final Class<? extends Action> actionType;
         private final Action action;
-        private final HandlerRef handlerRef;
+        private final ChangeHandlerRef handlerRef;
 
-        public ChangeHandlerRegistration(final HandlerRef handlerRef) {
+        public ChangeHandlerRegistration(final ChangeHandlerRef handlerRef) {
             this(null, null, handlerRef);
         }
 
-        public ChangeHandlerRegistration(final Class<? extends Action> actionType, final HandlerRef handlerRef) {
+        public ChangeHandlerRegistration(final Class<? extends Action> actionType, final ChangeHandlerRef handlerRef) {
             this(actionType, null, handlerRef);
         }
 
-        public ChangeHandlerRegistration(final Action action, final HandlerRef handlerRef) {
+        public ChangeHandlerRegistration(final Action action, final ChangeHandlerRef handlerRef) {
             this(null, action, handlerRef);
         }
 
-        private ChangeHandlerRegistration(final Class<? extends Action> actionType, final Action action, final HandlerRef handlerRef) {
+        private ChangeHandlerRegistration(final Class<? extends Action> actionType, final Action action,
+                final ChangeHandlerRef handlerRef) {
             this.actionType = actionType;
             this.action = action;
             this.handlerRef = handlerRef;
@@ -82,74 +88,218 @@ public abstract class ChangeSupport implements PropagatesChange {
 
         @Override
         public void removeHandler() {
+            //noinspection Duplicates
             if (action == null && actionType == null) {
-                handler.remove(handlerRef);
+                changeHandler.remove(handlerRef);
             } else if (actionType != null) {
-                handlerByType.remove(actionType, handlerRef);
+                changeHandlerByType.remove(actionType, handlerRef);
             } else {
-                handlerByInstance.remove(action, handlerRef);
+                changeHandlerByInstance.remove(action, handlerRef);
             }
+        }
+    }
+    
+    
+    private static class ErrorHandlerRef {
+
+        private final String id;
+        final ErrorHandler errorHandler;
+
+        ErrorHandlerRef(final ErrorHandler handler) {
+            this.id = UUID.uuid();
+            this.errorHandler = handler;
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) { return true; }
+            if (!(o instanceof ErrorHandlerRef)) { return false; }
+
+            ErrorHandlerRef handlerRef = (ErrorHandlerRef) o;
+            return id.equals(handlerRef.id);
+        }
+
+        @Override
+        public int hashCode() {
+            return id.hashCode();
         }
     }
 
 
-    private Set<HandlerRef> handler = new LinkedHashSet<>();
-    private Multimap<Class<? extends Action>, HandlerRef> handlerByType = LinkedListMultimap.create();
-    private Multimap<Action, HandlerRef> handlerByInstance = LinkedListMultimap.create();
+    public class ErrorHandlerRegistration implements HandlerRegistration {
 
+        private final Class<? extends Action> actionType;
+        private final Action action;
+        private final ErrorHandlerRef handlerRef;
+
+        public ErrorHandlerRegistration(final ErrorHandlerRef handlerRef) {
+            this(null, null, handlerRef);
+        }
+
+        public ErrorHandlerRegistration(final Class<? extends Action> actionType, final ErrorHandlerRef handlerRef) {
+            this(actionType, null, handlerRef);
+        }
+
+        public ErrorHandlerRegistration(final Action action, final ErrorHandlerRef handlerRef) {
+            this(null, action, handlerRef);
+        }
+
+        private ErrorHandlerRegistration(final Class<? extends Action> actionType, final Action action,
+                final ErrorHandlerRef handlerRef) {
+            this.actionType = actionType;
+            this.action = action;
+            this.handlerRef = handlerRef;
+        }
+
+        @Override
+        public void removeHandler() {
+            //noinspection Duplicates
+            if (action == null && actionType == null) {
+                changeHandler.remove(handlerRef);
+            } else if (actionType != null) {
+                changeHandlerByType.remove(actionType, handlerRef);
+            } else {
+                changeHandlerByInstance.remove(action, handlerRef);
+            }
+        }
+    }
+
+    
+    private Set<ChangeHandlerRef> changeHandler = new LinkedHashSet<>();
+    private Multimap<Class<? extends Action>, ChangeHandlerRef> changeHandlerByType = LinkedListMultimap.create();
+    private Multimap<Action, ChangeHandlerRef> changeHandlerByInstance = LinkedListMultimap.create();
+
+    private Set<ErrorHandlerRef> errorHandler = new LinkedHashSet<>();
+    private Multimap<Class<? extends Action>, ErrorHandlerRef> errorHandlerByType = LinkedListMultimap.create();
+    private Multimap<Action, ErrorHandlerRef> errorHandlerByInstance = LinkedListMultimap.create();
+
+
+    // ------------------------------------------------------ change handler
+    
     @Override
-    public HandlerRegistration addChangeHandler(final Handler handler) {
-        HandlerRef handlerRef = new HandlerRef(handler);
-        this.handler.add(handlerRef);
+    public HandlerRegistration addChangeHandler(final ChangeHandler handler) {
+        ChangeHandlerRef handlerRef = new ChangeHandlerRef(handler);
+        this.changeHandler.add(handlerRef);
         return new ChangeHandlerRegistration(handlerRef);
     }
 
     @Override
-    public HandlerRegistration addChangeHandler(final Class<? extends Action> actionType, final Handler handler) {
-        HandlerRef handlerRef = new HandlerRef(handler);
-        this.handlerByType.put(actionType, handlerRef);
+    public HandlerRegistration addChangeHandler(final Class<? extends Action> actionType, final ChangeHandler handler) {
+        ChangeHandlerRef handlerRef = new ChangeHandlerRef(handler);
+        this.changeHandlerByType.put(actionType, handlerRef);
         return new ChangeHandlerRegistration(actionType, handlerRef);
     }
 
     @Override
-    public HandlerRegistration addChangeHandler(Action action, Handler handler) {
-        HandlerRef handlerRef = new HandlerRef(handler);
-        this.handlerByInstance.put(action, handlerRef);
+    public HandlerRegistration addChangeHandler(Action action, ChangeHandler handler) {
+        ChangeHandlerRef handlerRef = new ChangeHandlerRef(handler);
+        this.changeHandlerByInstance.put(action, handlerRef);
         return new ChangeHandlerRegistration(action, handlerRef);
     }
 
-    public Iterable<Handler> getActionHandler() {
-        return extractHandler(handler);
+    public Iterable<ChangeHandler> getChangeHandler() {
+        return extractChangeHandler(changeHandler);
     }
 
-    public Iterable<Handler> getActionHandler(final Class<? extends Action> actionType) {
-        Collection<HandlerRef> handlerRefs = handlerByType.get(actionType); // returns an empty list if nothing was found
-        return extractHandler(handlerRefs);
+    public Iterable<ChangeHandler> getChangeHandler(final Class<? extends Action> actionType) {
+        Collection<ChangeHandlerRef> handlerRefs = changeHandlerByType
+                .get(actionType); // returns an empty list if nothing was found
+        return extractChangeHandler(handlerRefs);
     }
 
-    public Iterable<Handler> getActionHandler(final Action action) {
-        Collection<HandlerRef> handlerRefs = handlerByInstance.get(action); // returns an empty list if nothing was found
-        return extractHandler(handlerRefs);
+    public Iterable<ChangeHandler> getChangeHandler(final Action action) {
+        Collection<ChangeHandlerRef> handlerRefs = changeHandlerByInstance
+                .get(action); // returns an empty list if nothing was found
+        return extractChangeHandler(handlerRefs);
     }
 
-    private List<Handler> extractHandler(final Collection<HandlerRef> handlerRefs) {
-        List<Handler> handler = new ArrayList<>();
-        for (HandlerRef id : handlerRefs) {
-            handler.add(id.handler);
+    private List<ChangeHandler> extractChangeHandler(final Collection<ChangeHandlerRef> handlerRefs) {
+        List<ChangeHandler> handler = new ArrayList<>();
+        for (ChangeHandlerRef id : handlerRefs) {
+            handler.add(id.changeHandler);
         }
         return handler;
     }
 
     protected void fireChange(Action action) {
-        List<HandlerRef> allHandler = new ArrayList<>();
-        allHandler.addAll(handler);
-        allHandler.addAll(handlerByType.get(action.getClass()));
-        allHandler.addAll(handlerByInstance.get(action));
+        List<ChangeHandlerRef> allHandler = new ArrayList<>();
+        allHandler.addAll(changeHandler);
+        allHandler.addAll(changeHandlerByType.get(action.getClass()));
+        allHandler.addAll(changeHandlerByInstance.get(action));
 
         Set<Throwable> causes = null;
-        for (HandlerRef handlerRef : allHandler) {
+        for (ChangeHandlerRef handlerRef : allHandler) {
             try {
-                handlerRef.handler.onChange(action);
+                handlerRef.changeHandler.onChange(action);
+            } catch (Throwable e) {
+                if (causes == null) {
+                    causes = new HashSet<>();
+                }
+                causes.add(e);
+            }
+        }
+        if (causes != null) {
+            throw new UmbrellaException(causes);
+        }
+    }
+
+    // ------------------------------------------------------ error handler
+
+    @Override
+    public HandlerRegistration addErrorHandler(final ErrorHandler handler) {
+        ErrorHandlerRef handlerRef = new ErrorHandlerRef(handler);
+        this.errorHandler.add(handlerRef);
+        return new ErrorHandlerRegistration(handlerRef);
+    }
+
+    @Override
+    public HandlerRegistration addErrorHandler(final Class<? extends Action> actionType, final ErrorHandler handler) {
+        ErrorHandlerRef handlerRef = new ErrorHandlerRef(handler);
+        this.errorHandlerByType.put(actionType, handlerRef);
+        return new ErrorHandlerRegistration(actionType, handlerRef);
+    }
+
+    @Override
+    public HandlerRegistration addErrorHandler(Action action, ErrorHandler handler) {
+        ErrorHandlerRef handlerRef = new ErrorHandlerRef(handler);
+        this.errorHandlerByInstance.put(action, handlerRef);
+        return new ErrorHandlerRegistration(action, handlerRef);
+    }
+
+    public Iterable<ErrorHandler> getErrorHandler() {
+        return extractErrorHandler(errorHandler);
+    }
+
+    public Iterable<ErrorHandler> getErrorHandler(final Class<? extends Action> actionType) {
+        Collection<ErrorHandlerRef> handlerRefs = errorHandlerByType
+                .get(actionType); // returns an empty list if nothing was found
+        return extractErrorHandler(handlerRefs);
+    }
+
+    public Iterable<ErrorHandler> getErrorHandler(final Action action) {
+        Collection<ErrorHandlerRef> handlerRefs = errorHandlerByInstance
+                .get(action); // returns an empty list if nothing was found
+        return extractErrorHandler(handlerRefs);
+    }
+
+    private List<ErrorHandler> extractErrorHandler(final Collection<ErrorHandlerRef> handlerRefs) {
+        List<ErrorHandler> handler = new ArrayList<>();
+        for (ErrorHandlerRef id : handlerRefs) {
+            handler.add(id.errorHandler);
+        }
+        return handler;
+    }
+
+    protected void fireError(Action action, Throwable throwable) {
+        List<ErrorHandlerRef> allHandler = new ArrayList<>();
+        allHandler.addAll(errorHandler);
+        allHandler.addAll(errorHandlerByType.get(action.getClass()));
+        allHandler.addAll(errorHandlerByInstance.get(action));
+
+        Set<Throwable> causes = null;
+        for (ErrorHandlerRef handlerRef : allHandler) {
+            try {
+                handlerRef.errorHandler.onError(action, throwable);
             } catch (Throwable e) {
                 if (causes == null) {
                     causes = new HashSet<>();

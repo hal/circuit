@@ -21,6 +21,9 @@
  */
 package org.jboss.gwt.circuit.sample.calculator.views;
 
+import java.util.Iterator;
+import java.util.Set;
+
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import org.jboss.gwt.circuit.Action;
@@ -28,15 +31,12 @@ import org.jboss.gwt.circuit.PropagatesChange;
 import org.jboss.gwt.circuit.sample.calculator.CalculatorStore;
 import org.jboss.gwt.circuit.sample.calculator.Term;
 
-import java.util.Iterator;
-import java.util.Set;
-
 import static org.jboss.gwt.circuit.sample.calculator.Term.Op;
 
 public class StatsView implements View {
 
     public StatsView(final CalculatorStore store) {
-        store.addChangeHandler(new PropagatesChange.Handler() {
+        store.addChangeHandler(new PropagatesChange.ChangeHandler() {
             @Override
             public void onChange(final Action action) {
                 Multimap<Op, Term> termsByOp = LinkedListMultimap.create();
