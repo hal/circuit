@@ -91,7 +91,7 @@ public class DispatcherTest {
         final List<Class<?>> stores = new ArrayList<>();
 
         FooStore fooStore = new FooStore(dispatcher);
-        fooStore.addChangeHandler(new PropagatesChange.Handler() {
+        fooStore.addChangeHandler(new PropagatesChange.ChangeHandler() {
             @Override
             public void onChange(final Action action) {
                 stores.add(FooStore.class);
@@ -103,7 +103,7 @@ public class DispatcherTest {
                 return new Agreement(true, FooStore.class);
             }
         };
-        barStore.addChangeHandler(new PropagatesChange.Handler() {
+        barStore.addChangeHandler(new PropagatesChange.ChangeHandler() {
             @Override
             public void onChange(final Action action) {
                 stores.add(BarStore.class);
@@ -122,14 +122,14 @@ public class DispatcherTest {
         final List<Class<? extends Action>> actions = new ArrayList<>();
 
         FooStore fooStore = new FooStore(dispatcher);
-        fooStore.addChangeHandler(new PropagatesChange.Handler() {
+        fooStore.addChangeHandler(new PropagatesChange.ChangeHandler() {
             @Override
             public void onChange(final Action action) {
                 stores.add(FooStore.class);
             }
         });
         BarStore barStore = new BarStore(dispatcher);
-        barStore.addChangeHandler(FooBarAction.class, new PropagatesChange.Handler() {
+        barStore.addChangeHandler(FooBarAction.class, new PropagatesChange.ChangeHandler() {
             @Override
             public void onChange(final Action action) {
                 stores.add(BarStore.class);
@@ -143,7 +143,7 @@ public class DispatcherTest {
         assertTrue(stores.contains(BarStore.class));
         assertTrue(stores.contains(FooStore.class));
 
-        // The change handler for FooBarAction must be called exactly once
+        // The change errorHandler for FooBarAction must be called exactly once
         assertEquals(1, actions.size());
         assertEquals(FooBarAction.class, actions.get(0));
     }

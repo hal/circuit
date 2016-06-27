@@ -29,7 +29,7 @@
     <parent>
         <groupId>org.jboss.gwt.circuit</groupId>
         <artifactId>circuit-parent</artifactId>
-        <version>0.1.6</version>
+        <version>0.2.0</version>
     </parent>
 
     <artifactId>circuit-samples-parent</artifactId>
@@ -40,7 +40,6 @@
     <modules>
         <module>bookstore</module>
         <module>calculator</module>
-        <module>todo</module>
         <module>wardrobe</module>
         <module>wmm</module>
     </modules>

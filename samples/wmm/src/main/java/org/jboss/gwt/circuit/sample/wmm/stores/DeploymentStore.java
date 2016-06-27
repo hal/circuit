@@ -21,6 +21,8 @@
  */
 package org.jboss.gwt.circuit.sample.wmm.stores;
 
+import java.util.Iterator;
+
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import org.jboss.gwt.circuit.Action;
@@ -31,8 +33,6 @@ import org.jboss.gwt.circuit.sample.wmm.actions.DeployAction;
 import org.jboss.gwt.circuit.sample.wmm.actions.Deployment;
 import org.jboss.gwt.circuit.sample.wmm.actions.StopServerAction;
 import org.jboss.gwt.circuit.sample.wmm.actions.UndeployAction;
-
-import java.util.Iterator;
 
 public class DeploymentStore {
 
@@ -77,6 +77,12 @@ public class DeploymentStore {
 
             @Override
             public void signalChange(final Action action) {
+                // noop
+            }
+
+
+            @Override
+            public void signalError(final Action action, final Throwable throwable) {
                 // noop
             }
         });

@@ -7,25 +7,25 @@ import com.google.web.bindery.event.shared.HandlerRegistration;
  */
 public interface PropagatesChange {
 
-    interface Handler {
+    interface ChangeHandler {
 
         void onChange(Action action);
     }
 
     /**
-     * Registers a {@link PropagatesChange.Handler} to be notified when the store was modified.
+     * Registers a {@link ChangeHandler} to be notified when the store was modified.
      */
-    HandlerRegistration addChangeHandler(Handler handler);
+    HandlerRegistration addChangeHandler(ChangeHandler handler);
 
     /**
-     * Registers a {@link PropagatesChange.Handler} to be notified only when the store was
+     * Registers a {@link ChangeHandler} to be notified only when the store was
      * modified by the specified action type.
      */
-    HandlerRegistration addChangeHandler(Class<? extends Action> actionType, Handler handler);
+    HandlerRegistration addChangeHandler(Class<? extends Action> actionType, ChangeHandler handler);
 
     /**
-     * Registers a {@link PropagatesChange.Handler} to be notified only when the store was
+     * Registers a {@link ChangeHandler} to be notified only when the store was
      * modified by the specified action instance.
      */
-    HandlerRegistration addChangeHandler(Action action, Handler handler);
+    HandlerRegistration addChangeHandler(Action action, ChangeHandler handler);
 }

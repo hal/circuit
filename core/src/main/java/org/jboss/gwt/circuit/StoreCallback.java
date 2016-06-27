@@ -47,7 +47,13 @@ public interface StoreCallback {
 
     /**
      * After the action was acknowledged by the store, a change event is sent to all
-     * registered {@link PropagatesChange.Handler}s.
+     * registered {@link PropagatesChange.ChangeHandler}s.
      */
     void signalChange(Action action);
+
+    /**
+     * After the action was nacked by the store, an error event is sent to all
+     * registered {@link PropagatesError.ErrorHandler}s.
+     */
+    void signalError(Action action, Throwable t);
 }

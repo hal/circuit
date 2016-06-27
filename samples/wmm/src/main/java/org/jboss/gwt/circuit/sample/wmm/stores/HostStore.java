@@ -21,15 +21,15 @@
  */
 package org.jboss.gwt.circuit.sample.wmm.stores;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.StoreCallback;
 import org.jboss.gwt.circuit.sample.wmm.actions.StartServerAction;
 import org.jboss.gwt.circuit.sample.wmm.actions.StopServerAction;
-
-import java.util.HashSet;
-import java.util.Set;
 
 public class HostStore {
 
@@ -63,6 +63,11 @@ public class HostStore {
 
             @Override
             public void signalChange(final Action action) {
+                // noop
+            }
+
+            @Override
+            public void signalError(final Action action, final Throwable throwable) {
                 // noop
             }
         });

@@ -21,6 +21,13 @@
  */
 package org.jboss.gwt.circuit.dag;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Agreement;
 import org.jboss.gwt.circuit.Dispatcher;
@@ -30,8 +37,6 @@ import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.traverse.TopologicalOrderIterator;
-
-import java.util.*;
 
 /**
  * A dispatcher implementation with global locking and dependency resolution between stores based on directed acyclic
@@ -60,7 +65,29 @@ public class DAGDispatcher implements Dispatcher {
     }
 
 
-    public final static int BOUNDS_SIZE = 50;
+    private static class CallbackInfo {
+
+        final StoreCallback callback;
+        final Action action;
+        final Throwable throwable;
+
+        CallbackInfo(final StoreCallback callback, final Action action) {
+            this(callback, action, null);
+        }
+
+        CallbackInfo(final StoreCallback callback, final Action action, final Throwable throwable) {
+            this.callback = callback;
+            this.action = action;
+            this.throwable = throwable;
+        }
+
+        boolean successful() {
+            return throwable == null;
+        }
+    }
+
+
+    private final static int BOUNDS_SIZE = 50;
 
     private boolean locked;
     private final Queue<Action> queue;
@@ -139,7 +166,7 @@ public class DAGDispatcher implements Dispatcher {
         DirectedGraph<Class<?>, DefaultEdge> dag = createDag(approvals);
         // TODO Cache topological order
         TopologicalOrderIterator<Class<?>, DefaultEdge> iterator = new TopologicalOrderIterator<>(dag);
-        executeInOrder(action, iterator, new ArrayList<StoreCallback>());
+        executeInOrder(action, iterator, new ArrayList<CallbackInfo>());
     }
 
     private DirectedGraph<Class<?>, DefaultEdge> createDag(final Map<Class<?>, Agreement> approvals) {
@@ -183,9 +210,9 @@ public class DAGDispatcher implements Dispatcher {
     }
 
     private void executeInOrder(final Action action, final TopologicalOrderIterator<Class<?>, DefaultEdge> iterator,
-            final List<StoreCallback> acknowledgedCallbacks) {
+            final List<CallbackInfo> callbackInfos) {
         if (!iterator.hasNext()) {
-            signalChange(acknowledgedCallbacks, action);
+            signalChange(callbackInfos);
             unlock();
             if (!queue.isEmpty()) {
                 dispatchInternal(queue.poll());
@@ -199,39 +226,31 @@ public class DAGDispatcher implements Dispatcher {
         callback.complete(action, new Channel() {
             @Override
             public void ack() {
-                ack(true);
-            }
-
-            @Override
-            public void ack(final boolean emitChange) {
                 diagnostics.onAck(store, action);
-                if (emitChange) {
-                    acknowledgedCallbacks.add(callback);
-                }
-                proceed();
-            }
-
-            @Override
-            public void nack(final String reason) {
-                diagnostics.onNack(store, action, reason);
+                callbackInfos.add(new CallbackInfo(callback, action));
                 proceed();
             }
 
             @Override
             public void nack(final Throwable t) {
                 diagnostics.onNack(store, action, t);
+                callbackInfos.add(new CallbackInfo(callback, action, t));
                 proceed();
             }
 
             private void proceed() {
-                executeInOrder(action, iterator, acknowledgedCallbacks);
+                executeInOrder(action, iterator, callbackInfos);
             }
         });
     }
 
-    private void signalChange(List<StoreCallback> acknowledgedCallbacks, Action action) {
-        for (StoreCallback callback : acknowledgedCallbacks) {
-            callback.signalChange(action);
+    private void signalChange(List<CallbackInfo> callbackInfos) {
+        for (CallbackInfo callbackInfo : callbackInfos) {
+            if (callbackInfo.successful()) {
+                callbackInfo.callback.signalChange(callbackInfo.action);
+            } else {
+                callbackInfo.callback.signalError(callbackInfo.action, callbackInfo.throwable);
+            }
         }
     }
 
